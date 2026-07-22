@@ -2,9 +2,9 @@
 <html lang="he" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta name="robots" content="noindex, nofollow">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>הכתבה קולית בעברית</title>
+<link rel="icon" href="../logo-mark.png">
 <style>
   :root {
     --bg: #F7F8FA;
@@ -70,6 +70,15 @@
     flex-direction: column;
     gap: 20px;
   }
+
+  .logo-wrap {
+    background: #fff; border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 16px 20px; display: flex; align-items: center; justify-content: space-between;
+    box-shadow: var(--shadow); gap: 12px;
+  }
+  .logo-wrap img { height: 48px; width: auto; }
+  .back { color: var(--accent); text-decoration: none; font-size: .9rem; font-weight: 600; white-space: nowrap; }
+  .back:hover { text-decoration: underline; }
 
   header { display: flex; flex-direction: column; gap: 6px; }
   .title {
@@ -294,6 +303,11 @@
 </head>
 <body>
 <div class="app" dir="rtl" lang="he">
+  <div class="logo-wrap">
+    <img src="../logo-mark.png" alt="הוגן, גינזבורג, יודלביץ ושות' - רואי חשבון">
+    <a class="back" href="../">← כל הכלים</a>
+  </div>
+
   <header>
     <h1 class="title">הכתבה קולית בעברית</h1>
     <p class="subtitle">דברו - הטקסט מתמלל בזמן אמת. לחצו "העתק הכל" והדביקו ישר בצ'אט. הטקסט לא נשמר בשום מקום; זיהוי הדיבור מתבצע על-ידי שירות הדיבור המובנה של הדפדפן (Google / Microsoft) - לא להכתיב פרטי לקוחות או מידע רגיש.</p>
