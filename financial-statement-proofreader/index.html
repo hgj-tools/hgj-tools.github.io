@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>כלי הגהת דוחות כספיים | HGJ</title>
+<link rel="icon" href="../logo-mark.png">
+<style>
+  :root {
+    --bg: #F7F8FA; --surface: #FFFFFF; --surface-2: #EEF1F4; --border: #DDE2E8;
+    --ink: #1B1F27; --ink-soft: #5A6472; --accent: #2F55D4; --accent-ink: #FFFFFF;
+    --warn-bg: #FDF0F0; --warn-border: #E0B4B4; --warn-ink: #7A0000;
+    --ok-bg: #EFF8EF; --ok-border: #BEE0BE; --ok-ink: #145214;
+    --shadow: 0 1px 2px rgba(20,30,50,.06), 0 8px 24px rgba(20,30,50,.07);
+    --font-ui: "Segoe UI", "Assistant", "Rubik", system-ui, -apple-system, Arial, sans-serif;
+    --radius: 14px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14171C; --surface: #1C2027; --surface-2: #232833; --border: #2E353F;
+      --ink: #EAEEF3; --ink-soft: #9AA5B1; --accent: #6B85FF; --accent-ink: #0E1116;
+      --warn-bg: #2A1A1A; --warn-border: #5A2E2E; --warn-ink: #F0B4B4;
+      --ok-bg: #17251A; --ok-border: #2E4A34; --ok-ink: #A6D8AE;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); }
+  body {
+    font-family: var(--font-ui); color: var(--ink); min-height: 100vh;
+    display: flex; justify-content: center; align-items: flex-start;
+    padding: clamp(16px, 4vw, 48px) 16px; line-height: 1.6;
+  }
+  .page { width: 100%; max-width: 760px; display: flex; flex-direction: column; gap: 22px; }
+  .logo-wrap {
+    background: #fff; border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 16px 20px; display: flex; align-items: center; justify-content: space-between;
+    box-shadow: var(--shadow); gap: 12px;
+  }
+  .logo-wrap img { height: 48px; width: auto; }
+  .back { color: var(--accent); text-decoration: none; font-size: .9rem; font-weight: 600; white-space: nowrap; }
+  .back:hover { text-decoration: underline; }
+  header .title { font-size: clamp(1.5rem, 1.1rem + 1.6vw, 2rem); font-weight: 800; margin: 0 0 6px; letter-spacing: -.01em; }
+  header .subtitle { color: var(--ink-soft); font-size: 1rem; margin: 0; }
+  .card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 22px 24px;
+  }
+  .card h2 { margin: 0 0 12px; font-size: 1.15rem; color: var(--ink); }
+  .download {
+    display: inline-flex; align-items: center; gap: 10px; background: var(--accent);
+    color: var(--accent-ink); text-decoration: none; font-weight: 700; font-size: 1.05rem;
+    padding: 14px 26px; border-radius: 12px; transition: transform .12s ease, filter .15s ease;
+  }
+  .download:hover { transform: translateY(-2px); filter: brightness(1.05); }
+  .download svg { width: 20px; height: 20px; }
+  .download.secondary { background: transparent; color: var(--accent); border: 1.5px solid var(--accent); font-size: .98rem; padding: 11px 20px; }
+  .download.secondary:hover { background: var(--surface-2); filter: none; }
+  .meta { color: var(--ink-soft); font-size: .88rem; margin-top: 10px; }
+  ol, ul { margin: 8px 0; padding-inline-start: 22px; }
+  li { margin: 6px 0; }
+  code, .path {
+    font-family: Consolas, "SF Mono", monospace; background: var(--surface-2);
+    border: 1px solid var(--border); border-radius: 5px; padding: 1px 7px; font-size: .9em;
+    direction: ltr; unicode-bidi: isolate; display: inline-block;
+  }
+  .install { display: block; direction: ltr; text-align: left; padding: 12px 14px; margin: 6px 0;
+    background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px;
+    font-family: Consolas, monospace; font-size: .88rem; overflow-x: auto; }
+  .warn { background: var(--warn-bg); border: 1px solid var(--warn-border); color: var(--warn-ink);
+    border-radius: 10px; padding: 14px 18px; font-weight: 600; }
+  .ok { background: var(--ok-bg); border: 1px solid var(--ok-border); color: var(--ok-ink);
+    border-radius: 10px; padding: 14px 18px; }
+  .tokens { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .tok { background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 2px 8px; font-size: .82rem; }
+  footer { color: var(--ink-soft); font-size: .82rem; text-align: center; padding-top: 4px; }
+  footer a { color: var(--accent); text-decoration: none; font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="logo-wrap">
+    <img src="../logo-mark.png" alt="הוגן, גינזבורג, יודלביץ ושות' - רואי חשבון">
+    <a class="back" href="../">← כל הכלים</a>
+  </div>
+
+  <header>
+    <h1 class="title">📄 כלי הגהת דוחות כספיים</h1>
+    <p class="subtitle">סקיל של Claude לבדיקת תקינות דוח כספי לפני שליחתו ללקוח: כתיב, דקדוק, טרמינולוגיה, מבנה, גילויים נדרשים ואימות מספרי מלא. הפלט הוא קובץ Excel מסודר עם שלושה גיליונות בעברית.</p>
+  </header>
+
+  <div class="ok" style="display:flex;align-items:center;gap:10px;">
+    🤖 <span>זהו <b>סקיל של Claude</b>, לא כלי דפדפן. מורידים את החבילה ומטעינים אותה ל-Claude (Claude Code או Claude Desktop). Claude קורא את עמודי הדוח ומפיק את דוח ההגהה.</span>
+  </div>
+
+  <div class="card">
+    <h2>הורדה</h2>
+    <a class="download" href="financial-statement-proofreader.zip" download>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+      הורדת החבילה (ZIP)
+    </a>
+    <p class="meta">החבילה כוללת את ההנחיות, הסקריפטים והתיעוד. גנרית לחלוטין, ללא נתוני לקוח.</p>
+    <div class="warn" style="margin-top:12px;">⚠ נדרשים: <b>Claude</b> (Claude Code או Claude Desktop) עם יכולת ראייה, ו-<b>Python 3</b> מותקן. פעם אחת יש להריץ: <span class="path">pip install pymupdf openpyxl</span></div>
+  </div>
+
+  <div class="card">
+    <h2>למה הכלי מיועד</h2>
+    <p>הכלי עובר על הדוח הכספי עמוד אחר עמוד ומאתר שגיאות טרם השליחה ללקוח. הוא קורא את העמודים <b>ויזואלית</b> (כתמונות), משום שחילוץ טקסט מ-PDF עברי אינו אמין: אותיות נשמטות משכבת הטקסט (במיוחד האות נ') ואותיות דומות מתבלבלות. לצד בדיקת הניסוח, הכלי מאמת באופן עצמאי כל סכום וסיכום ביניים בדוח.</p>
+    <div class="tokens">
+      <span class="tok">כתיב ודקדוק</span><span class="tok">טרמינולוגיה חשבונאית</span><span class="tok">מבנה וסדר ביאורים</span>
+      <span class="tok">גילויים נדרשים</span><span class="tok">אימות מספרי</span><span class="tok">עסק חי</span>
+    </div>
+    <p class="meta">הפלט: <span class="path">הגהה_&lt;לקוח&gt;_&lt;שנה&gt;.xlsx</span> עם גיליונות סיכום, פירוט ממצאים ואימות נתונים מספריים. זו טיוטה לבדיקת אדם לפני שליחה ללקוח.</p>
+  </div>
+
+  <div class="card">
+    <h2>איך משתמשים</h2>
+    <ol>
+      <li><b>Claude Code:</b> מחלצים את התיקייה ומעתיקים אותה אל <span class="path">~/.claude/skills/</span> (ב-Windows: <span class="path">C:\Users\&lt;שם&gt;\.claude\skills\</span>).</li>
+      <li><b>Claude Desktop:</b> מעלים את קובץ ה-ZIP תחת Settings &gt; Capabilities / Skills.</li>
+      <li>פותחים שיחה בתיקייה שבה נמצא ה-PDF של הדוח, ומבקשים למשל: <span class="path">תעבור הגהה על הדוח</span>.</li>
+      <li>Claude מרנדר את העמודים, קורא אותם, מאמת את המספרים, ומפיק את קובץ ה-Excel לצד הדוח.</li>
+    </ol>
+    <div class="warn">⚠ הליבה החכמה, קריאת העמודים, מתבצעת על ידי Claude. הרצה מקומית של הסקריפטים לבדה מבצעת רק את החלקים המכניים (רינדור ויצירת ה-Excel), לא את הקריאה והשיפוט.</div>
+  </div>
+
+  <div class="card">
+    <h2>דרישות והתקנה</h2>
+    <p>Claude עם יכולת ראייה (Claude Code או Claude Desktop) ו-<b>Python 3</b> מותקן. אם אין Python על המחשב, מתקינים אותו מהמקור הרשמי:</p>
+    <p>
+      <a class="download secondary" href="https://www.python.org/downloads/" target="_blank" rel="noopener noreferrer">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        הורדת Python (python.org, המקור הרשמי)
+      </a>
+    </p>
+    <p class="meta">בהתקנה יש לסמן <span class="path">Add python.exe to PATH</span>. לאחר מכן מריצים פעם אחת בשורת הפקודה:</p>
+    <span class="install">pip install pymupdf openpyxl</span>
+    <p class="meta">הוראות מפורטות בתוך החבילה: <span class="path">INSTALL.md</span> ו-<span class="path">README.md</span></p>
+  </div>
+
+  <div class="warn">
+    🔒 <b>סודיות:</b> החבילה עצמה גנרית וללא נתוני לקוח. תוצרי הריצה (קובץ ההגהה ותמונות העמודים) הם מידע לקוח ונשארים על המחשב שלכם בלבד. אין להעלותם לרשת או לשירות חיצוני. שימוש פנימי בלבד, כפוף לסודיות מקצועית.
+  </div>
+
+  <footer>
+    הכלי רץ במחשב המקומי דרך Claude · אין לשתף דוחות לקוח או תוצרי הגהה מחוץ למשרד<br>
+    <a href="../policy/">הצהרת נגישות, פרטיות ותנאי שימוש</a> ·
+    <a href="../">כל הכלים</a>
+  </footer>
+
+</div>
+</body>
+</html>

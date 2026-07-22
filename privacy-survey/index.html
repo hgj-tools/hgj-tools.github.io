@@ -1,0 +1,654 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>כלי סיור - הגנת הפרטיות ואבטחת מידע</title>
+<meta name="theme-color" content="#1F4E79">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="סיור פרטיות">
+<style>
+  :root{ --blue:#1F4E79; --bg:#0f1720; --card:#182430; --line:#2b3947; --txt:#eef3f8; --muted:#9fb0c0; --ok:#2e7d32; --amber:#d9a406; }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Arial,"Segoe UI",sans-serif;background:var(--bg);color:var(--txt);-webkit-text-size-adjust:100%}
+  header{background:var(--blue);padding:12px 14px;position:sticky;top:0;z-index:5}
+  header h1{margin:0;font-size:17px}
+  header p{margin:3px 0 0;font-size:12px;color:#cfe0f0}
+  main{padding:14px;max-width:760px;margin:0 auto;padding-bottom:110px}
+  .hprog{display:flex;align-items:center;gap:10px;margin-top:8px}
+  .hprog .pbar{flex:1;margin-top:0;height:10px}
+  .hprog .pnum{margin-top:0;flex:none;color:#cfe0f0}
+  .actionbar{position:fixed;bottom:0;inset-inline:0;z-index:6;display:flex;gap:8px;max-width:760px;margin:0 auto;
+    padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:rgba(12,20,28,.97);border-top:1px solid var(--line)}
+  .actionbar .shot{margin:0;flex:1.5;padding:14px 6px;font-size:17px;border-radius:12px}
+  .actionbar .btn{flex:1;padding:14px 6px;font-size:15px;border-radius:12px;font-weight:bold}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:14px}
+  label{display:block;font-size:13px;color:var(--muted);margin:0 0 6px}
+  select,input[type=text]{width:100%;font-size:16px;padding:12px;border-radius:10px;border:1px solid var(--line);background:#0d151d;color:var(--txt)}
+  select{height:48px}
+  .what{margin-top:10px;font-size:15px;line-height:1.5;color:#fff;background:#0d151d;border-radius:10px;padding:10px;font-weight:bold}
+  .basis{margin-top:6px;font-size:12px;color:var(--muted)}
+  .basis a{color:#8fc0ff}
+  .list{margin-top:6px;max-height:300px;overflow-y:auto;border:1px solid var(--line);border-radius:10px;background:#0d151d}
+  .list .it{padding:12px;border-bottom:1px solid #1b2734;cursor:pointer;font-size:14px;line-height:1.45}
+  .list .it:last-child{border-bottom:none}
+  .list .it:active{background:#1b2a38}
+  .list .it.done{background:#12241a}
+  .list .it.marked{background:#241f10}
+  .list .chk{color:#57d977;font-weight:bold}
+  .list .mrk{color:#e6c65a;font-weight:bold}
+  .list .it b{color:#8fc0ff}
+  .list .cat{font-size:11px;color:var(--muted);display:block;margin-top:2px}
+  .list .none{padding:14px;color:var(--muted);font-size:13px}
+  .row{display:flex;gap:10px}
+  .row>*{flex:1}
+  .shot{display:block;width:100%;text-align:center;background:var(--ok);color:#fff;font-size:19px;font-weight:bold;padding:18px;border-radius:14px;border:none;margin-top:4px;cursor:pointer}
+  .shot input{display:none}
+  .btn{font-size:15px;padding:12px;border-radius:10px;border:1px solid var(--line);background:#22303d;color:var(--txt);cursor:pointer}
+  .btn.primary{background:var(--blue);border-color:var(--blue)}
+  .btn.warn{background:#5a2330;border-color:#7a2e40}
+  .btn.mark{background:#3a3312;border-color:#6b5c1d;font-weight:bold}
+  .btn.mark.on{background:#5a4a10;border-color:#d9a406}
+  .hint{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.5}
+  #preview img,.gal img{width:100%;border-radius:10px;display:block}
+  .gitem{border:1px solid var(--line);border-radius:10px;padding:8px;margin-bottom:10px;background:#0d151d}
+  .gitem .fn{font-size:12px;color:var(--muted);word-break:break-all;margin:6px 0}
+  .count{font-size:13px;color:var(--muted);margin-top:8px}
+  .tag{display:inline-block;background:var(--blue);color:#fff;border-radius:6px;padding:2px 8px;font-size:12px;font-weight:bold}
+  h2{font-size:15px;margin:0 0 10px;color:#dbe7f2}
+  .pbar{height:12px;background:#0d151d;border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-top:12px}
+  .pbar>i{display:block;height:100%;background:var(--ok);width:0;transition:width .25s}
+  .pnum{font-size:13px;color:#8fc0ff;font-weight:bold;margin-top:6px}
+  details{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:4px 14px;margin-bottom:14px}
+  summary{font-size:15px;font-weight:bold;color:#dbe7f2;padding:12px 0;cursor:pointer}
+  .mcat{font-size:12px;color:var(--muted);margin:12px 0 4px;font-weight:bold;border-bottom:1px solid var(--line);padding-bottom:3px}
+  .mrow{display:flex;align-items:center;gap:9px;padding:11px 6px;border-radius:8px;cursor:pointer;font-size:14px;border-bottom:1px solid #16212c}
+  .mrow:active{background:#1b2a38}
+  .mrow.mdone{color:#bfe6c6}
+  .mrow.mmarked{color:#e6d9a0}
+  .mrow.msel{background:#14304a;outline:1px solid #2f6ea5}
+  .mmark{font-weight:bold;width:18px;text-align:center;font-size:16px;color:#5a6b7a}
+  .mrow.mdone .mmark{color:#57d977}
+  .mrow.mmarked .mmark{color:#e6c65a}
+  .mid{font-weight:bold;color:#8fc0ff;min-width:54px}
+  .mtxt{flex:1;line-height:1.3}
+  .mn{background:var(--ok);color:#fff;border-radius:10px;padding:1px 8px;font-size:11px}
+  .steps{background:#12202c;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:12.5px;line-height:1.6;color:#cfe0f0;margin-bottom:14px}
+  .maplegend{font-size:11.5px;color:var(--muted);margin:4px 0 8px}
+  .maplegend .lg{font-weight:bold}
+  .src{font-size:13px;line-height:1.7;color:#cfe0f0;padding-bottom:12px}
+  .src a{color:#8fc0ff;text-decoration:none;font-weight:bold}
+  .src a:active{text-decoration:underline}
+  .src .srcnote{font-size:11.5px;color:var(--muted)}
+  footer{max-width:760px;margin:0 auto;padding:0 14px 24px;font-size:11.5px;color:var(--muted);line-height:1.6}
+</style>
+</head>
+<body>
+<header>
+  <h1>כלי סיור - הגנת הפרטיות ואבטחת מידע</h1>
+  <div class="hprog"><div class="pbar"><i id="bar"></i></div><span class="pnum" id="pnum">0/72</span></div>
+</header>
+<main>
+  <details>
+    <summary>❓ איך עובדים עם הכלי</summary>
+    <div class="steps" style="background:transparent;border:none;margin:0;padding:2px 0 12px">
+      1) בוחרים סעיף → 2) בסרגל התחתון: <b>«📷 צלם»</b> (אפשר כמה זוויות) <b>או</b> <b>«✅ סמן»</b> בלי תמונה → 3) <b>«➡️ הבא»</b> וממשיכים.
+      <br>אין צורך לרענן - <b>הכל נשמר אוטומטית</b> וישרוד גם סגירה בטעות. בסוף: <b>«📦 הורד הכל (ZIP)»</b> עם התמונות ודוח CSV מרוכז.
+      <br>סעיפי <b>PH</b> = סיור פיזי וטכני (מומלץ לצלם) · סעיפי <b>DC</b> = מסמכים, נהלים וראיונות (לרוב מסמנים בלי תמונה).
+    </div>
+  </details>
+
+  <details id="installWrap">
+    <summary>📲 התקנה בטלפון · הורדה למחשב</summary>
+    <div class="src">
+      <button class="btn primary" id="installbtn" type="button" style="display:none;width:100%;font-size:16px;font-weight:bold;margin-bottom:12px">📲 התקן כאפליקציה במכשיר זה</button>
+      <b>בטלפון (מומלץ לביקורת בשטח):</b> פותחים את הכלי פעם אחת עם אינטרנט ומוסיפים למסך הבית:
+      <ul style="margin:6px 0 10px;padding-inline-start:18px;line-height:1.7">
+        <li><b>אנדרואיד (Chrome):</b> תפריט ⋮ למעלה ← «הוספה למסך הבית» / «התקנת אפליקציה»</li>
+        <li><b>אייפון (Safari):</b> כפתור השיתוף (ריבוע עם חץ למעלה) ← «הוסף למסך הבית»</li>
+      </ul>
+      מרגע ההתקנה הכלי נפתח מאייקון במסך הבית כמו אפליקציה ועובד <b>גם ללא אינטרנט</b> אצל הלקוח (למעט הכתבה קולית). כל התמונות והנתונים נשמרים במכשיר בלבד.
+      <a class="btn" id="dlbtn" href="index.html" download="כלי_סיור_הגנת_הפרטיות.html" style="display:block;text-align:center;margin-top:12px;text-decoration:none;font-weight:bold">💻 הורדת הכלי למחשב (קובץ HTML)</a>
+      <div class="hint">ההורדה מיועדת לשימוש במחשב. בטלפון עדיף «הוסף למסך הבית» - כך גם מקבלים עדכונים אוטומטית.</div>
+    </div>
+  </details>
+
+  <div class="card">
+    <label>1. בחר סעיף - הקלד לחיפוש, או פתח את «מפת הסיור» למטה</label>
+    <input type="text" id="search" placeholder="חפש: PH-07 · DC-22 · חדר שרתים · דיוור ישיר…" autocomplete="off">
+    <div id="list" class="list" style="display:none"></div>
+    <div class="what" id="what">-</div>
+    <div class="basis" id="basis"></div>
+    <div class="count" id="count"></div>
+  </div>
+
+  <details id="mapWrap">
+    <summary>📋 מפת הסיור - מה כבר טופל (<span id="mapcount">0</span>)</summary>
+    <div class="maplegend"><span class="lg" style="color:#57d977">✓</span> צולם · <span class="lg" style="color:#e6c65a">✔</span> סומן ללא תמונה · <span class="lg">○</span> טרם טופל</div>
+    <div id="map"></div>
+  </details>
+
+  <div class="card">
+    <label>2. סטטוס והערה (רשות · יוטבעו על התמונה ויופיעו בדוח)</label>
+    <div class="row">
+      <select id="status">
+        <option value="">סטטוס…</option>
+        <option>קיים</option><option>חלקי</option><option>לא קיים</option>
+        <option>לא רלוונטי</option><option>לבדיקה נוספת</option>
+      </select>
+    </div>
+    <input type="text" id="note" placeholder="הערה, למשל: נעול, קודן תקין / נוהל מאושר מ-2025" style="margin-top:8px">
+    <details style="background:#0d151d;border:1px solid var(--line);border-radius:10px;padding:2px 12px;margin:10px 0 0">
+      <summary style="font-size:13px;padding:9px 0">🎛️ אפשרויות נוספות (הכתבה קולית · ריבוי תמונות · שמירה מיידית)</summary>
+      <div class="row" style="margin:4px 0 8px">
+        <button class="btn" id="dictate" type="button" style="flex:none;min-width:150px">🎤 הכתבה קולית</button>
+        <button class="btn" id="clearnote" type="button" style="flex:none">🧹 נקה</button>
+        <span id="dictstat" class="hint" style="align-self:center;flex:1;margin:0"></span>
+      </div>
+      <div class="hint" style="margin-top:0">הכתבה דורשת אינטרנט ומשתמשת בשירות תמלול בענן - לתוכן רגיש עדיף להקליד או להשתמש בהקלטה קולית (נשמרת במכשיר).</div>
+      <div style="margin:10px 0 4px">
+        <label>כמה תמונות לאותו סעיף?</label>
+        <select id="autolet">
+          <option value="1">הוסף אות · a·b·c</option>
+          <option value="0">בלי אות</option>
+        </select>
+      </div>
+      <label style="display:flex;align-items:center;gap:8px;margin:12px 0;color:var(--txt);font-size:14px">
+        <input type="checkbox" id="autosave" style="width:20px;height:20px;flex:none">
+        שמור / שתף מיד אחרי כל צילום (איטי - לרוב לא צריך)
+      </label>
+    </details>
+  </div>
+
+  <div class="card" id="preview" style="display:none">
+    <h2>התמונה האחרונה <span class="tag" id="pvtag"></span></h2>
+    <img id="pvimg" alt="">
+    <div class="row" style="margin-top:10px">
+      <button class="btn" id="save">💾 שמור בודדת</button>
+      <button class="btn primary" id="again">📷 עוד זווית</button>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <button class="btn" id="memo" type="button">🎙️ הקלט הערה קולית</button>
+      <button class="btn" id="memosave" type="button" style="display:none">💾 שמור הקלטה</button>
+    </div>
+    <audio id="memoaudio" controls style="width:100%;margin-top:8px;display:none"></audio>
+  </div>
+
+  <details>
+    <summary>🗂️ כל התמונות שצולמו (<span id="galn">0</span>) - לשמירה</summary>
+    <input type="text" id="zipname" placeholder="שם לקובץ ה-ZIP (למשל: קומה 2 · חדר שרתים)" autocomplete="off" style="margin:6px 0 10px">
+    <div class="row">
+      <button class="btn primary" id="zip">📦 הורד הכל (ZIP)</button>
+      <button class="btn" id="saveall">💾 שתף תמונות</button>
+      <button class="btn" id="csv">⬇️ CSV</button>
+    </div>
+    <div class="hint">ה-ZIP וה-CSV כוללים גם את הסעיפים שסומנו ללא תמונה. שמור לענן המשרדי דרך חלון השיתוף, או תן לענן לסנכרן את תיקיית ההורדות.</div>
+    <div class="gal" id="gal" style="margin-top:12px"></div>
+    <button class="btn warn" id="reset" type="button" style="width:100%;margin-top:12px">🗑️ התחל סיור חדש (מוחק הכל)</button>
+  </details>
+
+  <details id="sources">
+    <summary>📚 מקורות: החוק, התקנות והרשות להגנת הפרטיות</summary>
+    <div class="src">
+      <div>📖 <a href="https://he.wikisource.org/wiki/%D7%97%D7%95%D7%A7_%D7%94%D7%92%D7%A0%D7%AA_%D7%94%D7%A4%D7%A8%D7%98%D7%99%D7%95%D7%AA" target="_blank" rel="noopener">חוק הגנת הפרטיות, התשמ"א-1981</a> - נוסח מלא ומעודכן (ויקיטקסט)<br>
+      <span class="srcnote">רלוונטי במיוחד: ס' 8-9 (רישום והודעה על מאגר) · ס' 11 (חובת יידוע) · ס' 13-14 (עיון, תיקון ומחיקה) · ס' 17-17ב1 (אבטחת מידע, ממונה אבטחה, ממונה הגנת הפרטיות לפי תיקון 13) · ס' 17ג-17ו (דיוור ישיר)</span></div>
+      <div style="margin-top:10px">📖 <a href="https://he.wikisource.org/wiki/%D7%AA%D7%A7%D7%A0%D7%95%D7%AA_%D7%94%D7%92%D7%A0%D7%AA_%D7%94%D7%A4%D7%A8%D7%98%D7%99%D7%95%D7%AA_(%D7%90%D7%91%D7%98%D7%97%D7%AA_%D7%9E%D7%99%D7%93%D7%A2)" target="_blank" rel="noopener">תקנות הגנת הפרטיות (אבטחת מידע), התשע"ז-2017</a> - נוסח מלא (ויקיטקסט)<br>
+      <span class="srcnote">תקנה 2 (מסמך הגדרות המאגר) · 4 (נוהל אבטחה) · 5 (מיפוי וסקר סיכונים) · 6 (אבטחה פיזית) · 7 (כוח אדם) · 8 (הרשאות) · 9 (זיהוי ואימות) · 10 (בקרה ותיעוד) · 11 (אירועי אבטחה) · 12 (התקנים ניידים) · 13 (מידור ועדכונים) · 14 (תקשורת וגישה מרחוק) · 15 (מיקור חוץ) · 16 (ביקורת תקופתית) · 17-18 (גיבוי ושחזור)</span></div>
+      <div style="margin-top:10px">🏛️ <a href="https://www.gov.il/he/pages/data_security_regulation" target="_blank" rel="noopener">תקנות אבטחת מידע - עמוד הרשות להגנת הפרטיות (gov.il)</a></div>
+      <div style="margin-top:6px">🏛️ <a href="https://www.gov.il/he/departments/the_privacy_protection_authority/govil-landing-page" target="_blank" rel="noopener">הרשות להגנת הפרטיות - הנחיות, מדריכים ותיקון 13 (gov.il)</a></div>
+      <div style="margin-top:6px">📖 <a href="https://www.nevo.co.il/law_html/law00/71631.htm" target="_blank" rel="noopener">חוק הגנת הפרטיות בנבו</a> · <a href="https://www.nevo.co.il/law_html/law00/144811.htm" target="_blank" rel="noopener">התקנות בנבו</a></div>
+      <div class="srcnote" style="margin-top:10px">הסימוכין בכל סעיף בכלי ("בסיס") מפנים לתקנה או לסעיף החוק הרלוונטי. "מסד 1" = דרישות מסד ברמת אבטחה בסיסית לפי התוספת הראשונה לתקנות. הכלי הוא עזר עבודה פנימי ואינו מחליף בדיקה משפטית או חוות דעת פורמלית.</div>
+    </div>
+  </details>
+</main>
+
+<div class="actionbar">
+  <label class="shot">📷 צלם
+    <input type="file" id="cam" accept="image/*" capture="environment">
+  </label>
+  <button class="btn mark" id="markbtn" type="button" title="סימון סעיף ללא תמונה (מסמך / ראיון / לא נדרש צילום)">✅ סמן</button>
+  <button class="btn primary" id="next" type="button" title="מעבר לסעיף הבא שטרם טופל">➡️ הבא</button>
+</div>
+
+<footer>
+  🔒 כל הנתונים, התמונות וההקלטות נשמרים <b>במכשיר בלבד</b> (בדפדפן) ואינם נשלחים לשום שרת. חריג יחיד: ההכתבה הקולית משתמשת בשירות תמלול בענן של הדפדפן.
+</footer>
+
+<canvas id="cv" style="display:none"></canvas>
+<script>
+const ITEMS = [
+ ["PH-01","מעגלי אבטחה וכניסה","כניסה ראשית לבניין - בקרת כניסה / מאבטח","תקנה 6(א); מסד 1"],
+ ["PH-02","מעגלי אבטחה וכניסה","דלת כניסה למשרדים - נעולה, פתיחה בקודן","תקנה 6(א); מסד 1"],
+ ["PH-03","מעגלי אבטחה וכניסה","עמדת קבלה / פקידת קבלה בכניסה","מסד 1"],
+ ["PH-04","מעגלי אבטחה וכניסה","שילוט המזהה אזורים מוגבלים","מסד 1"],
+ ["PH-05","מעגלי אבטחה וכניסה","הפרדה פיזית בין אזור ציבורי לאזור מאובטח","תקנה 6(א); מסד 1"],
+ ["PH-06","מעגלי אבטחה וכניסה","כספות / משרדי הנהלה כאזור מאובטח","מסד 1"],
+ ["PH-07","חדר שרתים ותקשורת","חדר שרתים - נעול, בקרת כניסה בקודן","תקנה 6(א); מסד 1"],
+ ["PH-08","חדר שרתים ותקשורת","גישה לחדר שרתים למורשים בלבד + רשימה","תקנה 6(א); תקנה 8"],
+ ["PH-09","חדר שרתים ותקשורת","מצלמה בתוך חדר השרתים","מסד 1"],
+ ["PH-10","חדר שרתים ותקשורת","מיזוג אוויר / בקרת טמפרטורה בחדר","מסד 1"],
+ ["PH-11","חדר שרתים ותקשורת","ארון תקשורת - נעול ומאובטח","תקנה 6(א); מסד 1"],
+ ["PH-12","חדר שרתים ותקשורת","סדר וניהול כבילה","מסד 1"],
+ ["PH-13","חדר שרתים ותקשורת","הגנה מפני הצפה/רטיבות","תקנה 6(א); מסד 1"],
+ ["PH-14","הגנה סביבתית","מערכת גילוי אש/עשן","מסד 1"],
+ ["PH-15","הגנה סביבתית","אמצעי כיבוי אש (מטפים/מערכת)","מסד 1"],
+ ["PH-16","הגנה סביבתית","אזעקת אבטחה - פעילה","מסד 1"],
+ ["PH-17","הגנה סביבתית","אל-פסק (UPS) לשרתים / ציוד קריטי","מסד 1"],
+ ["PH-18","הגנה סביבתית","הגנת חשמל / גנרטור","מסד 1"],
+ ["PH-19","הגנה סביבתית","ניקיון/סדר - אין חומרים דליקים בחדר שרתים","מסד 1"],
+ ["PH-20","בקרה ותיעוד כניסה","תיעוד כניסה/יציאה מאתרי המערכות","תקנה 6(ב)"],
+ ["PH-21","בקרה ותיעוד כניסה","יומן/רישום מבקרים","תקנה 6(ב); מסד 1"],
+ ["PH-22","בקרה ותיעוד כניסה","ליווי מבקרים בפועל","מסד 1"],
+ ["PH-23","בקרה ותיעוד כניסה","תיעוד הכנסה/הוצאת ציוד","תקנה 6(ב)"],
+ ["PH-24","מצלמות CCTV","פריסת מצלמות - כיסוי אזורים רגישים","מסד 1"],
+ ["PH-25","מצלמות CCTV","הגבלת גישה לצפייה/הקלטות","תקנה 8; מסד 1"],
+ ["PH-26","מצלמות CCTV","משך שמירת הקלטות מוגדר","חוק הגנת הפרטיות"],
+ ["PH-27","מצלמות CCTV","שילוט המודיע על קיום מצלמות","חוק הגנת הפרטיות; הנחיית הרשות"],
+ ["PH-28","מצלמות CCTV","מצלמות לא מכוונות לאזורים פרטיים","חוק הגנת הפרטיות; הנחיית הרשות"],
+ ["PH-29","אבטחת עמדות קצה","נעילת מסך אוטומטית 15 דק'","מסד 1; מדיניות"],
+ ["PH-30","אבטחת עמדות קצה","מדיניות סיסמאות נאכפת","תקנה 9(ב)"],
+ ["PH-31","אבטחת עמדות קצה","אימות דו-שלבי (2FA) לגישה מרחוק","תקנה 10; תקנה 14"],
+ ["PH-32","אבטחת עמדות קצה","אנטי-וירוס/הגנת קצה מעודכנת","מסד 1"],
+ ["PH-33","אבטחת עמדות קצה","חסימת התקנים ניידים / USB","תקנה 12; מסד 1"],
+ ["PH-34","אבטחת עמדות קצה","הצפנת דיסק (BitLocker) בניידים","תקנה 12; מסד 1"],
+ ["PH-35","אבטחת עמדות קצה","עדכוני מערכת/טלאים","תקנה 13; מסד 1"],
+ ["PH-36","אבטחת עמדות קצה","הרשאות מנהל (Admin) מוגבלות","תקנה 8"],
+ ["PH-37","שולחן נקי ומסך נקי","מסמכים רגישים לא חשופים","מסד 1 §13"],
+ ["PH-38","שולחן נקי ומסך נקי","מסכים ננעלים בעזיבה","מסד 1 §13"],
+ ["PH-39","שולחן נקי ומסך נקי","פלט רגיש לא נותר במדפסות","מסד 1 §13"],
+ ["PH-40","שולחן נקי ומסך נקי","חומר רגיש נעול בכספת/ארון","מסד 1 §13"],
+ ["PH-41","מדיה ציוד וסילוק","נוהל סילוק/השמדת מדיה + תיעוד","מסד 1"],
+ ["PH-42","מדיה ציוד וסילוק","ציוד נייד מחוץ לשטח - הגנה","תקנה 12; מסד 1"],
+ ["PH-43","מדיה ציוד וסילוק","מלאי נכסים מעודכן","ניהול נכסים"],
+ ["DC-01","מסמכים ונהלים","מסמך הגדרות המאגר - קיים ומעודכן (מטרות, סוגי מידע, סיכונים, העברות)","תקנה 2"],
+ ["DC-02","מסמכים ונהלים","בחינה תקופתית שהמידע במאגר אינו עולה על הנדרש (צמצום מידע)","תקנה 2"],
+ ["DC-03","מסמכים ונהלים","נוהל אבטחת מידע - כתוב, מאושר ומעודכן","תקנה 4"],
+ ["DC-04","מסמכים ונהלים","מיפוי מערכות המאגר ורשימת מצאי","תקנה 5"],
+ ["DC-05","מסמכים ונהלים","סקר סיכונים ומבדקי חדירות בהתאם לרמת האבטחה","תקנה 5"],
+ ["DC-06","כוח אדם והדרכה","נוהל מיון וקליטה של עובדים בעלי גישה למידע","תקנה 7"],
+ ["DC-07","כוח אדם והדרכה","הדרכות תקופתיות באבטחת מידע ופרטיות + תיעוד נוכחות","תקנה 7"],
+ ["DC-08","כוח אדם והדרכה","התחייבות לסודיות - עובדים וגורמי חוץ","תקנה 7"],
+ ["DC-09","הרשאות בקרה ואירועים","רשימת מורשי גישה מעודכנת לפי תפקיד","תקנה 8"],
+ ["DC-10","הרשאות בקרה ואירועים","ביטול הרשאות בסיום העסקה - מיידי ומתועד","תקנה 8"],
+ ["DC-11","הרשאות בקרה ואירועים","שמירת נתוני בקרה ותיעוד גישה 24 חודשים","תקנה 10"],
+ ["DC-12","הרשאות בקרה ואירועים","נוהל טיפול באירועי אבטחה + יומן אירועים","תקנה 11"],
+ ["DC-13","הרשאות בקרה ואירועים","דיווח לרשות להגנת הפרטיות על אירוע אבטחה חמור","תקנה 11(ד)"],
+ ["DC-14","מיקור חוץ","רשימת ספקים חיצוניים בעלי גישה למידע","תקנה 15"],
+ ["DC-15","מיקור חוץ","סעיפי אבטחת מידע והגנת פרטיות בחוזי ספקים","תקנה 15"],
+ ["DC-16","מיקור חוץ","בקרה שוטפת על עמידת ספקים בדרישות","תקנה 15"],
+ ["DC-17","גיבוי שחזור וביקורת","נוהל גיבוי ושחזור מוגדר","תקנות 17-18"],
+ ["DC-18","גיבוי שחזור וביקורת","בדיקת שחזור תקופתית מתועדת","תקנות 17-18"],
+ ["DC-19","גיבוי שחזור וביקורת","גיבוי מוצפן ומאוחסן בנפרד מהמערכת","תקנות 17-18"],
+ ["DC-20","גיבוי שחזור וביקורת","ביקורת תקופתית אחת ל-24 חודשים (רמה בינונית/גבוהה)","תקנה 16"],
+ ["DC-21","החוק ותיקון 13","רישום מאגר / הודעה לרשות ככל שנדרש","ס' 8-9 לחוק"],
+ ["DC-22","החוק ותיקון 13","מינוי ממונה הגנת הפרטיות (DPO) ככל שנדרש","ס' 17ב1 לחוק (תיקון 13)"],
+ ["DC-23","החוק ותיקון 13","מינוי ממונה אבטחת מידע ככל שנדרש","ס' 17ב לחוק"],
+ ["DC-24","החוק ותיקון 13","הודעת יידוע בעת איסוף מידע (מטרה, חובה/רשות, נמענים)","ס' 11 לחוק"],
+ ["DC-25","החוק ותיקון 13","מענה לבקשות עיון במידע","ס' 13 לחוק"],
+ ["DC-26","החוק ותיקון 13","מענה לבקשות תיקון או מחיקת מידע","ס' 14 לחוק"],
+ ["DC-27","החוק ותיקון 13","דיוור ישיר - זיהוי הפנייה, זכות הסרה ורישום מקור המידע","ס' 17ג-17ו לחוק"],
+ ["DC-28","החוק ותיקון 13","מדיניות פרטיות מפורסמת ונגישה","ס' 11 לחוק; הנחיות הרשות"],
+ ["DC-29","החוק ותיקון 13","דיון תקופתי של ההנהלה/דירקטוריון בפרטיות ואבטחת מידע","תיקון 13; ממשל תאגידי"]
+];
+
+const $ = id => document.getElementById(id);
+const searchEl=$('search'), listEl=$('list'), whatEl=$('what'), basisEl=$('basis'), countEl=$('count');
+const perId = {}; const marks = {}; const gallery = []; const log = [];
+let shotCounter = 0; let lastGalItem = null;
+let selectedId = ITEMS[0][0];
+
+/* ---------- persistence (IndexedDB) ---------- */
+let db = null;
+function openDB(){ return new Promise((res)=>{ try{
+  const r=indexedDB.open('siyurDB',1);
+  r.onupgradeneeded=()=>{ r.result.createObjectStore('shots',{keyPath:'aName'}); };
+  r.onsuccess=()=>res(r.result); r.onerror=()=>res(null);
+}catch(e){ res(null); } }); }
+function idbPut(rec){ if(!db) return; try{ const t=db.transaction('shots','readwrite'); const o={}; for(const k in rec) if(k!=='url') o[k]=rec[k]; t.objectStore('shots').put(o); }catch(e){} }
+function idbDel(key){ if(!db) return; try{ db.transaction('shots','readwrite').objectStore('shots').delete(key); }catch(e){} }
+function idbAll(){ return new Promise((res)=>{ if(!db) return res([]); try{ const t=db.transaction('shots','readonly'); const q=t.objectStore('shots').getAll(); q.onsuccess=()=>res(q.result||[]); q.onerror=()=>res([]);}catch(e){res([]);} }); }
+function idbClear(){ if(!db) return; try{ db.transaction('shots','readwrite').objectStore('shots').clear(); }catch(e){} }
+
+/* ---------- item selection ---------- */
+function cur(){ return ITEMS.find(x=>x[0]===selectedId); }
+function isDone(id){ return (perId[id]||0)>0 || !!marks[id]; }
+function doneCount(){ return ITEMS.filter(it=> isDone(it[0])).length; }
+function photoCount(){ return ITEMS.filter(it=>(perId[it[0]]||0)>0).length; }
+function markCount(){ return ITEMS.filter(it=> !!marks[it[0]] && !(perId[it[0]]>0)).length; }
+function onSel(){ const c=cur(); whatEl.textContent=c[2]; basisEl.innerHTML='תחום: '+c[1]+'  ·  בסיס: '+c[3]+'  ·  <a href="#sources" onclick="document.getElementById(\'sources\').open=true">📚 למקור</a>';
+  const n=perId[c[0]]||0;
+  let t = n? ('✓ צולמו '+n+' תמונות לסעיף זה') : '';
+  if(marks[c[0]]) t += (t?' · ':'')+'✔ סומן ללא תמונה';
+  countEl.textContent = t || 'טרם טופל סעיף זה';
+  const mb=$('markbtn');
+  if(marks[c[0]]){ mb.textContent='↩️ בטל סימון'; mb.classList.add('on'); }
+  else { mb.textContent='✅ סמן'; mb.classList.remove('on'); }
+  renderProgress(); renderMap(); }
+function renderProgress(){ const d=doneCount(); $('bar').style.width=Math.round(d/ITEMS.length*100)+'%';
+  $('pnum').textContent=d+'/'+ITEMS.length;
+  $('mapcount').textContent=d+'/'+ITEMS.length+' · צולמו '+photoCount()+' · סומנו '+markCount(); }
+
+function resetPreview(){ $('preview').style.display='none'; $('pvimg').removeAttribute('src'); memoBlob=null; lastGalItem=null;
+  $('memoaudio').style.display='none'; $('memoaudio').removeAttribute('src'); $('memosave').style.display='none'; }
+function pickItem(it){
+  const changed = it[0]!==selectedId;
+  selectedId=it[0]; searchEl.value=it[0]+' · '+it[2]; listEl.style.display='none';
+  if(changed){ $('note').value=''; $('status').value=''; $('dictstat').textContent=''; resetPreview(); }
+  onSel();
+}
+function renderList(q){
+  q=(q||'').trim().toLowerCase();
+  const m=ITEMS.filter(it=> !q || (it[0]+' '+it[1]+' '+it[2]).toLowerCase().includes(q));
+  listEl.innerHTML='';
+  if(!m.length){ listEl.innerHTML='<div class="none">לא נמצא סעיף מתאים</div>'; listEl.style.display='block'; return; }
+  m.forEach(it=>{
+    const n=perId[it[0]]||0; const mk=!!marks[it[0]];
+    const d=document.createElement('div'); d.className='it'+(n?' done':(mk?' marked':''));
+    let chk='';
+    if(n) chk='<span class="chk">✓'+(n>1?(' '+n):'')+'</span> ';
+    else if(mk) chk='<span class="mrk">✔</span> ';
+    d.innerHTML=chk+'<b>'+it[0]+'</b> · '+it[2]+'<span class="cat">'+it[1]+'</span>';
+    d.addEventListener('click', ()=> pickItem(it));
+    listEl.appendChild(d);
+  });
+  listEl.style.display='block';
+}
+searchEl.addEventListener('focus', ()=>{ searchEl.select(); renderList(''); });
+searchEl.addEventListener('input', ()=> renderList(searchEl.value));
+searchEl.addEventListener('keydown', e=>{ if(e.key==='Enter'){ const f=listEl.querySelector('.it'); if(f){ e.preventDefault(); f.click(); } } });
+document.addEventListener('click', e=>{ if(!listEl.contains(e.target) && e.target!==searchEl) listEl.style.display='none'; });
+
+/* ---------- section map ---------- */
+function renderMap(){
+  const box=$('map'); box.innerHTML=''; let cc=null;
+  ITEMS.forEach(it=>{
+    if(it[1]!==cc){ cc=it[1]; const h=document.createElement('div'); h.className='mcat'; h.textContent=cc; box.appendChild(h); }
+    const n=perId[it[0]]||0; const mk=!!marks[it[0]];
+    const r=document.createElement('div'); r.className='mrow'+(n?' mdone':(mk?' mmarked':''))+(it[0]===selectedId?' msel':'');
+    r.innerHTML='<span class="mmark">'+(n?'✓':(mk?'✔':'○'))+'</span><span class="mid">'+it[0]+'</span><span class="mtxt">'+it[2]+'</span>'+(n>1?'<span class="mn">'+n+'</span>':'');
+    r.addEventListener('click', ()=>{ pickItem(it); $('search').scrollIntoView({behavior:'smooth',block:'start'}); });
+    box.appendChild(r);
+  });
+}
+$('next').addEventListener('click', ()=>{
+  const i=ITEMS.findIndex(x=>x[0]===selectedId);
+  for(let k=1;k<=ITEMS.length;k++){ const it=ITEMS[(i+k)%ITEMS.length]; if(!isDone(it[0])){ pickItem(it); $('search').scrollIntoView({behavior:'smooth',block:'start'}); return; } }
+  alert('כל '+ITEMS.length+' הסעיפים טופלו! 🎉  אפשר להוריד ZIP.');
+});
+
+/* ---------- mark without photo ---------- */
+$('markbtn').addEventListener('click', ()=>{
+  const c=cur(); const id=c[0];
+  if(marks[id]){
+    idbDel(marks[id].aName);
+    delete marks[id];
+    for(let i=log.length-1;i>=0;i--) if(log[i].kind==='mark' && log[i].id===id) log.splice(i,1);
+    onSel(); return;
+  }
+  const rec={ aName:id+'_MARK', kind:'mark', id:id, cat:c[1], note:$('note').value.trim(), status:$('status').value, time:nowStr() };
+  marks[id]=rec; idbPut(rec);
+  log.push({kind:'mark', id:id, cat:c[1], file:'', status:rec.status, note:rec.note, time:rec.time});
+  onSel();
+});
+
+/* ---------- helpers ---------- */
+function sanitize(s){ return s.replace(/[\\/:*?"<>|()]/g,'').replace(/\s+/g,'-'); }
+function p2(n){ return (n<10?'0':'')+n; }
+function nowStr(){ const d=new Date(); return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate())+'_'+p2(d.getHours())+p2(d.getMinutes()); }
+function letter(n){ return String.fromCharCode(96+n); }
+
+async function loadBitmap(file){
+  if('createImageBitmap' in window){
+    try{ return await createImageBitmap(file,{imageOrientation:'from-image'}); }catch(_){}
+    try{ return await createImageBitmap(file); }catch(_){}
+  }
+  return await new Promise((res,rej)=>{ const img=new Image(); img.onload=()=>res(img); img.onerror=rej; img.src=URL.createObjectURL(file); });
+}
+
+let lastBlob=null, lastName=null;
+
+$('cam').addEventListener('change', async e=>{ const f=e.target.files&&e.target.files[0]; if(!f) return; await handle(f); e.target.value=''; });
+$('again').addEventListener('click', ()=> $('cam').click());
+
+async function handle(file){
+  const c = cur();
+  const bmp = await loadBitmap(file);
+  const iw = bmp.width||bmp.naturalWidth, ih = bmp.height||bmp.naturalHeight;
+  const MAX=2000, scale=Math.min(1, MAX/Math.max(iw,ih));
+  const w=Math.round(iw*scale), h=Math.round(ih*scale);
+  const cv=$('cv'); cv.width=w; cv.height=h; const ctx=cv.getContext('2d');
+  ctx.drawImage(bmp,0,0,w,h);
+
+  const auto = $('autolet').value==='1';
+  perId[c[0]] = (perId[c[0]]||0)+1;
+  const seq = perId[c[0]];
+  const idLabel = c[0] + (auto && seq>1 ? letter(seq) : (auto? letter(1):''));
+  const note = $('note').value.trim();
+  const status = $('status').value;
+  const ts = nowStr();
+
+  // ---- burn banner (auto-wrapping - never cut off) ----
+  const pad = Math.round(w*0.022);
+  const big = Math.max(20, Math.round(w*0.05));
+  const gap = 0.34;
+  const maxTextW = w - pad*2;
+  function wrapText(text, fpx, bold){
+    ctx.font=(bold?'bold ':'')+fpx+'px Arial';
+    const words=String(text).split(/\s+/).filter(Boolean); const out=[]; let curL='';
+    for(const wd of words){ const test=curL? curL+' '+wd : wd;
+      if(ctx.measureText(test).width>maxTextW && curL){ out.push(curL); curL=wd; } else curL=test; }
+    if(curL) out.push(curL); return out.length? out : [''];
+  }
+  function build(midF){
+    const rows=[]; rows.push({t:idLabel+'   ·   '+c[1], f:big, b:true});
+    let l2=c[2]; if(status) l2='['+status+']  '+l2;
+    wrapText(l2, midF, false).forEach(t=> rows.push({t, f:midF, b:false}));
+    rows.push({t:'סיור הגנת הפרטיות · '+ts, f:midF, b:false});
+    if(note) wrapText(note, midF, true).forEach(t=> rows.push({t, f:midF, b:true}));
+    let bh=pad; rows.forEach(r=> bh += r.f + Math.round(r.f*gap)); bh += pad - Math.round(midF*gap);
+    return {rows, bh};
+  }
+  let midF=Math.max(14, Math.round(w*0.03)); let lay=build(midF);
+  while(lay.bh > h*0.8 && midF>11){ midF-=1; lay=build(midF); }
+  const rows=lay.rows, bh=lay.bh;
+  ctx.fillStyle='rgba(0,0,0,0.64)'; ctx.fillRect(0, h-bh, w, bh);
+  ctx.textBaseline='top'; ctx.textAlign='right';
+  let y=h-bh+pad; const x=w-pad;
+  rows.forEach(r=>{ ctx.font=(r.b?'bold ':'')+r.f+'px Arial';
+    ctx.lineWidth=Math.max(2,Math.round(r.f*0.08)); ctx.strokeStyle='rgba(0,0,0,0.85)'; ctx.fillStyle='#fff';
+    ctx.strokeText(r.t,x,y); ctx.fillText(r.t,x,y); y += r.f + Math.round(r.f*gap); });
+  ctx.fillStyle='#1F4E79'; ctx.fillRect(w-pad-Math.round(w*0.4), h-bh, Math.round(w*0.4), Math.max(4,Math.round(h*0.006)));
+
+  const fname = sanitize(idLabel)+'_'+sanitize(c[1])+'_'+ts+'.jpg';
+  const aName = idLabel+'_'+ts+'_'+(++shotCounter);
+  const blob = await new Promise(r=> cv.toBlob(r,'image/jpeg',0.9));
+  lastBlob=blob; lastName=fname;
+
+  const url=URL.createObjectURL(blob);
+  $('pvimg').src=url; $('pvtag').textContent=idLabel; $('preview').style.display='block';
+  $('preview').scrollIntoView({behavior:'smooth',block:'center'});
+
+  const rec={url, fname, blob, aName, id:idLabel, cat:c[1], note:note, status:status, time:ts, audio:null};
+  gallery.unshift(rec); lastGalItem=rec;
+  log.push({kind:'photo', id:idLabel, cat:c[1], file:fname, status:status, note:note, time:ts});
+  idbPut(rec);
+  renderGal(); onSel();
+
+  if($('autosave').checked){ saveBlob(blob,fname); }
+  memoBlob=null; $('memoaudio').style.display='none'; $('memoaudio').removeAttribute('src'); $('memosave').style.display='none';
+}
+
+/* ---------- saving ---------- */
+async function saveBlob(blob,name){
+  if(!blob) return;
+  try{ const file=new File([blob],name,{type: blob.type||'image/jpeg'});
+    if(navigator.canShare && navigator.canShare({files:[file]})){ await navigator.share({files:[file], title:name}); return; }
+  }catch(_){}
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; document.body.appendChild(a); a.click(); a.remove();
+}
+$('save').addEventListener('click', ()=> saveBlob(lastBlob,lastName));
+$('saveall').addEventListener('click', async ()=>{
+  if(!gallery.length){ alert('אין עדיין צילומים'); return; }
+  const files=gallery.map(it=> new File([it.blob], it.fname, {type:'image/jpeg'}));
+  try{ if(navigator.canShare && navigator.canShare({files})){ await navigator.share({files, title:'צילומי סיור'}); return; } }catch(_){}
+  for(const it of gallery){ await new Promise(r=>setTimeout(r,350)); const a=document.createElement('a'); a.href=URL.createObjectURL(it.blob); a.download=it.fname; document.body.appendChild(a); a.click(); a.remove(); }
+});
+
+function renderGal(){
+  $('galn').textContent=gallery.length;
+  const g=$('gal'); g.innerHTML='';
+  gallery.forEach(it=>{
+    const d=document.createElement('div'); d.className='gitem';
+    const im=document.createElement('img'); im.src=it.url; im.alt=it.fname;
+    const fn=document.createElement('div'); fn.className='fn'; fn.textContent=it.fname+(it.audio?'  🎙️':'');
+    const b=document.createElement('button'); b.className='btn'; b.style.width='100%'; b.textContent='💾 שמור';
+    b.onclick=()=>saveBlob(it.blob,it.fname);
+    d.appendChild(im); d.appendChild(fn); d.appendChild(b); g.appendChild(d);
+  });
+}
+
+/* ---------- dictation ---------- */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let rec=null, recActive=false;
+const dictBtn=$('dictate'), dictStat=$('dictstat');
+if(!SR){ dictBtn.disabled=true; dictBtn.textContent='🎤 לא נתמך'; dictStat.textContent='הכתבה לא נתמכת - הקלד ידנית'; }
+else {
+  dictBtn.addEventListener('click', ()=>{
+    if(recActive){ try{rec.stop();}catch(_){} return; }
+    rec=new SR(); rec.lang='he-IL'; rec.interimResults=true; rec.continuous=true;
+    const dictBase = $('note').value ? $('note').value.trim()+' ' : '';
+    rec.onstart=()=>{ recActive=true; dictBtn.textContent='⏹️ עצור'; dictBtn.classList.add('primary'); dictStat.textContent='מקשיב…'; };
+    rec.onerror=e=>{ dictStat.textContent='שגיאה: '+(e.error||'')+' - נדרש אינטרנט והרשאת מיקרופון'; };
+    rec.onend=()=>{ recActive=false; dictBtn.textContent='🎤 הכתבה קולית'; dictBtn.classList.remove('primary'); if(dictStat.textContent==='מקשיב…') dictStat.textContent=''; };
+    rec.onresult=e=>{ let fin='',int='';
+      for(let i=0;i<e.results.length;i++){ const t=e.results[i][0].transcript; if(e.results[i].isFinal) fin+=t+' '; else int+=t; }
+      $('note').value=(dictBase+fin).replace(/\s+/g,' ').trim(); dictStat.textContent=int?('… '+int.trim()):''; };
+    try{ rec.start(); }catch(_){}
+  });
+}
+$('clearnote').addEventListener('click', ()=>{ $('note').value=''; $('dictstat').textContent=''; });
+
+/* ---------- voice memo ---------- */
+let mediaRec=null, memoChunks=[], memoActive=false, memoBlob=null;
+const memoBtn=$('memo'), memoSaveBtn=$('memosave'), memoAudio=$('memoaudio');
+if(!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder)){ memoBtn.disabled=true; memoBtn.textContent='🎙️ לא נתמך'; }
+else {
+  memoBtn.addEventListener('click', async ()=>{
+    if(memoActive){ try{mediaRec.stop();}catch(_){} return; }
+    try{
+      const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+      memoChunks=[]; mediaRec=new MediaRecorder(stream);
+      mediaRec.ondataavailable=e=>{ if(e.data && e.data.size) memoChunks.push(e.data); };
+      mediaRec.onstop=()=>{
+        memoActive=false; memoBtn.textContent='🎙️ הקלט הערה קולית'; memoBtn.classList.remove('primary');
+        stream.getTracks().forEach(t=>t.stop());
+        memoBlob=new Blob(memoChunks,{type:(mediaRec.mimeType||'audio/webm')});
+        memoAudio.src=URL.createObjectURL(memoBlob); memoAudio.style.display='block'; memoSaveBtn.style.display='block';
+        if(lastGalItem){ lastGalItem.audio=memoBlob; idbPut(lastGalItem); renderGal(); }
+      };
+      mediaRec.start(); memoActive=true; memoBtn.textContent='⏹️ עצור הקלטה'; memoBtn.classList.add('primary');
+    }catch(err){ alert('לא ניתן לגשת למיקרופון (נדרשת הרשאה)'); }
+  });
+  memoSaveBtn.addEventListener('click', ()=>{ if(!memoBlob) return;
+    const ext=(/mp4|m4a/.test(memoBlob.type))?'m4a':'webm';
+    saveBlob(memoBlob,(lastName?lastName.replace(/\.jpg$/,''):'הקלטה')+'.'+ext); });
+}
+
+/* ---------- ZIP (store-only) ---------- */
+function crc32(u8){ let table=crc32.t;
+  if(!table){ table=crc32.t=new Uint32Array(256); for(let n=0;n<256;n++){ let c=n; for(let k=0;k<8;k++) c=(c&1)?(0xEDB88320^(c>>>1)):(c>>>1); table[n]=c>>>0; } }
+  let crc=0xFFFFFFFF; for(let i=0;i<u8.length;i++) crc=(crc>>>8)^table[(crc^u8[i])&0xFF]; return (crc^0xFFFFFFFF)>>>0; }
+function zipStore(files){
+  const enc=new TextEncoder(); const parts=[]; const central=[]; let offset=0;
+  const u16=n=>[n&255,(n>>>8)&255], u32=n=>[n&255,(n>>>8)&255,(n>>>16)&255,(n>>>24)&255];
+  for(const f of files){ const nb=enc.encode(f.name), data=f.data, crc=crc32(data);
+    const lh=[].concat(u32(0x04034b50),u16(20),u16(0x0800),u16(0),u16(0),u16(0x21),u32(crc),u32(data.length),u32(data.length),u16(nb.length),u16(0));
+    const la=new Uint8Array(lh.length+nb.length+data.length); la.set(lh,0); la.set(nb,lh.length); la.set(data,lh.length+nb.length); parts.push(la);
+    const ch=[].concat(u32(0x02014b50),u16(20),u16(20),u16(0x0800),u16(0),u16(0),u16(0x21),u32(crc),u32(data.length),u32(data.length),u16(nb.length),u16(0),u16(0),u16(0),u16(0),u32(0),u32(offset));
+    const ca=new Uint8Array(ch.length+nb.length); ca.set(ch,0); ca.set(nb,ch.length); central.push(ca); offset+=la.length; }
+  let cs=0; central.forEach(c=>cs+=c.length);
+  const eocd=new Uint8Array([].concat(u32(0x06054b50),u16(0),u16(0),u16(files.length),u16(files.length),u32(cs),u32(offset),u16(0)));
+  return new Blob([...parts,...central,eocd],{type:'application/zip'});
+}
+const b2u8 = async b => new Uint8Array(await b.arrayBuffer());
+function csvRows(){
+  const rows=[['מזהה','תחום','סוג','קובץ תמונה','סטטוס','הערה','תאריך-שעה']];
+  [...gallery].reverse().forEach(it=> rows.push([it.id,it.cat,'תמונה',it.aName+'.jpg',it.status||'',it.note||'',it.time]));
+  ITEMS.forEach(it=>{ const m=marks[it[0]]; if(m) rows.push([m.id,m.cat,'סימון ללא תמונה','',m.status||'',m.note||'',m.time]); });
+  return rows;
+}
+function rowsToCsv(rows){ return '﻿'+rows.map(r=> r.map(c=>'"'+String(c||'').replace(/"/g,'""')+'"').join(',')).join('\r\n'); }
+$('zip').addEventListener('click', async ()=>{
+  if(!gallery.length && !Object.keys(marks).length){ alert('אין עדיין צילומים או סימונים'); return; }
+  const items=[...gallery].reverse(); const files=[];
+  for(const it of items){ files.push({name: it.aName+'.jpg', data: await b2u8(it.blob)});
+    if(it.audio){ const ext=(/mp4|m4a/.test(it.audio.type))?'m4a':'webm'; files.push({name: it.aName+'.'+ext, data: await b2u8(it.audio)}); } }
+  files.push({name:'notes.csv', data:new TextEncoder().encode(rowsToCsv(csvRows()))});
+  const label=($('zipname').value.trim()||'סיור').replace(/[\\/:*?"<>|]+/g,'-');
+  saveBlob(zipStore(files), label+'_'+nowStr()+'_'+items.length+'ph.zip');
+});
+$('csv').addEventListener('click', ()=>{
+  if(!gallery.length && !Object.keys(marks).length){ alert('אין עדיין צילומים או סימונים'); return; }
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([rowsToCsv(csvRows())],{type:'text/csv;charset=utf-8'})); a.download='רשימת_צילומי_סיור.csv';
+  document.body.appendChild(a); a.click(); a.remove();
+});
+
+/* ---------- reset ---------- */
+$('reset').addEventListener('click', ()=>{
+  if(!confirm('להתחיל סיור חדש ולמחוק את כל התמונות והסימונים שנשמרו במכשיר? פעולה זו אינה הפיכה.')) return;
+  idbClear(); gallery.length=0; log.length=0; for(const k in perId) delete perId[k]; for(const k in marks) delete marks[k]; shotCounter=0;
+  resetPreview(); selectedId=ITEMS[0][0]; searchEl.value=ITEMS[0][0]+' · '+ITEMS[0][2];
+  renderGal(); onSel();
+});
+
+/* ---------- init + restore ---------- */
+(async function init(){
+  db = await openDB();
+  const recs = await idbAll();
+  recs.sort((a,b)=> (a.aName>b.aName?1:-1));
+  let maxN=0;
+  recs.forEach(r=>{
+    if(r.kind==='mark'){
+      marks[r.id]=r;
+      log.push({kind:'mark', id:r.id, cat:r.cat, file:'', status:r.status, note:r.note, time:r.time});
+      return;
+    }
+    r.url = URL.createObjectURL(r.blob);
+    gallery.unshift(r);
+    perId[r.id.replace(/[a-z]$/,'')] = (perId[r.id.replace(/[a-z]$/,'')]||0)+1;
+    log.push({kind:'photo', id:r.id, cat:r.cat, file:r.fname, status:r.status, note:r.note, time:r.time});
+    const m=/_(\d+)$/.exec(r.aName); if(m) maxN=Math.max(maxN, +m[1]);
+  });
+  shotCounter=maxN;
+  searchEl.value=ITEMS[0][0]+' · '+ITEMS[0][2];
+  renderGal(); onSel();
+  if(recs.length) countEl.insertAdjacentHTML('beforeend', '<div style="color:#57d977">↩️ שוחזרו '+recs.length+' רשומות מהסיור הקודם</div>');
+})();
+
+/* ---------- PWA: עבודה ללא אינטרנט (רק כשהכלי מוגש מאתר, לא מקובץ מקומי) ---------- */
+if('serviceWorker' in navigator && location.protocol==='https:'){
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+
+/* ---------- install prompt + הסתרת מקטע ההתקנה כשלא רלוונטי ---------- */
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt', e=>{ e.preventDefault(); deferredPrompt=e; $('installbtn').style.display='block'; });
+$('installbtn').addEventListener('click', async ()=>{
+  if(!deferredPrompt) return;
+  deferredPrompt.prompt(); await deferredPrompt.userChoice;
+  deferredPrompt=null; $('installbtn').style.display='none';
+});
+window.addEventListener('appinstalled', ()=>{ $('installbtn').style.display='none'; });
+if(matchMedia('(display-mode: standalone)').matches || navigator.standalone===true){
+  $('installWrap').style.display='none';   // כבר מותקן כאפליקציה
+} else if(location.protocol==='file:'){
+  $('installWrap').open=false;             // עותק מקומי במחשב - ההוראות פחות רלוונטיות
+}
+</script>
+</body>
+</html>

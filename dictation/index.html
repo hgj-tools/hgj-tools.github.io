@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>הכתבה קולית בעברית</title>
+<style>
+  :root {
+    --bg: #F7F8FA;
+    --surface: #FFFFFF;
+    --surface-2: #EEF1F4;
+    --border: #DDE2E8;
+    --ink: #1B1F27;
+    --ink-soft: #5A6472;
+    --accent: #2F55D4;
+    --accent-ink: #FFFFFF;
+    --rec: #E03131;
+    --good: #2F9E44;
+    --shadow: 0 1px 2px rgba(20,30,50,.06), 0 8px 24px rgba(20,30,50,.07);
+    --font-ui: "Segoe UI", "Assistant", "Rubik", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+    --radius: 14px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14171C;
+      --surface: #1C2027;
+      --surface-2: #232833;
+      --border: #2E353F;
+      --ink: #EAEEF3;
+      --ink-soft: #9AA5B1;
+      --accent: #6B85FF;
+      --accent-ink: #0E1116;
+      --rec: #FF6B6B;
+      --good: #51CF66;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="light"] {
+    --bg: #F7F8FA; --surface: #FFFFFF; --surface-2: #EEF1F4; --border: #DDE2E8;
+    --ink: #1B1F27; --ink-soft: #5A6472; --accent: #2F55D4; --accent-ink: #FFFFFF;
+    --rec: #E03131; --good: #2F9E44;
+    --shadow: 0 1px 2px rgba(20,30,50,.06), 0 8px 24px rgba(20,30,50,.07);
+  }
+  :root[data-theme="dark"] {
+    --bg: #14171C; --surface: #1C2027; --surface-2: #232833; --border: #2E353F;
+    --ink: #EAEEF3; --ink-soft: #9AA5B1; --accent: #6B85FF; --accent-ink: #0E1116;
+    --rec: #FF6B6B; --good: #51CF66;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+  }
+
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; } /* מאפיין hidden לא חל על SVG כברירת מחדל */
+  html, body { margin: 0; background: var(--bg); }
+  body {
+    font-family: var(--font-ui);
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: clamp(16px, 4vw, 48px) 16px;
+  }
+
+  .app {
+    direction: rtl;
+    width: 100%;
+    max-width: 720px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  header { display: flex; flex-direction: column; gap: 6px; }
+  .title {
+    font-size: clamp(1.5rem, 1.1rem + 1.6vw, 2rem);
+    font-weight: 800;
+    letter-spacing: -.01em;
+    margin: 0;
+    text-wrap: balance;
+  }
+  .subtitle { color: var(--ink-soft); font-size: .95rem; line-height: 1.5; margin: 0; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: clamp(16px, 3vw, 24px);
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  /* Control row */
+  .controls {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .mic {
+    position: relative;
+    flex: none;
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    border: none;
+    background: var(--accent);
+    color: var(--accent-ink);
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    transition: transform .12s ease, background .2s ease, box-shadow .2s ease;
+    box-shadow: 0 4px 14px rgba(47,85,212,.35);
+  }
+  .mic:hover { transform: translateY(-1px); }
+  .mic:active { transform: translateY(0) scale(.97); }
+  .mic svg { width: 30px; height: 30px; }
+  .mic.recording {
+    background: var(--rec);
+    box-shadow: 0 4px 14px rgba(224,49,49,.4);
+  }
+  .mic.recording::after {
+    content: "";
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    border: 2px solid var(--rec);
+    animation: pulse 1.4s ease-out infinite;
+  }
+  @keyframes pulse {
+    0%   { transform: scale(.95); opacity: .7; }
+    100% { transform: scale(1.35); opacity: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .mic.recording::after { animation: none; opacity: .5; }
+  }
+
+  .pause {
+    flex: none;
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--surface-2);
+    color: var(--ink);
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    transition: transform .12s ease, background .2s ease, border-color .2s ease;
+  }
+  .pause:hover { background: var(--border); }
+  .pause:active { transform: scale(.96); }
+  .pause svg { width: 20px; height: 20px; }
+  .pause.paused {
+    background: var(--accent);
+    border-color: transparent;
+    color: var(--accent-ink);
+  }
+  .pause:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .status { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .status-line { display: flex; align-items: center; gap: 8px; font-weight: 600; }
+  .dot {
+    width: 9px; height: 9px; border-radius: 50%;
+    background: var(--ink-soft); flex: none;
+  }
+  .dot.live { background: var(--rec); }
+  .hint { color: var(--ink-soft); font-size: .85rem; line-height: 1.4; }
+
+  /* Text area */
+  .editor-wrap { position: relative; }
+  textarea {
+    width: 100%;
+    min-height: 260px;
+    resize: vertical;
+    direction: rtl;
+    text-align: right;
+    font-family: var(--font-ui);
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: var(--ink);
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    outline: none;
+    transition: border-color .15s ease, box-shadow .15s ease;
+  }
+  textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent);
+  }
+  textarea::placeholder { color: var(--ink-soft); opacity: .75; }
+
+  /* Footer actions */
+  .actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .btn {
+    font-family: var(--font-ui);
+    font-size: .95rem;
+    font-weight: 600;
+    border-radius: 9px;
+    padding: 10px 16px;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--ink);
+    transition: background .15s ease, border-color .15s ease, transform .1s ease;
+    display: inline-flex; align-items: center; gap: 7px;
+  }
+  .btn:hover { background: var(--surface-2); }
+  .btn:active { transform: translateY(1px); }
+  .btn svg { width: 17px; height: 17px; }
+  .btn.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
+  .btn.primary:hover { filter: brightness(1.06); background: var(--accent); }
+  .btn.ghost { background: transparent; }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+  .btn:focus-visible, .mic:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .spacer { flex: 1; }
+  .count {
+    color: var(--ink-soft);
+    font-size: .85rem;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .count strong { color: var(--ink); font-weight: 700; }
+
+  .toast {
+    position: fixed;
+    bottom: 24px; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--good);
+    color: #fff;
+    padding: 10px 18px;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: .9rem;
+    box-shadow: var(--shadow);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s ease, transform .2s ease;
+    z-index: 20;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .warn {
+    background: color-mix(in srgb, var(--rec) 12%, var(--surface));
+    border: 1px solid color-mix(in srgb, var(--rec) 40%, var(--border));
+    color: var(--ink);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: .9rem;
+    line-height: 1.5;
+    display: none;
+  }
+  .warn.show { display: block; }
+  .warn b { color: var(--rec); }
+
+  .help {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 4px 18px;
+    font-size: .9rem;
+    color: var(--ink-soft);
+    line-height: 1.6;
+  }
+  .help summary {
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--ink);
+    padding: 12px 0;
+    list-style-position: inside;
+  }
+  .help summary:hover { color: var(--accent); }
+  .help ul { margin: 0 0 14px; padding-inline-start: 20px; }
+  .help li { margin-bottom: 8px; }
+  .help li:last-child { margin-bottom: 0; }
+  .help b { color: var(--ink); }
+  .help code {
+    direction: ltr;
+    unicode-bidi: embed;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 1px 6px;
+    font-size: .85em;
+  }
+</style>
+</head>
+<body>
+<div class="app" dir="rtl" lang="he">
+  <header>
+    <h1 class="title">הכתבה קולית בעברית</h1>
+    <p class="subtitle">דברו - הטקסט מתמלל בזמן אמת. לחצו "העתק הכל" והדביקו ישר בצ'אט. הטקסט לא נשמר בשום מקום; זיהוי הדיבור מתבצע על-ידי שירות הדיבור המובנה של הדפדפן (Google / Microsoft) - לא להכתיב פרטי לקוחות או מידע רגיש.</p>
+  </header>
+
+  <div class="warn" id="warn">
+    <b>הדפדפן לא תומך בזיהוי דיבור.</b> הכלי עובד ב-<b>Google Chrome</b> או <b>Microsoft Edge</b> במחשב. פתחו את הדף באחד מהם.
+  </div>
+
+  <div class="card">
+    <div class="controls">
+      <button class="mic" id="mic" aria-label="התחל הקלטה" title="התחל / עצור הקלטה">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/>
+          <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+          <line x1="12" y1="19" x2="12" y2="22"/>
+        </svg>
+      </button>
+      <button class="pause" id="pause" hidden aria-label="השהה תמלול" title="השהה / המשך תמלול">
+        <svg id="pauseIcon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/>
+        </svg>
+        <svg id="resumeIcon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="display:none">
+          <path d="M7 4.5v15c0 .83.9 1.34 1.6.9l11.2-7.5a1.06 1.06 0 0 0 0-1.8L8.6 3.6c-.7-.44-1.6.07-1.6.9z"/>
+        </svg>
+      </button>
+      <div class="status">
+        <div class="status-line"><span class="dot" id="dot"></span><span id="statusText">מוכן להקלטה</span></div>
+        <div class="hint">לחצו על המיקרופון ודברו. ההקלטה נעצרת לבד אחרי 5 שניות של שקט, או בלחיצה חוזרת.</div>
+      </div>
+    </div>
+
+    <div class="editor-wrap">
+      <textarea id="text" placeholder="כאן יופיע הטקסט המתומלל… אפשר גם לתקן ולערוך ידנית בכל רגע." spellcheck="true"></textarea>
+    </div>
+
+    <div class="actions">
+      <button class="btn primary" id="copy">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        העתק הכל
+      </button>
+      <button class="btn ghost" id="clear">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+        נקה
+      </button>
+      <span class="spacer"></span>
+      <span class="count"><strong id="words">0</strong> מילים · <strong id="chars">0</strong> תווים</span>
+    </div>
+  </div>
+
+  <details class="help">
+    <summary>המיקרופון לא עובד? הנחיות ופתרון בעיות</summary>
+    <ul>
+      <li><b>דפדפנים נתמכים:</b> Google Chrome או Microsoft Edge - שניהם עובדים מצוין. Firefox לא נתמך.</li>
+      <li><b>הדפדפן מבקש הרשאת מיקרופון:</b> בחרו <b>"רק בזמן הביקור באתר"</b> (Allow while visiting) כדי שההרשאה תישמר.</li>
+      <li><b>הבקשה קופצת בכל פתיחה מחדש:</b> זו התנהגות מוכרת כשפותחים קובץ מקומי מהמחשב. פשוט אשרו שוב - או השתמשו בגרסת האתר (קישור https) שבה ההרשאה נשמרת לצמיתות.</li>
+      <li><b>חסמתם בטעות את המיקרופון:</b> לחצו על אייקון המנעול/המיקרופון בשורת הכתובת למעלה ← הפעילו "מיקרופון" ← רעננו את הדף (F5).</li>
+      <li><b>עדיין לא עובד:</b> ב-Chrome פתחו <code>chrome://settings/content/microphone</code> (ב-Edge: <code>edge://settings/content/microphone</code>), ודאו שהאתר לא ברשימת החסומים ושנבחר המיקרופון הנכון.</li>
+      <li><b>אין תמלול למרות שהכפתור אדום:</b> ודאו שיש חיבור אינטרנט (זיהוי הדיבור דורש רשת) ושהמיקרופון של המחשב תקין - בדקו בהגדרות הקול של Windows שהמיקרופון הנכון מוגדר כברירת מחדל.</li>
+    </ul>
+  </details>
+
+  <div class="toast" id="toast">הועתק ללוח ✓</div>
+
+  <footer style="color: var(--ink-soft); font-size: .82rem; text-align: center; padding-top: 12px;">
+    <a href="../policy/" style="color: var(--accent); text-decoration: none; font-weight: 600;">הצהרת נגישות, פרטיות ותנאי שימוש</a> ·
+    <a href="../" style="color: var(--accent); text-decoration: none; font-weight: 600;">כל הכלים</a>
+  </footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var textEl = document.getElementById("text");
+  var micBtn = document.getElementById("mic");
+  var dot = document.getElementById("dot");
+  var statusText = document.getElementById("statusText");
+  var copyBtn = document.getElementById("copy");
+  var clearBtn = document.getElementById("clear");
+  var wordsEl = document.getElementById("words");
+  var charsEl = document.getElementById("chars");
+  var toast = document.getElementById("toast");
+  var warn = document.getElementById("warn");
+
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  var recognition = null;
+  var recording = false;      // user intent: session active
+  var paused = false;         // user intent: temporarily suspended
+  var finalText = "";         // הטקסט ה"נעול"; תוצאות ביניים מוצגות אחריו בתיבה
+  var pendingInterim = "";    // תוצאת ביניים אחרונה שטרם ננעלה ע"י המנוע
+  var silenceTimer = null;    // 5 שניות שקט = נעילת תוצאת הביניים
+  var SILENCE_MS = 5000;
+  var toastTimer = null;
+  var pauseBtn = document.getElementById("pause");
+  var pauseIcon = document.getElementById("pauseIcon");
+  var resumeIcon = document.getElementById("resumeIcon");
+
+  function updateCounts() {
+    var t = textEl.value.trim();
+    var words = t ? t.split(/\s+/).length : 0;
+    wordsEl.textContent = words;
+    charsEl.textContent = textEl.value.length;
+  }
+
+  function setStatus(text, live) {
+    statusText.textContent = text;
+    dot.classList.toggle("live", !!live);
+  }
+
+  function showToast(msg) {
+    toast.textContent = msg;
+    toast.classList.add("show");
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toast.classList.remove("show"); }, 1800);
+  }
+
+  function commitFinal(chunk) {
+    chunk = chunk.trim();
+    if (!chunk) return;
+    if (finalText && !/\s$/.test(finalText)) finalText += " ";
+    finalText += chunk;
+  }
+
+  function clearSilenceTimer() {
+    if (silenceTimer) { clearTimeout(silenceTimer); silenceTimer = null; }
+  }
+
+  // 5 שניות בלי תוצאה חדשה מהמנוע = המשתמש שותק: עוצרים את ההקלטה אוטומטית.
+  // העצירה נועלת את כל הטקסט (onend מטפל בתוצאת ביניים פתוחה).
+  function armSilenceTimer() {
+    clearSilenceTimer();
+    if (!recording || paused) return;
+    silenceTimer = setTimeout(function () {
+      silenceTimer = null;
+      if (!recording || paused) return;
+      if (finalText || pendingInterim) stop();
+    }, SILENCE_MS);
+  }
+
+  // מציג בתיבה את הטקסט הנעול + תוצאת הביניים הנוכחית (כך רואים את התמלול תוך כדי דיבור)
+  function render() {
+    var v = finalText;
+    if (pendingInterim) {
+      if (v && !/\s$/.test(v)) v += " ";
+      v += pendingInterim;
+    }
+    textEl.value = v;
+    updateCounts();
+    // keep view at the end while dictating
+    textEl.scrollTop = textEl.scrollHeight;
+  }
+
+  if (!SR) {
+    warn.classList.add("show");
+    micBtn.disabled = true;
+    setStatus("לא נתמך בדפדפן זה");
+  } else {
+    recognition = new SR();
+    recognition.lang = "he-IL";
+    recognition.continuous = true;
+    recognition.interimResults = true;
+
+    recognition.onresult = function (e) {
+      var interim = "";
+      for (var i = e.resultIndex; i < e.results.length; i++) {
+        var res = e.results[i];
+        if (res.isFinal) {
+          commitFinal(res[0].transcript);
+        } else {
+          interim += res[0].transcript;
+        }
+      }
+      pendingInterim = interim.trim();
+      render();
+      armSilenceTimer();
+    };
+
+    recognition.onerror = function (e) {
+      if (e.error === "not-allowed" || e.error === "service-not-allowed") {
+        recording = false;
+        syncUI();
+        setStatus("אין הרשאה למיקרופון - אשרו גישה בדפדפן");
+      } else if (e.error === "no-speech" || e.error === "aborted" || e.error === "network") {
+        // benign; onend will restart if still recording
+      }
+    };
+
+    recognition.onend = function () {
+      // הערה: לא מנקים כאן את טיימר השקט - הוא סופר מאז הדיבור האחרון,
+      // גם אם המנוע סגר סשן בעצמו והופעל מחדש.
+      // שתיקה סוגרת את הסשן לפני שהמנוע "נעל" את התוצאה - נועלים אותה בעצמנו במקום לאבד
+      if (pendingInterim) {
+        commitFinal(pendingInterim);
+        pendingInterim = "";
+        render();
+      }
+      if (recording && !paused) {
+        // Chrome stops after silence; restart to keep it continuous.
+        try { recognition.start(); } catch (err) { /* already starting */ }
+      } else {
+        syncUI();
+      }
+    };
+  }
+
+  function syncUI() {
+    micBtn.classList.toggle("recording", recording && !paused);
+    micBtn.setAttribute("aria-label", recording ? "עצור הקלטה" : "התחל הקלטה");
+    pauseBtn.hidden = !recording;
+    pauseBtn.classList.toggle("paused", paused);
+    pauseBtn.setAttribute("aria-label", paused ? "המשך תמלול" : "השהה תמלול");
+    // הערה: על SVG אסור להסתמך על מאפיין hidden (אין לו IDL property) - רק style.display
+    pauseIcon.style.display = paused ? "none" : "";
+    resumeIcon.style.display = paused ? "" : "none";
+    if (recording && paused) setStatus("מושהה - לחצו ▶ להמשיך", false);
+    else if (recording) setStatus("מקשיב… דברו בחופשיות", true);
+    else setStatus("מוכן להקלטה", false);
+  }
+
+  function start() {
+    if (!recognition || recording) return;
+    recording = true;
+    paused = false;
+    try { recognition.start(); }
+    catch (err) { /* start() called too soon after stop */ }
+    syncUI();
+  }
+
+  function stop() {
+    if (!recognition) return;
+    clearSilenceTimer();
+    recording = false;
+    paused = false;
+    try { recognition.stop(); } catch (err) {}
+    syncUI();
+  }
+
+  micBtn.addEventListener("click", function () {
+    if (recording) stop(); else start();
+  });
+
+  pauseBtn.addEventListener("click", function () {
+    if (!recording) return;
+    if (paused) {
+      paused = false;
+      try { recognition.start(); } catch (err) { /* already starting */ }
+    } else {
+      paused = true;
+      clearSilenceTimer();
+      try { recognition.stop(); } catch (err) {}
+    }
+    syncUI();
+  });
+
+  copyBtn.addEventListener("click", function () {
+    var val = textEl.value;
+    if (!val.trim()) { showToast("אין טקסט להעתקה"); return; }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(val).then(
+        function () { showToast("הועתק ללוח ✓"); },
+        function () { fallbackCopy(val); }
+      );
+    } else {
+      fallbackCopy(val);
+    }
+  });
+
+  function fallbackCopy(val) {
+    textEl.focus();
+    textEl.select();
+    try {
+      document.execCommand("copy");
+      showToast("הועתק ללוח ✓");
+    } catch (err) {
+      showToast("ההעתקה נכשלה - סמנו והעתיקו ידנית");
+    }
+    textEl.setSelectionRange(val.length, val.length);
+  }
+
+  clearBtn.addEventListener("click", function () {
+    finalText = "";
+    pendingInterim = "";
+    textEl.value = "";
+    updateCounts();
+    textEl.focus();
+  });
+
+  // עריכה ידנית: המשתמש הופך לבעלים של הטקסט - מסנכרנים את המצב הפנימי
+  textEl.addEventListener("input", function () {
+    finalText = textEl.value;
+    pendingInterim = "";
+    updateCounts();
+  });
+
+  updateCounts();
+})();
+</script>
+</body>
+</html>
