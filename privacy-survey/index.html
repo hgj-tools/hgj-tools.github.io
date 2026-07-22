@@ -2,7 +2,6 @@
 <html lang="he" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta name="robots" content="noindex, nofollow">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>כלי סיור - הגנת הפרטיות ואבטחת מידע</title>
 <meta name="theme-color" content="#1F4E79">
@@ -27,6 +26,9 @@
     padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:rgba(12,20,28,.97);border-top:1px solid var(--line)}
   .actionbar .shot{margin:0;flex:1.5;padding:14px 6px;font-size:17px;border-radius:12px}
   .actionbar .btn{flex:1;padding:14px 6px;font-size:15px;border-radius:12px;font-weight:bold}
+  .logobar{background:#fff;border-radius:14px;padding:12px 16px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .logobar img{height:48px;width:auto;display:block}
+  .logobar a{color:#1F4E79;text-decoration:none;font-weight:bold;font-size:14px;white-space:nowrap}
   .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:14px}
   label{display:block;font-size:13px;color:var(--muted);margin:0 0 6px}
   select,input[type=text]{width:100%;font-size:16px;padding:12px;border-radius:10px;border:1px solid var(--line);background:#0d151d;color:var(--txt)}
@@ -94,6 +96,11 @@
   <div class="hprog"><div class="pbar"><i id="bar"></i></div><span class="pnum" id="pnum">0/72</span></div>
 </header>
 <main>
+  <div class="logobar">
+    <img src="../logo-mark.png" alt="הוגן, גינזבורג, יודלביץ ושות' - רואי חשבון" onerror="this.closest('.logobar').style.display='none'">
+    <a href="../">← כל הכלים</a>
+  </div>
+
   <details>
     <summary>❓ איך עובדים עם הכלי</summary>
     <div class="steps" style="background:transparent;border:none;margin:0;padding:2px 0 12px">
