@@ -1,7 +1,7 @@
 /* Service Worker - כלי סיור הגנת הפרטיות
    אסטרטגיה: cache-first עם רענון ברקע (stale-while-revalidate).
    הכלי נטען מיידית גם ללא אינטרנט; כשיש רשת, הגרסה בענן מתעדכנת ברקע לביקור הבא. */
-const CACHE = 'privacy-survey-v2.4.0';
+const CACHE = 'privacy-survey-v2.5.0';
 const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', '../logo-mark.png'];
 
 self.addEventListener('install', e => {
