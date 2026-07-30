@@ -4,7 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>הכתבה קולית בעברית</title>
-<link rel="icon" href="../logo-mark.png">
+<link rel="icon" href="favicon-64.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#2F55D4">
 <style>
   :root {
     --bg: #F7F8FA;
@@ -299,6 +302,77 @@
     padding: 1px 6px;
     font-size: .85em;
   }
+
+  /* ---------- מצב חלונית קומפקטית ---------- */
+  .icon-btn {
+    flex: none;
+    width: 36px; height: 36px;
+    display: grid; place-items: center;
+    border-radius: 9px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--ink-soft);
+    cursor: pointer;
+    transition: background .15s ease, color .15s ease;
+  }
+  .icon-btn:hover { background: var(--surface-2); color: var(--ink); }
+  .icon-btn svg { width: 17px; height: 17px; }
+  .icon-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .icon-btn[aria-pressed="true"] { background: var(--accent); border-color: transparent; color: var(--accent-ink); }
+
+  body.compact { padding: 10px; align-items: stretch; }
+  body.compact .app { max-width: 100%; gap: 10px; }
+  body.compact .logo-wrap,
+  body.compact .help,
+  body.compact .subtitle,
+  body.compact .hint,
+  body.compact .count { display: none; }
+  body.compact .title { font-size: 1.05rem; }
+  body.compact .card { padding: 12px; gap: 10px; border-radius: 12px; }
+  body.compact .controls { gap: 10px; }
+  body.compact .mic { width: 52px; height: 52px; }
+  body.compact .mic svg { width: 22px; height: 22px; }
+  body.compact .pause { width: 40px; height: 40px; }
+  body.compact .pause svg { width: 16px; height: 16px; }
+  body.compact textarea { min-height: 130px; font-size: .98rem; padding: 10px 12px; }
+  body.compact .btn { padding: 8px 13px; font-size: .88rem; }
+  body.compact .status-line { font-size: .9rem; }
+
+  /* ---------- חלון צף (Document Picture-in-Picture) ---------- */
+  .float-note {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    background: var(--surface);
+    border: 1px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 22px;
+    color: var(--ink-soft);
+    font-size: .95rem;
+    line-height: 1.5;
+    text-align: center;
+    justify-content: center;
+  }
+  body.floating .float-note { display: flex; }
+  body.floating .card, body.floating .help { display: none; }
+
+  /* בתוך החלון הצף: ללא רקע-דף, ללא שוליים מיותרים */
+  body.pip { padding: 0; min-height: 0; background: var(--surface); }
+  body.pip .app { gap: 0; }
+  body.pip .card {
+    border: none; box-shadow: none; border-radius: 0;
+    padding: 12px; gap: 10px; background: var(--surface);
+  }
+  body.pip .logo-wrap, body.pip header, body.pip .help,
+  body.pip .hint, body.pip .count, body.pip .warn { display: none; }
+  body.pip .mic { width: 48px; height: 48px; }
+  body.pip .mic svg { width: 21px; height: 21px; }
+  body.pip .pause { width: 38px; height: 38px; }
+  body.pip .pause svg { width: 15px; height: 15px; }
+  body.pip textarea { min-height: 118px; font-size: .95rem; padding: 9px 11px; }
+  body.pip .btn { padding: 7px 12px; font-size: .86rem; }
+  body.pip .status-line { font-size: .88rem; }
+  body.pip #floatBtn, body.pip #compactBtn { display: none; }
 </style>
 </head>
 <body>
@@ -355,12 +429,31 @@
       </button>
       <span class="spacer"></span>
       <span class="count"><strong id="words">0</strong> מילים · <strong id="chars">0</strong> תווים</span>
+      <button class="icon-btn" id="floatBtn" hidden aria-label="חלון צף מעל שאר החלונות" title="חלון צף - נשאר מעל כל התוכנות">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="2" y="4" width="20" height="16" rx="2"/>
+          <rect x="12" y="12" width="8" height="6" rx="1" fill="currentColor" stroke="none"/>
+        </svg>
+      </button>
+      <button class="icon-btn" id="compactBtn" aria-pressed="false" aria-label="מצב חלונית קטנה" title="מצב חלונית קטנה">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M9 3H5a2 2 0 0 0-2 2v4"/><path d="M15 3h4a2 2 0 0 1 2 2v4"/>
+          <path d="M21 15v4a2 2 0 0 1-2 2h-4"/><path d="M3 15v4a2 2 0 0 0 2 2h4"/>
+        </svg>
+      </button>
     </div>
   </div>
 
+  <div class="float-note" id="floatNote">
+    התמלול פועל כרגע ב<b>חלון הצף</b>. סגירת החלון הצף תחזיר את הכלי לכאן.
+  </div>
+
   <details class="help">
-    <summary>המיקרופון לא עובד? הנחיות ופתרון בעיות</summary>
+    <summary>איך פותחים את הכלי כחלונית קטנה, ופתרון בעיות מיקרופון</summary>
     <ul>
+      <li><b>התקנה כאפליקציה (מומלץ):</b> ב-Chrome או Edge לחצו על אייקון ההתקנה בשורת הכתובת, או תפריט ← "התקנת אפליקציה". הכלי יקבל אייקון מיקרופון בשולחן העבודה ובשורת המשימות, וייפתח בחלון קטן ונקי משלו בלי שורת כתובת. אפשר להצמיד אותו לשורת המשימות; הדפדפן זוכר את גודל החלון.</li>
+      <li><b>חלון צף מעל כל התוכנות:</b> כפתור המסגרת שבשורת הכפתורים פותח חלונית קטנה שנשארת מעל Word, Excel וכל חלון אחר, כדי להכתיב בזמן שעובדים. סגירת החלונית מחזירה את הכלי לדף.</li>
+      <li><b>מצב חלונית קטנה:</b> הכפתור עם ארבע הפינות מכווץ את התצוגה למינימום (מיקרופון, טקסט והעתקה). המצב נשמר לפעמים הבאות, ובאפליקציה המותקנת הוא ברירת המחדל.</li>
       <li><b>דפדפנים נתמכים:</b> Google Chrome או Microsoft Edge - שניהם עובדים מצוין. Firefox לא נתמך.</li>
       <li><b>הדפדפן מבקש הרשאת מיקרופון:</b> בחרו <b>"רק בזמן הביקור באתר"</b> (Allow while visiting) כדי שההרשאה תישמר.</li>
       <li><b>הבקשה קופצת בכל פתיחה מחדש:</b> זו התנהגות מוכרת כשפותחים קובץ מקומי מהמחשב. פשוט אשרו שוב - או השתמשו בגרסת האתר (קישור https) שבה ההרשאה נשמרת לצמיתות.</li>
@@ -401,6 +494,12 @@
   var pendingInterim = "";    // תוצאת ביניים אחרונה שטרם ננעלה ע"י המנוע
   var silenceTimer = null;    // 5 שניות שקט = נעילת תוצאת הביניים
   var SILENCE_MS = 5000;
+  var pipWin = null;          // החלון הצף, כשהוא פתוח
+  var compactBtn = document.getElementById("compactBtn");
+  var floatBtn = document.getElementById("floatBtn");
+  var floatNote = document.getElementById("floatNote");
+  var cardEl = document.querySelector(".card");
+  var appEl = document.querySelector(".app");
   var toastTimer = null;
   var pauseBtn = document.getElementById("pause");
   var pauseIcon = document.getElementById("pauseIcon");
@@ -418,11 +517,26 @@
     dot.classList.toggle("live", !!live);
   }
 
+  // ההודעה מוצגת במסמך שבו נמצא כרגע הכלי (הדף עצמו או החלון הצף)
+  function currentToast() {
+    var doc = textEl.ownerDocument;
+    if (doc === document) return toast;
+    var t = doc.getElementById("toast");
+    if (!t) {
+      t = doc.createElement("div");
+      t.id = "toast";
+      t.className = "toast";
+      doc.body.appendChild(t);
+    }
+    return t;
+  }
+
   function showToast(msg) {
-    toast.textContent = msg;
-    toast.classList.add("show");
+    var t = currentToast();
+    t.textContent = msg;
+    t.classList.add("show");
     if (toastTimer) clearTimeout(toastTimer);
-    toastTimer = setTimeout(function () { toast.classList.remove("show"); }, 1800);
+    toastTimer = setTimeout(function () { t.classList.remove("show"); }, 1800);
   }
 
   function commitFinal(chunk) {
@@ -566,8 +680,10 @@
   copyBtn.addEventListener("click", function () {
     var val = textEl.value;
     if (!val.trim()) { showToast("אין טקסט להעתקה"); return; }
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(val).then(
+    // כתיבה ללוח דורשת חלון ממוקד: כשהכלי בחלון הצף, משתמשים בלוח שלו
+    var nav = (pipWin && pipWin.document.hasFocus() ? pipWin : window).navigator;
+    if (nav.clipboard && nav.clipboard.writeText) {
+      nav.clipboard.writeText(val).then(
         function () { showToast("הועתק ללוח ✓"); },
         function () { fallbackCopy(val); }
       );
@@ -580,7 +696,7 @@
     textEl.focus();
     textEl.select();
     try {
-      document.execCommand("copy");
+      textEl.ownerDocument.execCommand("copy");
       showToast("הועתק ללוח ✓");
     } catch (err) {
       showToast("ההעתקה נכשלה - סמנו והעתיקו ידנית");
@@ -602,6 +718,78 @@
     pendingInterim = "";
     updateCounts();
   });
+
+  /* ---------- מצב חלונית קטנה ---------- */
+
+  var COMPACT_KEY = "hgj-dictation-compact";
+
+  function setCompact(on) {
+    document.body.classList.toggle("compact", on);
+    compactBtn.setAttribute("aria-pressed", on ? "true" : "false");
+    compactBtn.title = on ? "חזרה לתצוגה מלאה" : "מצב חלונית קטנה";
+    try { localStorage.setItem(COMPACT_KEY, on ? "1" : "0"); } catch (err) {}
+  }
+
+  compactBtn.addEventListener("click", function () {
+    setCompact(!document.body.classList.contains("compact"));
+  });
+
+  (function initCompact() {
+    var saved = null;
+    try { saved = localStorage.getItem(COMPACT_KEY); } catch (err) {}
+    if (saved === "1") { setCompact(true); return; }
+    if (saved === null && window.matchMedia &&
+        window.matchMedia("(display-mode: standalone)").matches) {
+      setCompact(true);   // כאפליקציה מותקנת ברירת המחדל היא חלונית קטנה
+    }
+  })();
+
+  /* ---------- חלון צף מעל שאר החלונות ---------- */
+
+  function openFloating() {
+    if (pipWin) return;
+    window.documentPictureInPicture.requestWindow({ width: 400, height: 320 })
+      .then(function (win) {
+        pipWin = win;
+        var doc = win.document;
+        doc.documentElement.lang = "he";
+        doc.documentElement.dir = "rtl";
+        // העיצוב לא עובר אוטומטית לחלון החדש, מעתיקים את גיליונות הסגנון
+        [].forEach.call(document.querySelectorAll('style, link[rel="stylesheet"]'), function (node) {
+          doc.head.appendChild(node.cloneNode(true));
+        });
+        doc.body.className = "pip";
+        doc.body.dir = "rtl";
+        var host = doc.createElement("div");
+        host.className = "app";
+        host.dir = "rtl";
+        doc.body.appendChild(host);
+        host.appendChild(cardEl);   // העברת האלמנט החי: כל המאזינים והמצב נשמרים
+        document.body.classList.add("floating");
+        win.addEventListener("pagehide", returnFromFloating);
+      })
+      .catch(function () { showToast("לא ניתן לפתוח חלון צף"); });
+  }
+
+  function returnFromFloating() {
+    if (!pipWin) return;
+    appEl.insertBefore(cardEl, floatNote);
+    document.body.classList.remove("floating");
+    pipWin = null;
+  }
+
+  if ("documentPictureInPicture" in window) {
+    floatBtn.hidden = false;
+    floatBtn.addEventListener("click", openFloating);
+  }
+
+  /* ---------- התקנה כאפליקציה ועבודה גם בלי רשת ---------- */
+
+  if ("serviceWorker" in navigator && location.protocol === "https:") {
+    window.addEventListener("load", function () {
+      navigator.serviceWorker.register("sw.js").catch(function () {});
+    });
+  }
 
   updateCounts();
 })();
