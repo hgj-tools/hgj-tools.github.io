@@ -754,6 +754,10 @@
         var doc = win.document;
         doc.documentElement.lang = "he";
         doc.documentElement.dir = "rtl";
+        // חלון צף מדווח לפעמים על ערכת נושא אחרת מהדף, לכן מקבעים את זו של הדף
+        var dark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        doc.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
+        doc.documentElement.style.colorScheme = dark ? "dark" : "light";
         // העיצוב לא עובר אוטומטית לחלון החדש, מעתיקים את גיליונות הסגנון
         [].forEach.call(document.querySelectorAll('style, link[rel="stylesheet"]'), function (node) {
           doc.head.appendChild(node.cloneNode(true));
@@ -767,6 +771,7 @@
         host.appendChild(cardEl);   // העברת האלמנט החי: כל המאזינים והמצב נשמרים
         document.body.classList.add("floating");
         win.addEventListener("pagehide", returnFromFloating);
+        textEl.focus();
       })
       .catch(function () { showToast("לא ניתן לפתוח חלון צף"); });
   }
