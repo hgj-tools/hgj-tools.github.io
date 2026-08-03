@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>מתכנן הביקורת — יישום תקני ביקורת ישראל | HGJ Tools</title>
+<link rel="icon" href="../logo-mark.png">
+<style>
+  :root {
+    --bg: #F7F8FA; --surface: #FFFFFF; --surface-2: #EEF1F4; --border: #DDE2E8;
+    --ink: #1B1F27; --ink-soft: #5A6472; --accent: #2F55D4; --accent-ink: #FFFFFF;
+    --warn-bg: #FDF0F0; --warn-border: #E0B4B4; --warn-ink: #7A0000;
+    --ok-bg: #EFF8EF; --ok-border: #BEE0BE; --ok-ink: #145214;
+    --shadow: 0 1px 2px rgba(20,30,50,.06), 0 8px 24px rgba(20,30,50,.07);
+    --font-ui: "Segoe UI", "Assistant", "Rubik", system-ui, -apple-system, Arial, sans-serif;
+    --radius: 14px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14171C; --surface: #1C2027; --surface-2: #232833; --border: #2E353F;
+      --ink: #EAEEF3; --ink-soft: #9AA5B1; --accent: #6B85FF; --accent-ink: #0E1116;
+      --warn-bg: #2A1A1A; --warn-border: #5A2E2E; --warn-ink: #F0B4B4;
+      --ok-bg: #17251A; --ok-border: #2E4A34; --ok-ink: #A6D8AE;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); }
+  body {
+    font-family: var(--font-ui); color: var(--ink); min-height: 100vh;
+    display: flex; justify-content: center; align-items: flex-start;
+    padding: clamp(16px, 4vw, 48px) 16px; line-height: 1.6;
+  }
+  .page { width: 100%; max-width: 760px; display: flex; flex-direction: column; gap: 22px; }
+  .logo-wrap {
+    background: #fff; border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 16px 20px; display: flex; align-items: center; justify-content: space-between;
+    box-shadow: var(--shadow); gap: 12px;
+  }
+  .logo-wrap img { height: 48px; width: auto; }
+  .back { color: var(--accent); text-decoration: none; font-size: .9rem; font-weight: 600; white-space: nowrap; }
+  .back:hover { text-decoration: underline; }
+  header .title { font-size: clamp(1.5rem, 1.1rem + 1.6vw, 2rem); font-weight: 800; margin: 0 0 6px; letter-spacing: -.01em; }
+  header .subtitle { color: var(--ink-soft); font-size: 1rem; margin: 0; }
+  .card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 22px 24px;
+  }
+  .card h2 { margin: 0 0 12px; font-size: 1.15rem; color: var(--ink); }
+  .card h3 { margin: 18px 0 6px; font-size: 1rem; color: var(--ink); }
+  .download {
+    display: inline-flex; align-items: center; gap: 10px; background: var(--accent);
+    color: var(--accent-ink); text-decoration: none; font-weight: 700; font-size: 1.05rem;
+    padding: 14px 26px; border-radius: 12px; transition: transform .12s ease, filter .15s ease;
+  }
+  .download:hover { transform: translateY(-2px); filter: brightness(1.05); }
+  .download:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+  .download svg { width: 20px; height: 20px; }
+  .download.secondary { background: transparent; color: var(--accent); border: 1.5px solid var(--accent); font-size: .98rem; padding: 11px 20px; }
+  .download.secondary:hover { background: var(--surface-2); filter: none; }
+  .btn-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .meta { color: var(--ink-soft); font-size: .88rem; margin-top: 10px; }
+  ol, ul { margin: 8px 0; padding-inline-start: 22px; }
+  li { margin: 6px 0; }
+  code, .path {
+    font-family: Consolas, "SF Mono", monospace; background: var(--surface-2);
+    border: 1px solid var(--border); border-radius: 5px; padding: 1px 7px; font-size: .9em;
+    direction: ltr; unicode-bidi: isolate; display: inline-block;
+  }
+  .install { display: block; direction: ltr; text-align: left; padding: 12px 14px; margin: 6px 0;
+    background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px;
+    font-family: Consolas, monospace; font-size: .88rem; overflow-x: auto; }
+  .warn { background: var(--warn-bg); border: 1px solid var(--warn-border); color: var(--warn-ink);
+    border-radius: 10px; padding: 14px 18px; font-weight: 600; }
+  .warn a { color: var(--warn-ink); }
+  .ok { background: var(--ok-bg); border: 1px solid var(--ok-border); color: var(--ok-ink);
+    border-radius: 10px; padding: 14px 18px; }
+  .tokens { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .tok { background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 2px 8px; font-size: .82rem; }
+  .tok.on { background: var(--ok-bg); border-color: var(--ok-border); color: var(--ok-ink); font-weight: 600; }
+  .tbl-wrap { overflow-x: auto; margin-top: 8px; }
+  table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+  th, td { text-align: right; padding: 8px 12px; border-bottom: 1px solid var(--border); }
+  th { font-size: .8rem; color: var(--ink-soft); font-weight: 600; text-transform: none; }
+  tbody tr:last-child td { border-bottom: 0; }
+  td.yes { color: var(--ok-ink); font-weight: 700; }
+  td.no { color: var(--ink-soft); }
+  .steps { counter-reset: s; list-style: none; padding-inline-start: 0; }
+  .steps > li { counter-increment: s; position: relative; padding-inline-start: 38px; margin: 12px 0; }
+  .steps > li::before {
+    content: counter(s); position: absolute; inset-inline-start: 0; top: 1px;
+    width: 26px; height: 26px; border-radius: 50%; background: var(--accent); color: var(--accent-ink);
+    display: grid; place-items: center; font-size: .82rem; font-weight: 700;
+  }
+  .steps > li.key::before { background: var(--warn-ink); }
+  footer { color: var(--ink-soft); font-size: .82rem; text-align: center; padding-top: 4px; }
+  footer a { color: var(--accent); text-decoration: none; font-weight: 600; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="logo-wrap">
+    <img src="../logo-mark.png" alt="הוגן, גינזבורג, יודלביץ ושות' - רואי חשבון">
+    <a class="back" href="../">← כל הכלים</a>
+  </div>
+
+  <header>
+    <h1 class="title">⚖️ מתכנן הביקורת</h1>
+    <p class="subtitle">סקיל של Claude לתיעוד <strong>שלב התכנון</strong> בביקורת דוחות כספיים לפי תקני ביקורת (ישראל). מריץ סקירה אנליטית על מספרי הלקוח בפועל, גוזר דגלי סיכון ממוקדים, קובע ספי מהותיות, ומפיק ניירות עבודה בעברית ל-7 תקנים — עם מהותיות ודירוג סיכון עקביים בכל התיק.</p>
+  </header>
+
+  <div class="warn">
+    ⚠️ <strong>הכלי הזה שונה משאר הכלים באתר: הוא עובד על נתוני לקוח אמיתיים.</strong><br>
+    בניגוד לכלים הגנריים כאן, הכלי קורא דוחות כספיים של לקוחות. לרואה חשבון יש חובת סודיות מקצועית, ולכן <strong>לפני שנתון של לקוח אמיתי נכנס לשיחה</strong> יש להסדיר במשרד: באיזה מנוי Claude אתם משתמשים (מנויי Team/Enterprise מציעים תנאי טיפול בנתונים שונים ממנוי אישי), מה מדיניות המשרד לגבי העברת נתוני לקוח לספק חיצוני, והאם נדרשת הסכמת הלקוח או אנונימיזציה.<br>
+    <strong>המלצה:</strong> להתחיל על תיק שהושלם, עם שם מוחלף. זו החלטה של המשרד — הכלי לא מכריע אותה.
+  </div>
+
+  <div class="card">
+    <h2>הורדה</h2>
+    <div class="btn-row">
+      <a class="download" href="audit-standards-toolkit.zip" download>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        הורדת החבילה (ZIP)
+      </a>
+      <a class="download secondary" href="planner.html">נסו את המחשבון בדפדפן ←</a>
+    </div>
+    <p class="meta">
+      <span class="path">audit-standards-toolkit.zip</span> · 66KB · מאגר השאלות, שכבת ההיסק, המתודולוגיה, מדריך התקנה ובודק RTL.
+      <strong>החבילה אינה כוללת את קבצי התקנים עצמם</strong> — ר' "התקנים הרשמיים" למטה.
+    </p>
+    <p class="meta">
+      המחשבון בדפדפן אינו דורש הורדה או התקנה: מזינים כ-12 מספרים ורואים מיד אילו דגלים נדלקים ואיך נגזרים הספים. שימושי כדי להבין את ההיגיון לפני שמתקינים, וגם להדרכת מתמחים.
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>מה הכלי עושה — ומה מבדיל אותו מצ׳קליסט</h2>
+    <p>צ׳קליסט שואל "האם שקלת סיכון תרמית בהכנסה?" ומסמנים ✓. הנייר מלא, הערך אפס. הכלי הזה <strong>מחשב</strong> על המספרים בפועל וגוזר ממצא ספציפי:</p>
+    <div class="ok">
+      «פער צמיחה של 50 נקודות אחוז בין הלקוחות להכנסות. ימי האשראי התארכו מ-73 ל-99. נדרש נוהל חיתוך תקופתי מורחב סביב תאריך המאזן, אישורי יתרות ובדיקת גבייה לאחר התאריך.»
+    </div>
+    <p class="meta">מספר בלי מקור הוא טענה. מספר עם מקור הוא ראיה — וזה ההבדל בין תיעוד שממלא מקום לתיעוד שעומד בסקירת עמיתים.</p>
+
+    <h3>שתי יכולות שצ׳קליסט לא נותן</h3>
+    <ul>
+      <li><strong>גזירה ממספרים אמיתיים</strong> — 14 חישובים (ימי אשראי, רווח גולמי, הון חוזר, יחס הנה״כ להכנסות ועוד) שמפעילים דגלים לפי תנאים מספריים מוגדרים. כל דגל יודע לאיזה תקן הוא מוזן ומה הוא מחייב.</li>
+      <li><strong>עקביות חוצת-מסמכים</strong> — קובץ "עובדות ההתקשרות" מחזיק את המהותיות, דירוג הסיכון וקביעת העסק החי. כל נייר קורא ממנו ואינו מחשב מחדש, כך שלא ייתכן שנייר 320 יאמר 2,700 ונייר אחר יאמר 3,000.</li>
+    </ul>
+
+    <h3>דגלים ייחודיים לישראל</h3>
+    <div class="tokens">
+      <span class="tok">משיכות בעלים וסעיף 3(ט1)</span>
+      <span class="tok">הפרשות חופשה, הבראה ופיצויים</span>
+      <span class="tok">דוחות המשמשים את רשות המסים</span>
+      <span class="tok">אמות מידה פיננסיות בנקאיות</span>
+      <span class="tok">עמותות ומלכ״רים</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>מה מכוסה — ומה לא</h2>
+    <p>בשקיפות מלאה, כדי שלא תהיה אשליה של כיסוי. הכלי עושה את <strong>שלב התכנון</strong>, ואותו הוא עושה טוב. הוא <strong>אינו</strong> מייצר תיק ביקורת שלם.</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>שלב הביקורת</th><th>תקנים</th><th>כיסוי</th></tr></thead>
+        <tbody>
+          <tr><td>קבלת ההתקשרות</td><td>210, 220</td><td class="no">✗</td></tr>
+          <tr><td><strong>תכנון והערכת סיכונים</strong></td><td>200, 240, 250, 300, 315, 320, 570</td><td class="yes">✓ 7 תקנים</td></tr>
+          <tr><td>ביצוע — עבודת השדה</td><td>330, 500–580</td><td class="no">✗</td></tr>
+          <tr><td>סיום והערכה</td><td>450, 560, 580, 720</td><td class="no">✗</td></tr>
+          <tr><td>דיווח — חוות הדעת</td><td>700–720</td><td class="no">✗</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="meta"><strong>7 מתוך 36 תקנים.</strong> אשכול התכנון הוא יחידה שעומדת בפני עצמה — ותיעוד תכנון הוא מהחוליות שסקירת עמיתים מעירה עליהן לעתים תכופות. ההרחבה הבאה המתוכננת: תקן 330 (נוהלי המבקר במענה לסיכונים שהוערכו).</p>
+  </div>
+
+  <div class="card">
+    <h2>דרישות והתקנה</h2>
+    <div class="ok"><strong>אין צורך ב-Python ולא בהתקנת תוכנה.</strong> הכלי הוא מאגר ידע ומתודולוגיה שקלוד קורא — קלוד עצמו קורא את הדוחות, מחשב, ומפיק את המסמכים.</div>
+
+    <h3>1. להפעיל יצירת קבצים</h3>
+    <p>ב-claude.ai: <strong>Settings ← Capabilities ←</strong> להפעיל <strong>"Code execution and file creation"</strong>.</p>
+    <div class="warn">⚠️ בלי זה קלוד לא יוכל לייצר את קבצי ה-Word וה-Excel. זה השלב שהכי מרבים לשכוח.</div>
+
+    <h3>2. להעלות את הסקיל</h3>
+    <ul>
+      <li><strong>Claude Desktop:</strong> <span class="path">Customize</span> (שמאל-תחתון) ← <span class="path">Skills</span> ← <span class="path">+</span> ← <span class="path">Upload a skill</span> ← לבחור את ה-ZIP</li>
+      <li><strong>claude.ai:</strong> <span class="path">Settings</span> ← <span class="path">Customize</span> ← <span class="path">Skills</span> ← <span class="path">+</span> ← <span class="path">Create skill</span> ← <span class="path">Upload a skill</span> ← לבחור את ה-ZIP</li>
+    </ul>
+    <p class="meta">סנכרון בין claude.ai לדסקטופ אינו מתועד רשמית. אם התקנתם באחד ולא הופיע בשני — להעלות שוב.</p>
+
+    <h3>3. לבדוק שזה עבד</h3>
+    <p>בשיחה חדשה: <em>"אילו תקני ביקורת יש לך במאגר?"</em> — תשובה נכונה מונה שבעה: 200, 240, 250, 300, 315, 320, 570.</p>
+    <p class="meta">פירוט מלא, כולל מסלול חלופי בלי התקנה ופתרון תקלות: <span class="path">INSTALL.md</span> שבתוך החבילה.</p>
+  </div>
+
+  <div class="card">
+    <h2>איך עובדים בפועל</h2>
+    <ol class="steps">
+      <li>יוצרים תיקייה ללקוח ושמים בה את הדוחות הכספיים.</li>
+      <li>פותחים <strong>שיחה חדשה — אחת לכל לקוח.</strong> לא בגלל טכניקה, בגלל סודיות: נתון של לקוח א׳ לא יכול להגיע לנייר של לקוח ב׳ אם הם מעולם לא היו באותה שיחה.</li>
+      <li>כותבים: <em>"תכנן את הביקורת ל&lt;לקוח&gt;, שנת 2025. הדוחות בתיקייה."</em></li>
+      <li>קלוד שואל: לקוח? שנה? אילו תקנים? פורמט? — הוא לא מנחש, ואם חסר נתון מהותי הוא עוצר ומבקש.</li>
+      <li class="key"><strong>כאן אתם נכנסים.</strong> קלוד מציג את הסקירה האנליטית והדגלים <strong>לפני</strong> שהוא כותב מסמך אחד, ומבקש אישור. אתם מאשרים, מתקנים, או מסבירים: «ההנה״כ כוללת מענק חד-פעמי, זה לא דגל».</li>
+      <li>קלוד נועל את ההכרעות בקובץ עובדות ההתקשרות, ומפיק את הניירות: Word לתיק, Excel לעבודה השוטפת.</li>
+      <li>אתם בודקים. זו <strong>טיוטה</strong> — החתימה שלכם.</li>
+      <li>רשימת המטלות הפתוחות היא העבודה מול ההנהלה. חוזרים עם התשובות, וקלוד מעדכן את הניירות ואת קובץ העובדות.</li>
+    </ol>
+    <div class="warn">שלב 5 הוא מה שהופך את הכלי מייצור-מסמכים לביקורת. מי שמדלג עליו קיבל מסמכים, לא ביקורת — והאחריות המקצועית נשארת שלו.</div>
+  </div>
+
+  <div class="card">
+    <h2>התקנים הרשמיים</h2>
+    <p><strong>החבילה אינה כוללת את קבצי התקנים.</strong> תקני הביקורת הם פרסום של לשכת רואי חשבון בישראל, ואינם שלנו להפצה מחדש.</p>
+    <p>במקום זאת, כל קובץ במאגר נושא קישור ישיר ל-PDF הרשמי באתר הלשכה. כך אתם מורידים מהמקור — ומקבלים תמיד את <strong>הגרסה המעודכנת</strong>, לא עותק שהורד פעם.</p>
+    <p><a class="download secondary" href="https://icpas.org.il/" target="_blank" rel="noopener noreferrer">לאתר לשכת רואי חשבון בישראל ←</a></p>
+  </div>
+
+  <div class="card">
+    <h2>מגבלות מוצהרות</h2>
+    <ul>
+      <li><strong>התוצר הוא טיוטה.</strong> האחריות המקצועית וחוות הדעת — של רואה החשבון המבקר. הכלי מציע ומעגן, לא מכריע.</li>
+      <li><strong>ספי הדגלים טרם נבחנו על תיקים אמיתיים.</strong> הם הצעה מקצועית שכוילה על חברת דוגמה אחת, ודורשים בחינה של מבקר מנוסה לפני הסתמכות.</li>
+      <li><strong>הדגלים כמותיים בלבד.</strong> הם אינם מזהים סיכונים שמקורם ביושרת ההנהלה, בלחצים אישיים או במידע חוץ-דוחי.</li>
+      <li><strong>דגל שלא הופעל אינו הוכחה שאין סיכון</strong> — רק שלא נמצא אינדיקטור כמותי.</li>
+      <li><strong>גופים מיוחדים</strong> (עמותות, קבלנים, מוסדות פיננסיים) דורשים התאמה שטרם נבנתה.</li>
+    </ul>
+  </div>
+
+  <footer>
+    הכלי רץ דרך Claude · <strong>הכלי מעבד נתוני לקוח — יש להסדיר את נושא הסודיות במשרד לפני השימוש</strong><br>
+    תקני הביקורת הם פרסום של לשכת רואי חשבון בישראל ואינם מופצים בחבילה<br>
+    <a href="../policy/">הצהרת נגישות, פרטיות ותנאי שימוש</a> ·
+    <a href="../">כל הכלים</a>
+  </footer>
+
+</div>
+</body>
+</html>

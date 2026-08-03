@@ -1,0 +1,705 @@
+<title>מתכנן הביקורת — סקירה אנליטית וגזירת דגלים</title>
+
+<style>
+:root {
+  color-scheme: light;
+  --bg:        #F2F4EF;
+  --surface:   #FBFCF9;
+  --surface-2: #E9EDE6;
+  --ink:       #16211F;
+  --ink-soft:  #52625D;
+  --ink-faint: #7E8D88;
+  --rule:      #D2DACF;
+  --accent:    #0B5D51;
+  --accent-2:  #DFEBE6;
+  --crit:      #9E2B1C;
+  --crit-bg:   #F6E4E0;
+  --warn:      #7F5608;
+  --warn-bg:   #F6EDDA;
+  --ok:        #35604180;
+  --ok-fg:     #2F5A3C;
+  --ok-bg:     #E2EDE3;
+  --shadow:    0 1px 2px rgba(22,33,31,.06), 0 8px 24px -12px rgba(22,33,31,.18);
+
+  --serif: "David", "Frank Ruehl CLM", "Times New Roman", serif;
+  --sans:  "Segoe UI", "Arial Hebrew", Arial, sans-serif;
+  --mono:  "Consolas", "SF Mono", ui-monospace, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --bg:        #0F1513;
+    --surface:   #171F1D;
+    --surface-2: #202B28;
+    --ink:       #E7EDE9;
+    --ink-soft:  #9DACA7;
+    --ink-faint: #74837E;
+    --rule:      #2B3835;
+    --accent:    #55B8A4;
+    --accent-2:  #1B2C29;
+    --crit:      #E58270;
+    --crit-bg:   #2E1C18;
+    --warn:      #DCA945;
+    --warn-bg:   #2C2415;
+    --ok:        #6FB37F80;
+    --ok-fg:     #7CBC8B;
+    --ok-bg:     #18271C;
+    --shadow:    0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.6);
+  }
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg:#F2F4EF; --surface:#FBFCF9; --surface-2:#E9EDE6;
+  --ink:#16211F; --ink-soft:#52625D; --ink-faint:#7E8D88; --rule:#D2DACF;
+  --accent:#0B5D51; --accent-2:#DFEBE6;
+  --crit:#9E2B1C; --crit-bg:#F6E4E0; --warn:#7F5608; --warn-bg:#F6EDDA;
+  --ok:#35604180; --ok-fg:#2F5A3C; --ok-bg:#E2EDE3;
+  --shadow:0 1px 2px rgba(22,33,31,.06), 0 8px 24px -12px rgba(22,33,31,.18);
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg:#0F1513; --surface:#171F1D; --surface-2:#202B28;
+  --ink:#E7EDE9; --ink-soft:#9DACA7; --ink-faint:#74837E; --rule:#2B3835;
+  --accent:#55B8A4; --accent-2:#1B2C29;
+  --crit:#E58270; --crit-bg:#2E1C18; --warn:#DCA945; --warn-bg:#2C2415;
+  --ok:#6FB37F80; --ok-fg:#7CBC8B; --ok-bg:#18271C;
+  --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.6);
+}
+
+* { box-sizing: border-box; }
+
+.app {
+  direction: rtl;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.55;
+  min-height: 100vh;
+  padding: 28px 20px 56px;
+}
+
+.shell { max-width: 1240px; margin-inline: auto; }
+
+/* ---------- header ---------- */
+.masthead {
+  display: flex; flex-wrap: wrap; align-items: flex-end;
+  justify-content: space-between; gap: 16px;
+  padding-bottom: 18px; margin-bottom: 26px;
+  border-bottom: 2px solid var(--ink);
+}
+.masthead h1 {
+  font-family: var(--serif);
+  font-size: clamp(1.6rem, 3.4vw, 2.3rem);
+  font-weight: 700; line-height: 1.15; margin: 0;
+  letter-spacing: -.01em; text-wrap: balance;
+}
+.masthead .sub {
+  margin: 6px 0 0; color: var(--ink-soft);
+  font-size: .93rem; max-width: 62ch;
+}
+.stamp {
+  font-family: var(--mono); font-size: .68rem;
+  text-transform: uppercase; letter-spacing: .14em;
+  color: var(--accent); border: 1px solid var(--accent);
+  padding: 5px 10px; white-space: nowrap;
+}
+
+/* ---------- layout ---------- */
+.grid {
+  display: grid; gap: 22px;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 4fr);
+  align-items: start;
+}
+@media (max-width: 940px) { .grid { grid-template-columns: 1fr; } }
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  box-shadow: var(--shadow);
+}
+.panel > h2 {
+  font-family: var(--sans); font-size: .74rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .13em;
+  color: var(--ink-soft);
+  margin: 0; padding: 13px 16px;
+  border-bottom: 1px solid var(--rule);
+  background: var(--surface-2);
+  display: flex; justify-content: space-between; align-items: center; gap: 10px;
+}
+.panel-body { padding: 16px; }
+
+.stack { display: flex; flex-direction: column; gap: 22px; }
+
+/* ---------- inputs ---------- */
+.io-head, .io-row {
+  display: grid; grid-template-columns: 1fr 96px 96px; gap: 8px; align-items: center;
+}
+.io-head {
+  font-size: .7rem; text-transform: uppercase; letter-spacing: .1em;
+  color: var(--ink-faint); padding-bottom: 7px; margin-bottom: 4px;
+  border-bottom: 1px solid var(--rule);
+}
+.io-head span:not(:first-child) { text-align: center; }
+.io-row + .io-row { margin-top: 5px; }
+.io-row label { font-size: .87rem; color: var(--ink); }
+.io-row input {
+  font-family: var(--mono); font-variant-numeric: tabular-nums;
+  font-size: .85rem; text-align: left; direction: ltr;
+  width: 100%; padding: 6px 8px;
+  background: var(--bg); color: var(--ink);
+  border: 1px solid var(--rule); border-radius: 2px;
+}
+.io-row input:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent);
+}
+.io-sep {
+  font-size: .68rem; text-transform: uppercase; letter-spacing: .11em;
+  color: var(--accent); font-weight: 700;
+  margin: 16px 0 8px; padding-bottom: 5px;
+  border-bottom: 1px solid var(--accent-2);
+}
+.io-sep:first-child { margin-top: 0; }
+
+.opts { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--rule); }
+.opt { display: flex; align-items: center; gap: 7px; font-size: .85rem; }
+.opt input { accent-color: var(--accent); width: 15px; height: 15px; }
+.sel {
+  font-family: var(--sans); font-size: .82rem;
+  padding: 5px 8px; border-radius: 2px;
+  background: var(--bg); color: var(--ink); border: 1px solid var(--rule);
+}
+.sel:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.btns { display: flex; gap: 9px; }
+.btn {
+  font-family: var(--sans); font-size: .74rem; font-weight: 600;
+  letter-spacing: .04em; cursor: pointer;
+  padding: 6px 12px; border-radius: 2px;
+  background: transparent; color: var(--accent);
+  border: 1px solid var(--accent);
+}
+.btn:hover { background: var(--accent); color: var(--surface); }
+.btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.btn.ghost { color: var(--ink-soft); border-color: var(--rule); }
+.btn.ghost:hover { background: var(--surface-2); color: var(--ink); }
+
+/* ---------- verdict strip ---------- */
+.verdict {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  border-bottom: 1px solid var(--rule);
+}
+@media (max-width: 560px) { .verdict { grid-template-columns: repeat(2, 1fr); } }
+.vcell { padding: 14px 16px; border-inline-start: 1px solid var(--rule); }
+.vcell:first-child { border-inline-start: 0; }
+.vcell .k {
+  font-size: .68rem; text-transform: uppercase; letter-spacing: .1em;
+  color: var(--ink-faint); display: block; margin-bottom: 5px;
+}
+.vcell .v {
+  font-family: var(--mono); font-variant-numeric: tabular-nums;
+  font-size: 1.42rem; font-weight: 700; line-height: 1.1; letter-spacing: -.02em;
+}
+.vcell .n { font-size: .72rem; color: var(--ink-faint); display: block; margin-top: 3px; font-family: var(--sans); }
+
+.pill {
+  display: inline-block; font-size: .95rem; font-weight: 700;
+  padding: 3px 12px; border-radius: 100px; line-height: 1.4;
+}
+.pill.high { background: var(--crit-bg); color: var(--crit); }
+.pill.med  { background: var(--warn-bg); color: var(--warn); }
+.pill.low  { background: var(--ok-bg);  color: var(--ok-fg); }
+
+/* ---------- flags ---------- */
+.flag {
+  display: grid; grid-template-columns: auto 1fr; gap: 0 13px;
+  padding: 13px 16px 13px 16px;
+  border-bottom: 1px solid var(--rule);
+  border-inline-start: 4px solid transparent;
+}
+.flag:last-child { border-bottom: 0; }
+.flag.sev-crit { border-inline-start-color: var(--crit); background: linear-gradient(to left, transparent 70%, var(--crit-bg)); }
+.flag.sev-warn { border-inline-start-color: var(--warn); }
+.flag .code {
+  font-family: var(--mono); font-size: .74rem; font-weight: 700;
+  padding: 2px 7px; border-radius: 2px; white-space: nowrap; align-self: start;
+  background: var(--surface-2); color: var(--ink-soft);
+}
+.flag.sev-crit .code { background: var(--crit); color: var(--surface); }
+.flag.sev-warn .code { background: var(--warn); color: var(--surface); }
+.flag .ttl { font-weight: 600; font-size: .93rem; }
+.flag .why {
+  font-family: var(--mono); font-variant-numeric: tabular-nums;
+  font-size: .79rem; color: var(--ink-soft); margin-top: 3px;
+}
+.flag .req { font-size: .85rem; margin-top: 6px; padding-top: 6px; border-top: 1px dotted var(--rule); }
+.flag .req b { color: var(--accent); font-weight: 600; }
+.flag .tgt {
+  font-family: var(--mono); font-size: .7rem; color: var(--ink-faint);
+  margin-top: 4px; letter-spacing: .03em;
+}
+
+.empty { padding: 30px 16px; text-align: center; color: var(--ink-faint); font-size: .9rem; }
+.empty strong { display: block; color: var(--ok-fg); font-size: 1rem; margin-bottom: 4px; }
+
+/* ---------- metrics table ---------- */
+.tbl-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+th, td { padding: 7px 12px; text-align: right; border-bottom: 1px solid var(--rule); }
+th {
+  font-size: .68rem; text-transform: uppercase; letter-spacing: .09em;
+  color: var(--ink-faint); font-weight: 600; white-space: nowrap;
+}
+td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+td.na { color: var(--ink-faint); font-style: italic; font-size: .8rem; }
+tbody tr:last-child td { border-bottom: 0; }
+tr.hit td.num { color: var(--crit); font-weight: 700; }
+
+.note {
+  font-size: .82rem; color: var(--ink-soft);
+  background: var(--accent-2); border-inline-start: 3px solid var(--accent);
+  padding: 11px 14px; margin-top: 16px;
+}
+.note b { color: var(--accent); }
+
+.foot {
+  margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--rule);
+  font-size: .8rem; color: var(--ink-faint); text-align: center;
+}
+.foot b { color: var(--crit); }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+
+<div class="app">
+<div class="shell">
+
+  <header class="masthead">
+    <div>
+      <h1>מתכנן הביקורת</h1>
+      <p class="sub">הזן את נתוני הלקוח — הדגלים, דירוג הסיכון וספי המהותיות נגזרים לפי <span style="font-family:var(--mono);font-size:.85em">analytical-procedures.md</span>. זו שכבת ההיסק שמאחורי ניירות העבודה, גלויה לעין.</p>
+    </div>
+    <div class="stamp">טיוטה · לבדיקת רו״ח</div>
+  </header>
+
+  <div class="grid">
+
+    <!-- ============ INPUT ============ -->
+    <section class="panel">
+      <h2>
+        <span>נתוני הלקוח</span>
+        <span class="btns">
+          <button class="btn" id="demo" type="button">טען חברת דוגמה</button>
+          <button class="btn ghost" id="clear" type="button">נקה</button>
+        </span>
+      </h2>
+      <div class="panel-body">
+        <div class="io-head"><span>סעיף</span><span>שוטפת</span><span>קודמת</span></div>
+        <div id="fields"></div>
+
+        <div class="opts">
+          <label class="opt"><input type="checkbox" id="svc"> חברת שירותים</label>
+          <label class="opt"><input type="checkbox" id="first"> ביקורת ראשונה</label>
+          <label class="opt"><input type="checkbox" id="covenant"> אשראי בנקאי עם אמות מידה</label>
+          <label class="opt"><input type="checkbox" id="taxonly"> הדוחות לרשות המסים</label>
+        </div>
+        <div class="opts" style="align-items:center">
+          <label class="opt" for="pmrate">מהותיות לביצוע — שיעור מהכוללת:</label>
+          <select id="pmrate" class="sel">
+            <option value="75" selected>75% — ברירת מחדל</option>
+            <option value="60">60% — ביניים</option>
+            <option value="50">50% — שמרני</option>
+          </select>
+          <span id="pm-advice" style="font-size:.79rem;color:var(--warn)"></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ OUTPUT ============ -->
+    <div class="stack">
+
+      <section class="panel">
+        <h2>הקביעות המחייבות</h2>
+        <div class="verdict">
+          <div class="vcell">
+            <span class="k">דירוג סיכון</span>
+            <span class="v" id="v-risk">—</span>
+            <span class="n" id="v-risk-n"></span>
+          </div>
+          <div class="vcell">
+            <span class="k">מהותיות כוללת</span>
+            <span class="v" id="v-om">—</span>
+            <span class="n" id="v-om-n"></span>
+          </div>
+          <div class="vcell">
+            <span class="k">מהותיות לביצוע</span>
+            <span class="v" id="v-pm">—</span>
+            <span class="n" id="v-pm-n"></span>
+          </div>
+          <div class="vcell">
+            <span class="k">סף זניחות</span>
+            <span class="v" id="v-ct">—</span>
+            <span class="n" id="v-ct-n"></span>
+          </div>
+        </div>
+        <div class="panel-body" style="padding-top:13px;padding-bottom:13px">
+          <div style="font-size:.85rem;color:var(--ink-soft)" id="mat-basis">הזן נתונים כדי לגזור את הספים.</div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2><span>דגלי סיכון</span><span id="flag-count" style="font-family:var(--mono);color:var(--ink-faint)"></span></h2>
+        <div id="flags"></div>
+      </section>
+
+      <section class="panel">
+        <h2>החישובים</h2>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>#</th><th>מדד</th><th>שוטפת</th><th>קודמת</th><th>שינוי</th></tr></thead>
+            <tbody id="metrics"></tbody>
+          </table>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <div class="note" id="gap-note" hidden></div>
+
+  <p class="foot">
+    כלי עזר לתכנון. הדגלים כמותיים בלבד — <b>היעדר דגל אינו הוכחה להיעדר סיכון.</b>
+    ההכרעה המקצועית היא של רואה החשבון המבקר.
+  </p>
+
+</div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var FIELDS = [
+    { g: "רווח והפסד" },
+    { k: "rev",   l: "הכנסות, נטו" },
+    { k: "cogs",  l: "עלות המכר" },
+    { k: "ga",    l: "הוצאות הנהלה וכלליות" },
+    { k: "pbt",   l: "רווח (הפסד) לפני מס" },
+    { g: "מאזן — שוטף" },
+    { k: "cash",  l: "מזומנים ושווי מזומנים" },
+    { k: "ar",    l: "לקוחות" },
+    { k: "inv",   l: "מלאי" },
+    { k: "ca",    l: "סה״כ רכוש שוטף" },
+    { k: "cl",    l: "סה״כ התחייבויות שוטפות" },
+    { g: "מאזן — כללי" },
+    { k: "ta",    l: "סה״כ נכסים" },
+    { k: "eq",    l: "הון עצמי" },
+    { k: "owner", l: "יתרת בעלים (חובה = חיובי)" }
+  ];
+
+  var DEMO = {
+    rev: [267140, 340011], ga: [361432, 185327], pbt: [-95989, 151430],
+    ta: [114068, 196653], eq: [-34270, 61719]
+  };
+
+  // ---------- build inputs ----------
+  var host = document.getElementById("fields"), html = "";
+  FIELDS.forEach(function (f) {
+    if (f.g) { html += '<div class="io-sep">' + f.g + "</div>"; return; }
+    html += '<div class="io-row"><label for="' + f.k + '_c">' + f.l + "</label>" +
+            '<input type="text" inputmode="numeric" id="' + f.k + '_c" data-k="' + f.k + '" data-y="c">' +
+            '<input type="text" inputmode="numeric" id="' + f.k + '_p" data-k="' + f.k + '" data-y="p"></div>';
+  });
+  host.innerHTML = html;
+
+  // ---------- helpers ----------
+  function num(id) {
+    var el = document.getElementById(id);
+    if (!el) return null;
+    var raw = el.value.replace(/[,\s₪]/g, "").replace(/^\((.*)\)$/, "-$1");
+    if (raw === "" || isNaN(Number(raw))) return null;
+    return Number(raw);
+  }
+  function g(k, y) { return num(k + "_" + y); }
+  function has() {
+    for (var i = 0; i < arguments.length; i++) if (arguments[i] === null) return false;
+    return true;
+  }
+  function fmt(v, d) {
+    if (v === null || v === undefined || !isFinite(v)) return "—";
+    var s = Math.abs(v).toLocaleString("he-IL", { minimumFractionDigits: d || 0, maximumFractionDigits: d || 0 });
+    return v < 0 ? "(" + s + ")" : s;
+  }
+  function pct(v, d) {
+    if (v === null || !isFinite(v)) return "—";
+    return (v > 0 ? "+" : "") + v.toFixed(d === undefined ? 1 : d) + "%";
+  }
+  function chg(c, p) { return has(c, p) && p !== 0 ? (c / p - 1) * 100 : null; }
+
+  function roundNice(v) {
+    if (v === null || !isFinite(v) || v <= 0) return null;
+    var step = v < 1000 ? 10 : v < 10000 ? 100 : v < 100000 ? 1000 : 10000;
+    return Math.round(v / step) * step;
+  }
+  function floorNice(v) {
+    if (v === null || !isFinite(v) || v <= 0) return null;
+    var step = v < 1000 ? 10 : v < 10000 ? 100 : v < 100000 ? 1000 : 10000;
+    return Math.floor(v / step) * step;
+  }
+
+  // ---------- flag catalogue ----------
+  var CATALOG = {
+    "GC-1": { s: "crit", t: "גרעון בהון עצמי",              tg: "570 · 320", r: "תקן 570 עובר למסלול מלא: תוכנית הנהלה בכתב, תחזית תזרים, והצהרת המשך תמיכת בעלים. לשקול פסקת הפניית תשומת לב (706)." },
+    "GC-2": { s: "crit", t: "הון חוזר שלילי",               tg: "570",       r: "תיעוד יכולת פירעון ההתחייבויות השוטפות ל-12 חודשים קדימה." },
+    "GC-3": { s: "crit", t: "מעבר מרווח להפסד",             tg: "570 · 320", r: "שולל התבססות על רווח לפני מס כפרמטר מהותיות. מחייב התייחסות בנייר 570." },
+    "GC-4": { s: "crit", t: "שחיקת נזילות חדה עם הפסד",     tg: "570",       r: "לקבל מההנהלה תחזית תזרים מזומנים מפורטת." },
+    "GC-5": { s: "crit", t: "הפסד שני ברציפות",             tg: "570",       r: "מגמה ולא אירוע חד-פעמי — מחייב התייחסות מפורשת גם אם ההון חיובי." },
+    "FR-1": { s: "warn", t: "לקוחות גדלים מהר מההכנסות",    tg: "240 · 315", r: "נוהל חיתוך תקופתי מורחב סביב תאריך המאזן, אישורי יתרות (505), ובדיקת גבייה לאחר תאריך המאזן." },
+    "FR-2": { s: "warn", t: "התארכות ימי אשראי לקוחות",     tg: "240 · 540", r: "ניתוח גיול לקוחות ובחינת נאותות ההפרשה לחובות מסופקים." },
+    "FR-3": { s: "warn", t: "שינוי חד ברווח הגולמי",        tg: "240",       r: "בחינת ההכרה בהכנסה, החיתוך התקופתי והערכת המלאי." },
+    "FR-5": { s: "warn", t: "קפיצה בהוצאות הנהלה וכלליות",  tg: "240 · 550", r: "פילוח ההוצאה וזיהוי רכיבים שאינם עסקיים או הוצאות בעלים." },
+    "FR-6": { s: "crit", t: "הנה״כ עולות על ההכנסות",       tg: "570 · 550", r: "מבנה הוצאות בלתי-בר-קיימא. לבחון האם מדובר בהוצאות בעלים או בהוצאות הקמה." },
+    "ES-1": { s: "warn", t: "האטה בתנועת המלאי",            tg: "540 · 501", r: "בחינת התיישנות המלאי והצורך בהפרשה לירידת ערך." },
+    "RP-1": { s: "warn", t: "יתרת חובה של בעל שליטה",       tg: "550",       r: "משיכות בעלים — לברר את מהות היתרה, מועד היווצרותה וקיום הסדר החזר.<br><b>ישראל:</b> לבחון את ההשלכה לפי סעיף 3(ט1) לפקודה ואת שיקופה בדוחות. <i>לאמת מול הנוסח המעודכן.</i>" },
+    "BK-IL-1": { s: "warn", t: "אשראי בנקאי עם אמות מידה",  tg: "570 · 320", r: "לקבל את מסמכי האשראי, לבחון עמידה באמות המידה לתאריך המאזן, ולבחון סיווג לזמן קצר במקרה של הפרה. משתמש חיצוני רגיש." },
+    "TX-IL-1": { s: "warn", t: "הדוחות משמשים את רשות המסים", tg: "320",     r: "לתעד מפורשות בנייר 320 כשיקול איכותי בקביעת הסף." },
+    "AU-1": { s: "warn", t: "ביקורת ראשונה אצל הלקוח",      tg: "510 · 320", r: "נדרשת ביקורת יתרות פתיחה לפי תקן 510, וסף מהותיות מופחת." }
+  };
+
+  // ---------- engine ----------
+  function compute() {
+    var rev = g("rev","c"), revP = g("rev","p"),
+        cogs = g("cogs","c"), cogsP = g("cogs","p"),
+        ga = g("ga","c"), gaP = g("ga","p"),
+        pbt = g("pbt","c"), pbtP = g("pbt","p"),
+        cash = g("cash","c"), cashP = g("cash","p"),
+        ar = g("ar","c"), arP = g("ar","p"),
+        inv = g("inv","c"), invP = g("inv","p"),
+        ca = g("ca","c"), cl = g("cl","c"),
+        caP = g("ca","p"), clP = g("cl","p"),
+        ta = g("ta","c"), eq = g("eq","c"), eqP = g("eq","p"),
+        owner = g("owner","c");
+
+    var m = {};
+    m.c1  = chg(rev, revP);
+    m.gm   = has(rev, cogs) && rev !== 0 ? (rev - cogs) / rev * 100 : null;
+    m.gmP  = has(revP, cogsP) && revP !== 0 ? (revP - cogsP) / revP * 100 : null;
+    m.c3  = has(m.gm, m.gmP) ? m.gm - m.gmP : null;
+    m.c4  = has(ar, rev) && rev !== 0 ? ar / rev * 365 : null;
+    m.c4P = has(arP, revP) && revP !== 0 ? arP / revP * 365 : null;
+    m.c5  = has(inv, cogs) && cogs !== 0 ? inv / cogs * 365 : null;
+    m.c5P = has(invP, cogsP) && cogsP !== 0 ? invP / cogsP * 365 : null;
+    m.c7  = has(ca, cl) ? ca - cl : null;
+    m.c7P = has(caP, clP) ? caP - clP : null;
+    m.c8  = has(ca, cl) && cl !== 0 ? ca / cl : null;
+    m.c8P = has(caP, clP) && clP !== 0 ? caP / clP : null;
+    m.c9  = has(eq, ta) && ta !== 0 ? eq / ta * 100 : null;
+    m.c10 = chg(cash, cashP);
+    m.c11 = has(ga, rev) && rev !== 0 ? ga / rev * 100 : null;
+    m.c11P= has(gaP, revP) && revP !== 0 ? gaP / revP * 100 : null;
+    m.c12 = chg(ga, gaP);
+    m.c13 = has(chg(ar, arP), m.c1) ? chg(ar, arP) - m.c1 : null;
+    m.dso = has(m.c4, m.c4P) && m.c4P !== 0 ? (m.c4 / m.c4P - 1) * 100 : null;
+    m.invd= has(m.c5, m.c5P) && m.c5P !== 0 ? (m.c5 / m.c5P - 1) * 100 : null;
+
+    // ---- flags ----
+    var f = [];
+    function fire(id, why) { f.push({ id: id, why: why }); }
+
+    if (eq !== null && eq < 0)
+      fire("GC-1", "הון עצמי " + fmt(eq) + (eqP !== null ? " · אשתקד " + fmt(eqP) : ""));
+    if (m.c7 !== null && m.c7 < 0)
+      fire("GC-2", "הון חוזר " + fmt(m.c7) + " · יחס שוטף " + (m.c8 !== null ? m.c8.toFixed(2) : "—"));
+    if (pbt !== null && pbtP !== null && pbt < 0 && pbtP > 0)
+      fire("GC-3", "רווח " + fmt(pbtP) + " ← הפסד " + fmt(pbt));
+    if (m.c10 !== null && m.c10 < -40 && pbt !== null && pbt < 0)
+      fire("GC-4", "מזומנים " + pct(m.c10) + " · הפסד " + fmt(pbt));
+    if (pbt !== null && pbtP !== null && pbt < 0 && pbtP < 0)
+      fire("GC-5", "הפסד " + fmt(pbt) + " · אשתקד " + fmt(pbtP));
+
+    if (m.c13 !== null && m.c13 > 20)
+      fire("FR-1", "פער " + m.c13.toFixed(1) + " נק׳ · לקוחות " + pct(chg(ar, arP)) + " מול הכנסות " + pct(m.c1));
+    if (m.dso !== null && m.dso > 25)
+      fire("FR-2", "DSO " + m.c4P.toFixed(0) + " ← " + m.c4.toFixed(0) + " ימים (" + pct(m.dso) + ")");
+    if (m.c3 !== null && Math.abs(m.c3) > 5)
+      fire("FR-3", "רווח גולמי " + m.gmP.toFixed(1) + "% ← " + m.gm.toFixed(1) + "% (" + (m.c3 > 0 ? "+" : "") + m.c3.toFixed(1) + " נק׳)");
+    if (m.c12 !== null && m.c12 > 30)
+      fire("FR-5", "הנה״כ " + fmt(gaP) + " ← " + fmt(ga) + " (" + pct(m.c12) + ")" + (m.c1 !== null ? " · הכנסות " + pct(m.c1) : ""));
+    if (m.c11 !== null && m.c11 > 100)
+      fire("FR-6", "הנה״כ " + fmt(ga) + " מול הכנסות " + fmt(rev) + " = " + m.c11.toFixed(0) + "%");
+    if (m.invd !== null && m.invd > 30)
+      fire("ES-1", "ימי מלאי " + m.c5P.toFixed(0) + " ← " + m.c5.toFixed(0) + " (" + pct(m.invd) + ")");
+    if (owner !== null && owner > 0)
+      fire("RP-1", "יתרת חובה " + fmt(owner));
+
+    if (document.getElementById("covenant").checked) fire("BK-IL-1", "סומן בנתוני ההתקשרות");
+    if (document.getElementById("taxonly").checked)  fire("TX-IL-1", "סומן בנתוני ההתקשרות");
+    if (document.getElementById("first").checked)    fire("AU-1", "סומן בנתוני ההתקשרות");
+
+    // ---- risk rating ----
+    var gc = f.filter(function (x) { return x.id.indexOf("GC-") === 0; }).length;
+    var risk = null, why = "";
+    if (rev !== null || eq !== null) {
+      if (gc > 0 || f.length >= 3 || (eq !== null && eq < 0)) {
+        risk = "גבוה";
+        why = gc > 0 ? gc + " דגלי עסק חי פעילים" : f.length + " דגלים פעילים";
+      } else if (f.length >= 1) { risk = "בינוני"; why = f.length + " דגלים פעילים"; }
+      else { risk = "נמוך"; why = "לא הופעלו דגלים"; }
+    }
+
+    // ---- materiality ----
+    var mat = null;
+    if (rev !== null) {
+      var lossYear = pbt !== null && pbt < 0;
+      var svc = document.getElementById("svc").checked;
+      var param, pname, rule, lo, hi;
+      if (lossYear)      { param = rev; pname = "הכנסות"; rule = 1; lo = .5; hi = 1; }
+      else if (svc)      { param = rev; pname = "הכנסות"; rule = 2; lo = .5; hi = 1; }
+      else if (pbt !== null && pbt > 0) { param = pbt; pname = "רווח לפני מס"; rule = 4; lo = 3; hi = 7; }
+      else if (ta !== null) { param = ta; pname = "סה״כ נכסים"; rule = 3; lo = .5; hi = 1; }
+
+      if (param) {
+        var conservative = risk === "גבוה" || document.getElementById("first").checked ||
+                           document.getElementById("covenant").checked || gc > 0;
+        var rate = conservative ? hi : (lo + hi) / 2;
+        // for profit-based the conservative end is the LOW rate (smaller threshold)
+        if (pname === "רווח לפני מס") rate = conservative ? lo : (lo + hi) / 2;
+        var exactOM = Math.abs(param) * rate / 100;
+        var om = roundNice(exactOM);
+        var pmRate = Number(document.getElementById("pmrate").value);
+        var exactPM = om * pmRate / 100;
+        var pm = floorNice(exactPM);
+        var exactCT = om * 5 / 100;
+        var ct = Math.round(exactCT / 5) * 5;
+        mat = { param: param, pname: pname, rule: rule, rate: rate, conservative: conservative,
+                exactOM: exactOM, om: om, pmRate: pmRate, exactPM: exactPM, pm: pm, exactCT: exactCT, ct: ct };
+      }
+    }
+
+    return { m: m, f: f, risk: risk, why: why, mat: mat, gc: gc };
+  }
+
+  // ---------- render ----------
+  function render() {
+    var r = compute();
+
+    // verdict
+    var rp = document.getElementById("v-risk");
+    if (r.risk) {
+      rp.innerHTML = '<span class="pill ' + (r.risk === "גבוה" ? "high" : r.risk === "בינוני" ? "med" : "low") + '">' + r.risk + "</span>";
+      document.getElementById("v-risk-n").textContent = r.why;
+    } else { rp.textContent = "—"; document.getElementById("v-risk-n").textContent = ""; }
+
+    function setv(id, val, note) {
+      document.getElementById("v-" + id).textContent = val === null || val === undefined ? "—" : fmt(val);
+      document.getElementById("v-" + id + "-n").textContent = note || "";
+    }
+    var advice = document.getElementById("pm-advice");
+    if (r.risk === "גבוה" && Number(document.getElementById("pmrate").value) === 75) {
+      advice.textContent = "⚠ בסיכון גבוה שקול 50%–60%";
+    } else { advice.textContent = ""; }
+
+    if (r.mat) {
+      setv("om", r.mat.om, "מדויק " + fmt(r.mat.exactOM, 0));
+      setv("pm", r.mat.pm, r.mat.pmRate + "% · מדויק " + fmt(r.mat.exactPM, 0));
+      setv("ct", r.mat.ct, "5% מהכוללת");
+      document.getElementById("mat-basis").innerHTML =
+        "כלל <b>" + r.mat.rule + "</b> — פרמטר <b>" + r.mat.pname + "</b> " + fmt(r.mat.param) +
+        " × <b>" + r.mat.rate + "%</b>" +
+        (r.mat.conservative ? " (הקצה השמרני — סיכון מוגבר)" : " (אמצע הטווח)") +
+        " = " + fmt(r.mat.exactOM, 0) + " ⇐ מעוגל " + fmt(r.mat.om) + ".";
+    } else {
+      setv("om", null); setv("pm", null); setv("ct", null);
+      document.getElementById("mat-basis").textContent = "הזן לפחות הכנסות ורווח (הפסד) כדי לגזור את הספים.";
+    }
+
+    // flags
+    var box = document.getElementById("flags"), out = "";
+    if (!r.f.length) {
+      out = '<div class="empty"><strong>לא הופעלו דגלים</strong>היעדר דגל אינו הוכחה להיעדר סיכון — חזקת התרמית בהכנסות (240) חלה בכל מקרה.</div>';
+      document.getElementById("flag-count").textContent = "";
+    } else {
+      var order = { crit: 0, warn: 1 };
+      r.f.sort(function (a, b) { return order[CATALOG[a.id].s] - order[CATALOG[b.id].s]; });
+      r.f.forEach(function (x) {
+        var c = CATALOG[x.id];
+        out += '<div class="flag sev-' + c.s + '">' +
+               '<span class="code">' + x.id + "</span>" +
+               "<div><div class=\"ttl\">" + c.t + "</div>" +
+               '<div class="why">' + x.why + "</div>" +
+               '<div class="req">' + c.r + "</div>" +
+               '<div class="tgt">◂ מוזן לתקן ' + c.tg + "</div></div></div>";
+      });
+      var crit = r.f.filter(function (x) { return CATALOG[x.id].s === "crit"; }).length;
+      document.getElementById("flag-count").textContent = r.f.length + " פעילים" + (crit ? " · " + crit + " קריטיים" : "");
+    }
+    box.innerHTML = out;
+
+    // metrics
+    var m = r.m;
+    var ROWS = [
+      ["C1",  "שינוי בהכנסות",        null, null, m.c1 === null ? null : pct(m.c1), false],
+      ["C2",  "שיעור רווח גולמי",     m.gm === null ? null : m.gm.toFixed(1) + "%", m.gmP === null ? null : m.gmP.toFixed(1) + "%", m.c3 === null ? null : (m.c3 > 0 ? "+" : "") + m.c3.toFixed(1) + " נק׳", m.c3 !== null && Math.abs(m.c3) > 5],
+      ["C4",  "ימי אשראי לקוחות",     m.c4 === null ? null : m.c4.toFixed(0), m.c4P === null ? null : m.c4P.toFixed(0), m.dso === null ? null : pct(m.dso), m.dso !== null && m.dso > 25],
+      ["C5",  "ימי מלאי",             m.c5 === null ? null : m.c5.toFixed(0), m.c5P === null ? null : m.c5P.toFixed(0), m.invd === null ? null : pct(m.invd), m.invd !== null && m.invd > 30],
+      ["C7",  "הון חוזר",             m.c7 === null ? null : fmt(m.c7), m.c7P === null ? null : fmt(m.c7P), null, m.c7 !== null && m.c7 < 0],
+      ["C8",  "יחס שוטף",             m.c8 === null ? null : m.c8.toFixed(2), m.c8P === null ? null : m.c8P.toFixed(2), null, m.c8 !== null && m.c8 < 1],
+      ["C9",  "שיעור הון עצמי",       m.c9 === null ? null : m.c9.toFixed(1) + "%", null, null, m.c9 !== null && m.c9 < 0],
+      ["C10", "שינוי במזומנים",       null, null, m.c10 === null ? null : pct(m.c10), m.c10 !== null && m.c10 < -40],
+      ["C11", "הנה״כ ביחס להכנסות",   m.c11 === null ? null : m.c11.toFixed(0) + "%", m.c11P === null ? null : m.c11P.toFixed(0) + "%", m.c12 === null ? null : pct(m.c12), m.c11 !== null && m.c11 > 100],
+      ["C13", "פער צמיחה לקוחות/הכנסות", null, null, m.c13 === null ? null : m.c13.toFixed(1) + " נק׳", m.c13 !== null && m.c13 > 20]
+    ];
+    var t = "";
+    ROWS.forEach(function (row) {
+      var any = row[2] !== null || row[3] !== null || row[4] !== null;
+      t += "<tr" + (row[5] ? ' class="hit"' : "") + '><td class="num" style="color:var(--ink-faint)">' + row[0] + "</td><td>" + row[1] + "</td>";
+      if (!any) { t += '<td class="na" colspan="3">נתונים חסרים</td>'; }
+      else {
+        t += '<td class="num">' + (row[2] === null ? "—" : row[2]) + "</td>" +
+             '<td class="num">' + (row[3] === null ? "—" : row[3]) + "</td>" +
+             '<td class="num">' + (row[4] === null ? "—" : row[4]) + "</td>";
+      }
+      t += "</tr>";
+    });
+    document.getElementById("metrics").innerHTML = t;
+
+    // missing-data note
+    var missing = [];
+    if (g("cogs","c") === null) missing.push("עלות המכר");
+    if (g("ar","c") === null)   missing.push("לקוחות");
+    if (g("ca","c") === null)   missing.push("רכוש/התחייבויות שוטפים");
+    var note = document.getElementById("gap-note");
+    if (missing.length && (g("rev","c") !== null)) {
+      note.hidden = false;
+      note.innerHTML = "<b>חישובים חסומים:</b> לא הוזנו " + missing.join(", ") +
+        " — ולכן דגלי הרווח הגולמי, ההכנסות/לקוחות והנזילות <b>לא נבחנו כלל</b>. " +
+        "זה לא ״אין סיכון״, זה ״לא נבדק״. בנייר העבודה זה חייב להירשם כ־[נא להשלים], לא להישמט.";
+    } else { note.hidden = true; }
+  }
+
+  // ---------- wire ----------
+  document.querySelectorAll("input, select").forEach(function (el) {
+    el.addEventListener("input", render);
+    el.addEventListener("change", render);
+  });
+  document.getElementById("demo").addEventListener("click", function () {
+    Object.keys(DEMO).forEach(function (k) {
+      var e1 = document.getElementById(k + "_c"), e2 = document.getElementById(k + "_p");
+      if (e1) e1.value = DEMO[k][0];
+      if (e2) e2.value = DEMO[k][1];
+    });
+    document.getElementById("svc").checked = true;
+    document.getElementById("taxonly").checked = true;
+    render();
+  });
+  document.getElementById("clear").addEventListener("click", function () {
+    document.querySelectorAll('input[type="text"]').forEach(function (e) { e.value = ""; });
+    document.querySelectorAll('input[type="checkbox"]').forEach(function (e) { e.checked = false; });
+    render();
+  });
+
+  render();
+})();
+</script>
