@@ -339,12 +339,32 @@
   body.compact .status-line { font-size: .9rem; }
 
   /* ---------- כאפליקציה מותקנת: חלון קטן אחד, התיבה ממלאת אותו ---------- */
+  #collapseBtn { display: none; margin-inline-start: auto; }
   body.app-mode { padding: 8px; align-items: stretch; }
   body.app-mode .app { max-width: 100%; height: calc(100vh - 16px); }
   body.app-mode header, body.app-mode .logo-wrap, body.app-mode #compactBtn { display: none; }
   body.app-mode .card { flex: 1; min-height: 0; }
   body.app-mode .editor-wrap { flex: 1; min-height: 0; display: flex; }
   body.app-mode textarea { flex: 1; min-height: 0; resize: none; }
+  body.app-mode #collapseBtn { display: grid; }
+
+  /* ---------- חלון מקופל: רק אייקון המיקרופון ---------- */
+  body.collapsed { padding: 0; }
+  body.collapsed .app { height: 100vh; gap: 0; }
+  body.collapsed .card {
+    flex: 1; border: none; box-shadow: none; border-radius: 0;
+    padding: 0; gap: 0; display: grid; place-items: center;
+  }
+  body.collapsed .status,
+  body.collapsed .editor-wrap,
+  body.collapsed .actions,
+  body.collapsed .pause,
+  body.collapsed .warn,
+  body.collapsed footer,
+  body.collapsed #collapseBtn { display: none; }
+  body.collapsed .controls { gap: 0; justify-content: center; }
+  body.collapsed .mic { width: 58px; height: 58px; }
+  body.collapsed .mic svg { width: 25px; height: 25px; }
 </style>
 </head>
 <body>
@@ -384,6 +404,12 @@
         <div class="status-line"><span class="dot" id="dot"></span><span id="statusText">מוכן להקלטה</span></div>
         <div class="hint">לחצו על המיקרופון ודברו. ההקלטה נעצרת לבד אחרי 5 שניות של שקט, או בלחיצה חוזרת.</div>
       </div>
+      <button class="icon-btn" id="collapseBtn" aria-label="קיפול החלון לאייקון" title="קיפול החלון לאייקון">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M9 9H4"/><path d="M9 9V4"/><path d="M9 9l-5-5"/>
+          <path d="M15 15h5"/><path d="M15 15v5"/><path d="M15 15l5 5"/>
+        </svg>
+      </button>
     </div>
 
     <div class="editor-wrap">
@@ -457,6 +483,7 @@
   var silenceTimer = null;    // 5 שניות שקט = נעילת תוצאת הביניים
   var SILENCE_MS = 5000;
   var compactBtn = document.getElementById("compactBtn");
+  var collapseBtn = document.getElementById("collapseBtn");
   // האם רצים כאפליקציה מותקנת (חלון עצמאי) ולא כלשונית בדפדפן
   var isApp = !!(window.matchMedia && window.matchMedia("(display-mode: standalone)").matches);
   var toastTimer = null;
@@ -605,6 +632,8 @@
   }
 
   micBtn.addEventListener("click", function () {
+    // כשהחלון מקופל, המיקרופון הוא כפתור הפתיחה
+    if (document.body.classList.contains("collapsed")) { expand(); return; }
     if (recording) stop(); else start();
   });
 
@@ -675,6 +704,42 @@
   compactBtn.addEventListener("click", function () {
     setCompact(!document.body.classList.contains("compact"));
   });
+
+  /* ---------- קיפול החלון לאייקון ופתיחתו בחזרה ---------- */
+
+  var SIZE_KEY = "hgj-dictation-size";
+  var COLLAPSED_W = 150;
+  var COLLAPSED_H = 165;
+
+  function collapse() {
+    // שומרים את הגודל הפתוח כדי לחזור אליו בדיוק
+    try {
+      localStorage.setItem(SIZE_KEY, JSON.stringify({
+        w: window.outerWidth, h: window.outerHeight
+      }));
+    } catch (err) {}
+    document.body.classList.add("collapsed");
+    try { window.resizeTo(COLLAPSED_W, COLLAPSED_H); } catch (err) {}
+    // אם הדפדפן לא איפשר לשנות את גודל החלון, אין טעם להשאיר תצוגה מקופלת
+    setTimeout(function () {
+      if (window.outerWidth > COLLAPSED_W + 120) {
+        document.body.classList.remove("collapsed");
+        showToast("הדפדפן לא מאפשר לקפל את החלון");
+      }
+    }, 200);
+  }
+
+  function expand() {
+    var size = null;
+    try { size = JSON.parse(localStorage.getItem(SIZE_KEY)); } catch (err) {}
+    document.body.classList.remove("collapsed");
+    var w = size && size.w > 240 ? size.w : 430;
+    var h = size && size.h > 240 ? size.h : 560;
+    try { window.resizeTo(w, h); } catch (err) {}
+    textEl.focus();
+  }
+
+  collapseBtn.addEventListener("click", collapse);
 
   (function initLayout() {
     if (isApp) {
