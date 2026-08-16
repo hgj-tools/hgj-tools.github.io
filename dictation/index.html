@@ -712,21 +712,24 @@
   var COLLAPSED_H = 165;
 
   function collapse() {
+    var beforeW = window.outerWidth;
     // שומרים את הגודל הפתוח כדי לחזור אליו בדיוק
     try {
       localStorage.setItem(SIZE_KEY, JSON.stringify({
-        w: window.outerWidth, h: window.outerHeight
+        w: beforeW, h: window.outerHeight
       }));
     } catch (err) {}
     document.body.classList.add("collapsed");
     try { window.resizeTo(COLLAPSED_W, COLLAPSED_H); } catch (err) {}
-    // אם הדפדפן לא איפשר לשנות את גודל החלון, אין טעם להשאיר תצוגה מקופלת
+    // כרום מגביל את גודל המינימום, ולפעמים חוסם שינוי גודל לגמרי.
+    // כל הקטנה משמעותית נחשבת הצלחה; רק אם דבר לא קרה חוזרים לתצוגה מלאה.
     setTimeout(function () {
-      if (window.outerWidth > COLLAPSED_W + 120) {
+      var shrank = window.outerWidth <= 320 || window.outerWidth <= beforeW * 0.75;
+      if (!shrank) {
         document.body.classList.remove("collapsed");
-        showToast("הדפדפן לא מאפשר לקפל את החלון");
+        showToast("הדפדפן חוסם הקטנה של החלון. אפשר למזער אותו בפס הכותרת");
       }
-    }, 200);
+    }, 250);
   }
 
   function expand() {
