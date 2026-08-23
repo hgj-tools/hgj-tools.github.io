@@ -122,24 +122,24 @@
   <div class="card">
     <h2>התקנה והפעלה</h2>
 
-    <h3>1. Python</h3>
-    <p class="meta" style="margin-top:2px;">נדרש <b>Python 3</b> מותקן. אם אין, מתקינים מהמקור הרשמי ומסמנים בהתקנה <span class="path">Add python.exe to PATH</span>:</p>
+    <h3>1. הטענת הסקיל</h3>
+    <p class="meta" style="margin-top:2px;">בתפריט ההגדרות: <b>Customize &gt; Skills &gt; Add &gt; Upload skill</b>, ומעלים את קובץ ה-ZIP <b>כמו שהוא</b>, בלי לחלץ ובלי לארוז מחדש. הסקיל נשמר בחשבון ומופיע בכל הסביבות, כולל Claude Code.</p>
+    <p class="meta" style="margin-top:6px;">שים לב: הסקילים יושבים תחת <span class="path">Customize</span>, ולא תחת <span class="path">Capabilities</span>, אף ששם דומה מופיע גם הוא בתפריט.</p>
+
+    <h3>2. Python</h3>
+    <p class="meta" style="margin-top:2px;">נדרש <b>Python 3</b> בסביבה שבה Claude מריץ קוד (ראה ההסבר למטה). אם אין, מתקינים מהמקור הרשמי ומסמנים בהתקנה <span class="path">Add python.exe to PATH</span>:</p>
     <p style="margin:8px 0;">
       <a class="download secondary" href="https://www.python.org/downloads/" target="_blank" rel="noopener noreferrer">הורדת Python (python.org)</a>
     </p>
     <p class="meta" style="margin-top:2px;">ואז פעם אחת בשורת הפקודה:</p>
     <span class="install">pip install pymupdf openpyxl</span>
 
-    <h3>2. הטענת הסקיל</h3>
-    <ul>
-      <li><b>Claude Desktop או claude.ai:</b> Settings &gt; Capabilities &gt; Skills, ומעלים את קובץ ה-ZIP כמו שהוא.</li>
-      <li><b>Claude Code:</b> מחלצים את ה-ZIP ומעבירים את התיקייה שנוצרה אל <span class="path">~/.claude/skills/</span> (בווינדוס: <span class="path">C:\Users\[שם]\.claude\skills\</span>).</li>
-    </ul>
-
     <h3>3. הפעלה</h3>
     <p class="meta" style="margin-top:2px;">פותחים שיחה בתיקייה שבה נמצא ה-PDF ומבקשים <span class="path he">תעבור הגהה על הדוח</span>. קובץ האקסל נכתב לצד הדוח.</p>
 
-    <div class="warn" style="margin-top:16px;">⚠ הסקריפטים רצים על המחשב המקומי, ולכן הכלי עובד ב-Claude Desktop או ב-Claude Code ולא בסביבת הרצה בענן. הליבה, קריאת העמודים והשיפוט המקצועי, מתבצעת על ידי Claude. הרצת הסקריפטים לבדם מבצעת רק רינדור ויצירת אקסל.</div>
+    <div class="warn" style="margin-top:16px;">
+      ⚠ <b>מה רץ ולמה צריך Python.</b> החבילה איננה הנחיות בלבד. בתוכה שני סקריפטים שמורצים בפועל: אחד ממיר כל עמוד ב-PDF לתמונה, והשני בונה את קובץ האקסל המעוצב. הקריאה של העמודים והשיפוט המקצועי הם של Claude, אבל שני השלבים המכניים הם קוד, והוא רץ בסביבה שבה Claude מריץ קוד. ב-Claude Desktop וב-Claude Code זה המחשב שלכם, ולכן Python צריך להיות מותקן שם. בסביבת הרצה בענן אין רשת ו-PyMuPDF אינו מותקן, ולכן שלב המרת העמודים לתמונות ייכשל שם.
+    </div>
   </div>
 
   <div class="warn">
