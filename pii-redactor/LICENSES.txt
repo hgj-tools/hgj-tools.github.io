@@ -1,0 +1,41 @@
+רישיונות של ספריות צד שלישי
+===========================
+
+הכלי כולל בתיקיית vendor ספריות קוד פתוח, הנטענות מקומית כדי שהעיבוד לא
+ידרוש חיבור לאינטרנט. להלן הרישיון של כל אחת. הרישיונות המלאים מופיעים
+במאגרים הרשמיים של הפרויקטים.
+
+xlsx.full.min.js
+  SheetJS Community Edition (js-xlsx)
+  Apache License 2.0
+
+mammoth.browser.min.js
+  Mammoth.js
+  BSD 2-Clause License
+
+pdf.min.js, pdf.worker.min.js
+  PDF.js (Mozilla)
+  Apache License 2.0
+
+pdf-lib.min.js
+  pdf-lib
+  MIT License
+
+jszip.min.js
+  JSZip
+  רישיון כפול: MIT או GPLv3, לבחירת המשתמש
+
+tesseract.min.js, tesseract-worker.min.js
+  Tesseract.js
+  Apache License 2.0
+
+tesseract-core.wasm(.js), tesseract-core-simd.wasm(.js)
+  tesseract.js-core (Tesseract OCR מקומפל ל-WebAssembly)
+  Apache License 2.0
+
+lang/heb.traineddata.gz, lang/eng.traineddata.gz
+  Tesseract tessdata
+  Apache License 2.0
+
+הקוד של הכלי עצמו (index.html, css, js) נכתב לשימוש מקצועי פנימי ומסופק
+כמו שהוא, ללא אחריות מכל סוג.
