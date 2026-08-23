@@ -1,170 +1,204 @@
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<!-- אכיפת עבודה מקומית: חוסם כל בקשת רשת יוצאת (fetch/XHR/WebSocket/beacon).
-     מוגדר בצורה ממוקדת ובלי default-src, כדי שלא ישבור טעינת קבצים מקומיים מ-file:// -->
-<meta http-equiv="Content-Security-Policy" content="connect-src 'self' blob: data:; form-action 'none'; base-uri 'none'; object-src 'none'">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>מנקה נתונים אישיים, עיבוד מקומי</title>
-<!-- ספריות עיבוד. נטענות מקומית מתיקיית vendor. שום דבר לא נשלח לאינטרנט, והכלי עובד גם ללא רשת. -->
-<script src="vendor/xlsx.full.min.js"></script>
-<script src="vendor/mammoth.browser.min.js"></script>
-<script src="vendor/pdf.min.js"></script>
-<script src="vendor/jszip.min.js"></script>
-<script src="vendor/pdf-lib.min.js"></script>
-<script src="vendor/tesseract.min.js"></script>
-<link rel="stylesheet" href="css/style.css">
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>מנקה נתונים אישיים | HGJ</title>
+<link rel="icon" href="../logo-mark.png">
+<style>
+  :root {
+    --bg: #F7F8FA; --surface: #FFFFFF; --surface-2: #EEF1F4; --border: #DDE2E8;
+    --ink: #1B1F27; --ink-soft: #5A6472; --accent: #2F55D4; --accent-ink: #FFFFFF;
+    --warn-bg: #FDF0F0; --warn-border: #E0B4B4; --warn-ink: #7A0000;
+    --ok-bg: #EFF8EF; --ok-border: #BEE0BE; --ok-ink: #145214;
+    --shadow: 0 1px 2px rgba(20,30,50,.06), 0 8px 24px rgba(20,30,50,.07);
+    --font-ui: "Segoe UI", "Assistant", "Rubik", system-ui, -apple-system, Arial, sans-serif;
+    --radius: 14px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14171C; --surface: #1C2027; --surface-2: #232833; --border: #2E353F;
+      --ink: #EAEEF3; --ink-soft: #9AA5B1; --accent: #6B85FF; --accent-ink: #0E1116;
+      --warn-bg: #2A1A1A; --warn-border: #5A2E2E; --warn-ink: #F0B4B4;
+      --ok-bg: #17251A; --ok-border: #2E4A34; --ok-ink: #A6D8AE;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); }
+  body {
+    font-family: var(--font-ui); color: var(--ink); min-height: 100vh;
+    display: flex; justify-content: center; align-items: flex-start;
+    padding: clamp(16px, 4vw, 48px) 16px; line-height: 1.6;
+  }
+  .page { width: 100%; max-width: 760px; display: flex; flex-direction: column; gap: 22px; }
+  .logo-wrap {
+    background: #fff; border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 16px 20px; display: flex; align-items: center; justify-content: space-between;
+    box-shadow: var(--shadow); gap: 12px;
+  }
+  .logo-wrap img { height: 48px; width: auto; }
+  .back { color: var(--accent); text-decoration: none; font-size: .9rem; font-weight: 600; white-space: nowrap; }
+  .back:hover { text-decoration: underline; }
+  header .title { font-size: clamp(1.5rem, 1.1rem + 1.6vw, 2rem); font-weight: 800; margin: 0 0 6px; letter-spacing: -.01em; }
+  header .subtitle { color: var(--ink-soft); font-size: 1rem; margin: 0; }
+  .card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 22px 24px;
+  }
+  .card h2 { margin: 0 0 12px; font-size: 1.15rem; color: var(--ink); }
+  .card h3 { margin: 18px 0 6px; font-size: .98rem; color: var(--ink); }
+  .card h3:first-of-type { margin-top: 14px; }
+  .download {
+    display: inline-flex; align-items: center; gap: 10px; background: var(--accent);
+    color: var(--accent-ink); text-decoration: none; font-weight: 700; font-size: 1.05rem;
+    padding: 14px 26px; border-radius: 12px; transition: transform .12s ease, filter .15s ease;
+  }
+  .download:hover { transform: translateY(-2px); filter: brightness(1.05); }
+  .download svg { width: 20px; height: 20px; }
+  .download.secondary { background: transparent; color: var(--accent); border: 1.5px solid var(--accent); font-size: .98rem; padding: 11px 20px; }
+  .download.secondary:hover { background: var(--surface-2); filter: none; }
+  .meta { color: var(--ink-soft); font-size: .88rem; margin-top: 10px; }
+  ol, ul { margin: 8px 0; padding-inline-start: 22px; }
+  li { margin: 6px 0; }
+  code, .path {
+    font-family: Consolas, "SF Mono", monospace; background: var(--surface-2);
+    border: 1px solid var(--border); border-radius: 5px; padding: 1px 7px; font-size: .9em;
+    direction: ltr; unicode-bidi: isolate; display: inline-block;
+  }
+  /* מחרוזת שרובה עברית (שם קובץ פלט, פקודה בעברית) חייבת RTL,
+     אחרת סיומת כמו .xlsx נדחפת לימין ונקראת ראשונה. */
+  .path.he { direction: rtl; }
+  .install { display: block; direction: ltr; text-align: left; padding: 12px 14px; margin: 6px 0;
+    background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px;
+    font-family: Consolas, monospace; font-size: .88rem; overflow-x: auto; }
+  .warn { background: var(--warn-bg); border: 1px solid var(--warn-border); color: var(--warn-ink);
+    border-radius: 10px; padding: 14px 18px; font-weight: 600; }
+  .ok { background: var(--ok-bg); border: 1px solid var(--ok-border); color: var(--ok-ink);
+    border-radius: 10px; padding: 14px 18px; }
+  .tokens { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+  .tok { background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 2px 8px; font-size: .82rem; }
+  footer { color: var(--ink-soft); font-size: .82rem; text-align: center; padding-top: 4px; }
+  footer a { color: var(--accent); text-decoration: none; font-weight: 600; }
+</style>
 </head>
 <body>
-<div class="wrap">
-  <div class="topbar">
-    <div class="brand">
-      <img class="logo-img" src="data:image/png;base64,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" alt="HGJ, הוגן, גינזבורג, יודלביץ ושות' רואי חשבון">
-      <div>
-        <h1>מנקה נתונים אישיים</h1>
-        <span class="badge"><span class="dot"></span> עיבוד מקומי בלבד</span>
-      </div>
-    </div>
-    <button class="theme-btn" id="themeBtn" title="החלף תצוגה בהירה / כהה" aria-label="החלף תצוגה"></button>
-  </div>
-  <p class="sub">מעלים או מדביקים קובץ, הכלי מזהה ומסתיר נתונים אישיים, ומורידים גרסה נקייה בפורמט המקור לניתוח במודל. הקבצים אינם נשלחים לשום שרת.</p>
+<div class="page">
 
-  <div class="privacy-note">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-    <span>כל העיבוד מתבצע בדפדפן שלך. אפשר לנתק את הרשת אחרי טעינת העמוד, הקבצים נשארים על המחשב בלבד.
-      לעבודה מנותקת לחלוטין אפשר <a href="pii-redactor.zip" style="color:inherit;font-weight:600">להוריד את הכלי</a> ולהריץ אותו מקומית.</span>
+  <div class="logo-wrap">
+    <img src="../logo-mark.png" alt="הוגן, גינזבורג, יודלביץ ושות' - רואי חשבון">
+    <a class="back" href="../">← כל הכלים</a>
   </div>
 
-  <div class="hint" style="margin:0 0 18px;line-height:1.75">
-    <b>איך עובדים:</b> מעלים קבצים, מדביקים את השמות והמונחים שצריך להסתיר, לוחצים "סרוק קבצים",
-    עוברים על טבלת הממצאים ועל התצוגה המקדימה, ואז "הפק קבצים נקיים". בסוף קוראים את פאנל האימות
-    שמופיע מתחת לכפתור ההורדה: הוא מחלץ מחדש את הטקסט מהקובץ שנוצר ומאשר שלא נשאר בו אף ערך מאושר.
+  <header>
+    <h1 class="title">🧹 מנקה נתונים אישיים</h1>
+    <p class="subtitle">כלי מקומי (אופליין) להשחרת מידע מזהה מקובצי <b>PDF, Word, Excel ותמונות</b>, לפני העלאתם לניתוח בכלי AI כמו Claude או GPT.</p>
+  </header>
+
+  <div class="ok" style="display:flex;align-items:center;gap:10px;">
+    🌐 <span><b>כלי דפדפן עצמאי, בלי התקנה ובלי Python.</b> מחלצים את התיקייה ופותחים את <span class="path">index.html</span>. כל העיבוד מתבצע בדפדפן שעל המחשב שלכם, ושום קובץ אינו נשלח לרשת.</span>
   </div>
 
-  <!-- 1. העלאה -->
   <div class="card">
-    <h2><span class="step">1</span> העלאת קבצים</h2>
-    <div id="drop">
-      <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg></div>
-      <div class="big">גררו לכאן קבצים או לחצו לבחירה</div>
-      <div class="small">Excel (xlsx / csv) · Word (docx) · PDF · תמונות (png / jpg)</div>
-      <span class="paste">אפשר גם להדביק תמונה עם Ctrl+V</span>
+    <h2>הורדה</h2>
+    <a class="download" href="pii-redactor.zip" download>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+      הורדת הכלי (ZIP)
+    </a>
+    <div class="tokens">
+      <span class="tok">PDF טקסטואלי</span><span class="tok">PDF סרוק</span><span class="tok">Word</span>
+      <span class="tok">Excel ו-CSV</span><span class="tok">תמונות</span><span class="tok">OCR עברית ואנגלית</span>
+      <span class="tok">אימות הפלט</span>
     </div>
-    <input type="file" id="file" multiple accept=".xlsx,.xls,.csv,.docx,.pdf,.png,.jpg,.jpeg">
-    <div class="hint">טיפ ל-PDF סרוק: אם יש לך תוכנת OCR כמו ABBYY FineReader, המר קודם ל-PDF מבוסס-טקסט (searchable) והעלה, הזיהוי יהיה אוטומטי ומדויק יותר. אחרת, השתמש ב-OCR המובנה בסעיף 5.</div>
-    <div id="files"></div>
+    <p class="meta">כ-9MB. כל הספריות ארוזות בתוך החבילה, ולכן הכלי עובד גם כשהמחשב מנותק מהרשת לחלוטין. אין להזיז את <span class="path">index.html</span> מחוץ לתיקייה: תיקיות <span class="path">vendor</span>, <span class="path">css</span> ו-<span class="path">js</span> חייבות להישאר לצידו.</p>
   </div>
 
-  <!-- 2. הגדרות זיהוי -->
   <div class="card">
-    <h2><span class="step">2</span> הגדרות זיהוי</h2>
-    <div class="row">
-      <div>
-        <label class="fld">שמות ומונחים להסתרה, הכלי המרכזי. הדביקו שם הארגון ושמות (שורה לכל ערך)</label>
-        <textarea id="names" placeholder="הדביקו כאן את מה שצריך להסתיר, למשל:&#10;חברה לדוגמה בע&quot;מ&#10;ישראל ישראלי&#10;דנה כהן&#10;קרן לדוגמה"></textarea>
-        <div class="hint">כל מופע מדויק של המונחים האלה יוסתר בכל הקבצים ובכל העמודים. זו הדרך הבטוחה ביותר לשמות ולשם הארגון.</div>
-      </div>
+    <h2>למה הכלי מיועד</h2>
+    <p>לפני שמעלים דוח כספי, כרטסת או מסמך לקוח לניתוח בכלי AI, צריך להסיר ממנו את המזהים. הכלי מזהה את הנתונים, מציג אותם בטבלה לאישור, ומפיק קובץ נקי <b>באותו פורמט</b>. הזיהוי האוטומטי הוא עזר: המנגנון המרכזי הוא הדבקת שמות הארגון והאנשים שצריך להסתיר.</p>
+    <h3>מזהים שהכלי מזהה אוטומטית</h3>
+    <div class="tokens">
+      <span class="tok">ת"ז (עם ספרת ביקורת)</span><span class="tok">ח.פ / ע.מ</span><span class="tok">טלפון</span>
+      <span class="tok">אימייל</span><span class="tok">כרטיס אשראי (Luhn)</span><span class="tok">חשבון בנק</span>
+      <span class="tok">IBAN (mod-97)</span><span class="tok">תיק ניכויים</span><span class="tok">כתובת</span>
+      <span class="tok">תאריך לידה</span><span class="tok">שמות מהמילון</span>
     </div>
-    <div class="divider"></div>
-    <div class="row">
-      <div>
-        <label class="fld">אילו סוגי נתונים לזהות אוטומטית</label>
-        <div id="detectors" class="modes"></div>
-        <div class="modes" style="margin-top:8px">
-          <button id="detAll" class="mini">בחר הכל</button>
-          <button id="detNone" class="mini">נקה הכל</button>
-        </div>
-        <div class="hint">מבנה קבוע (ת.ז, טלפון, אימייל, אשראי) בטוח לזיהוי אוטומטי. "שמות מהמילון" עלול לתפוס מילים שאינן שמות; בדקו את הממצאים לפני הפקה. אחרי שינוי הגדרות, לחצו שוב "סרוק קבצים".
-      </div>
-    </div>
-    <details class="fold" style="margin-top:14px">
-      <summary>מצב זיהוי שמות אוטומטי לפי הקשר עברי (ניסיוני)</summary>
-      <div class="modes">
-        <button class="ctxbtn" data-v="on">מופעל, תופס אחרי "מר", "רו&quot;ח", "יו&quot;ר", "בעל השליטה" וכו'</button>
-        <button class="ctxbtn on" data-v="off">כבוי (מומלץ)</button>
-      </div>
-      <div class="hint">מצב זה עלול לתפוס מילים שאינן שמות. כבוי כברירת מחדל כדי למנוע הסתרות מיותרות. עוברים על הממצאים ומאשרים לפני הפקה.</div>
-    </details>
+    <h3>תווית ממוספרת, ולא מחיקה אחידה</h3>
+    <p class="meta">כל ערך מקבל מזהה קבוע לאורך כל הקבצים: <span class="path">[שם-1]</span>, <span class="path">[שם-2]</span>, <span class="path">[ת"ז-1]</span>. כך אותו אדם נשאר אותו אדם בעיני המודל, ואפשר לנתח צדדים קשורים, עסקאות חוזרות והשוואה בין תקופות. תווית אחידה, שבה כל השמות הופכים ל-<span class="path">[שם]</span>, מוחקת את ההבחנה הזאת והופכת את הניתוח לחסר תועלת. בסוף ההפקה מוצע להורדה <b>קובץ מפתח</b> לפענוח, בנפרד ומחוץ לקובץ ה-ZIP של הפלט.</p>
   </div>
 
-  <!-- 3. אופן הטיפול -->
   <div class="card">
-    <h2><span class="step">3</span> אופן הטיפול בנתון שזוהה</h2>
-    <div id="mode" class="modes">
-      <button data-m="token" class="on">תווית ממוספרת [שם-1], מומלץ לניתוח</button>
-      <button data-m="label">תווית אחידה [שם]</button>
-      <button data-m="mask">מסכה חלקית 05X-XXX1234</button>
-      <button data-m="delete">מחיקה מלאה</button>
-    </div>
-    <div class="hint"><b>תווית ממוספרת</b> נותנת לכל ערך מזהה קבוע לאורך כל הקבצים, כך שאותו אדם נשאר אותו אדם בעיני המודל. זה מה שמאפשר לנתח צדדים קשורים, עסקאות חוזרות והשוואה בין תקופות. בסוף ההפקה אפשר להוריד <b>קובץ מפתח</b> לפענוח, שנשאר אצלך ואינו נכלל בקבצים הנקיים.</div>
-    <div class="hint">מצב זה חל <b>רק על פריטים שזוהו ואושרו</b> בטבלת הממצאים, הוא לא מסתיר "הכל". ברירת המחדל היא החלפה בתווית. ב-PDF ההסתרה היא תמיד מלבן שחור עם הסרת שכבת הטקסט.</div>
+    <h2>איך משתמשים</h2>
+    <ol>
+      <li>מחלצים את התיקייה ופותחים את <span class="path">index.html</span> בלחיצה כפולה.</li>
+      <li>גוררים את הקבצים, או מדביקים תמונה עם <span class="path">Ctrl+V</span>.</li>
+      <li><b>מדביקים את השמות והמונחים להסתרה</b>, שורה לכל ערך. זו הדרך הבטוחה ביותר לשם הארגון ולשמות אנשים.</li>
+      <li>לוחצים <b>סרוק קבצים</b>, ועוברים על טבלת הממצאים. הזיהוי האוטומטי של שמות בעברית אינו מדויק לחלוטין, ולכן מאשרים ומורידים סימון לפי הצורך.</li>
+      <li>ב-PDF ובתמונות עוברים על התצוגה המקדימה: גרירה מוסיפה מלבן שחור, לחיצה על מלבן מבטלת אותו, וסימון <b>"החל על כל העמודים"</b> מעתיק מלבן לאותו מקום בכל העמודים (שימושי לשם לקוח שחוזר בכותרת).</li>
+      <li>לוחצים <b>הפק קבצים נקיים</b>, ואז <b>קוראים את פאנל האימות</b> שמופיע מתחת לכפתור ההורדה.</li>
+    </ol>
+    <p class="meta">שם הקובץ מנוקה גם הוא, כי שם הלקוח יושב בו כמעט תמיד. אפשר גם לבחור שם אנונימי לחלוטין.</p>
   </div>
 
-  <!-- 4. ממצאים -->
   <div class="card">
-    <h2><span class="step">4</span> ממצאים <span class="cnt" id="findcount">0</span></h2>
-    <div class="actions" style="margin-top:0;margin-bottom:12px">
-      <button class="btn" id="scan" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4-4"/></svg>סרוק קבצים</button>
-      <button class="btn ghost" id="selall">סמן הכל</button>
-      <button class="btn ghost" id="selnone">נקה סימון</button>
-      <span id="status"></span>
-    </div>
-    <div id="findings"><div class="empty">עדיין לא נסרק דבר. העלו קבצים ולחצו "סרוק קבצים".</div></div>
+    <h2>אימות הפלט</h2>
+    <p>אחרי כל הפקה הכלי <b>מחלץ מחדש</b> את הטקסט מהקובץ שנוצר, ובודק שאף ערך מאושר לא שרד בו וגם לא בשם הקובץ. התוצאה מוצגת בטבלה, עם מספר הערכים שנבדקו ורשימת השרידים אם נמצאו.</p>
+    <div class="ok" style="margin-top:12px;">✓ זה ההבדל בין כלי שסומכים עליו לכלי שמאמינים לו. אם מופיעים שרידים, אין להעביר את הקובץ לפני שמבינים למה.</div>
   </div>
 
-  <!-- 5. תמונות -->
-  <div class="card" id="imgcard" style="display:none">
-    <h2><span class="step">5</span> תצוגה מקדימה ועריכת השחרות</h2>
-    <div class="hint">כל PDF ותמונה מוצגים עם ההשחרות (שחור) לפני הפקה. <b>גרירה</b> עם העכבר מוסיפה מלבן; <b>לחיצה על מלבן</b> מבטלת אותו (אוטומטי או ידני). אפשר להקליד בשדה שמעל כל מסמך מילה/שם שיושחר בכל העמודים. ביטול השחרה אוטומטית ספציפית אפשרי גם ע"י הורדת הסימון בטבלת הממצאים. סימון <b>"החל על כל העמודים"</b> לפני הגרירה מעתיק את המלבן לאותו מקום בכל עמודי המסמך, שימושי לשם לקוח שחוזר בכותרת כל עמוד.</div>
-    <div id="imgarea"></div>
-  </div>
-
-  <!-- 6. הורדה -->
   <div class="card">
-    <h2><span class="step">6</span> הורדת קבצים נקיים</h2>
-    <label class="fld">אופן הפקת PDF</label>
-    <div id="pdfmode" class="modes">
-      <button data-p="image" class="on">תמונה, מאובטח (הטקסט המוסתר נמחק לגמרי)</button>
-      <button data-p="text">טקסטואלי, שומר טקסט מקורי</button>
+    <h2>שני מצבי הפקה ל-PDF</h2>
+    <h3>תמונה (ברירת המחדל, המצב הבטוח)</h3>
+    <p class="meta" style="margin-top:2px;">כל עמוד מומר לתמונה ושכבת הטקסט נמחקת לגמרי. הנתון המוסתר אינו קיים בקובץ ואינו ניתן לחילוץ. זהו המצב היחיד שמתאים להעלאה למודל או להעברה לגורם חיצוני.</p>
+    <h3>טקסטואלי</h3>
+    <p class="meta" style="margin-top:2px;">שומר את המסמך המקורי ומצייר מלבן שחור מעל האזור. מתאים להצגה ויזואלית בלבד.</p>
+    <div class="warn" style="margin-top:14px;">
+      ⚠ <b>במצב טקסטואלי הטקסט המקורי נשאר בקובץ מתחת למלבן</b>, וניתן לחלץ אותו בהעתקה פשוטה או בכלי אוטומטי. הכלי דורש אישור מפורש בדיאלוג לפני המעבר למצב הזה, ופאנל האימות מסמן את השרידים במפורש. אין להעלות קובץ כזה למודל שפה.
     </div>
-    <div class="hint" id="pdfmodehint">מצב "תמונה" ממיר כל עמוד לתמונה ומוחק את שכבת הטקסט, הנתון המוסתר לא ניתן לחילוץ. מומלץ להעלאה למודל.</div>
-
-    <div class="row" style="margin-top:14px">
-      <div>
-        <label class="fld">רזולוציה ומשקל הפלט (חל על מצב "תמונה")</label>
-        <div id="pdfres" class="modes">
-          <button data-r="1.5">חסכוני, קובץ קל</button>
-          <button data-r="2" class="on">מאוזן (מומלץ)</button>
-          <button data-r="3">איכות גבוהה, קובץ כבד</button>
-        </div>
-        <div class="hint">בספר דוחות של עשרות עמודים כדאי "חסכוני", כדי שהקובץ לא ייצא כבד מדי להעלאה. שינוי הרזולוציה מחייב סריקה מחדש.</div>
-      </div>
-    </div>
-
-    <label style="margin-top:12px;display:flex;align-items:center;gap:9px;cursor:pointer;font-size:13.5px">
-      <input type="checkbox" class="chk" id="anonname">
-      <span>שם קובץ אנונימי לחלוטין (<b>מסמך_1_נקי</b>). בכל מקרה, כל מונח שסימנת להשחרה מוסר גם משם הקובץ.</span>
-    </label>
-    <label style="margin-top:9px;display:flex;align-items:center;gap:9px;cursor:pointer;font-size:13.5px">
-      <input type="checkbox" class="chk" id="stripmedia" checked>
-      <span>הסר תמונות ואובייקטים מוטמעים מ-Word ומ-Excel. <b>מומלץ להשאיר מסומן</b>: צילום מסך או עמוד סרוק שהודבק למסמך אינו נסרק על ידי הכלי, והטקסט שבתוכו יישאר חשוף.</span>
-    </label>
-    <label style="margin-top:14px;display:flex;align-items:center;gap:9px;cursor:pointer;font-size:13.5px">
-      <input type="checkbox" class="chk" id="mdout">
-      <span>הפק גם <b>Markdown נקי ל-LLM</b> (redacted.md), קובץ טקסט קל עם הנתונים המוסתרים מוחלפים בתוויות, נוח להעלאה ל-Claude / GPT / Gemini במקום PDF כבד</span>
-    </label>
-    <div class="actions" style="margin-top:14px">
-      <button class="btn" id="download" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>הפק קבצים נקיים</button>
-      <span id="dlstatus"></span>
-    </div>
-    <div id="dllinks"></div>
-    <div id="verify"></div>
-    <div class="hint">ההורדה מתבצעת רק בלחיצה על הכפתור שמופיע כאן, אין הורדה אוטומטית. אם הדפדפן חוסם "הורדת קבצים מרובים": ודא שפתחת את הגרסה החדשה ביותר של הקובץ, ובמידת הצורך אשר בהגדרות האתר (אייקון משמאל לכתובת ← הורדות אוטומטיות ← אפשר).</div>
   </div>
-  <p class="sub" style="margin-top:22px;font-size:12.5px;opacity:.85">הכלי מסופק כמו שהוא, לשימוש מקצועי, ואינו מחליף בדיקה אנושית של הפלט לפני העברתו לגורם חיצוני. האחריות על תוכן הקובץ המופק היא על המשתמש.</p>
+
+  <div class="card">
+    <h2>PDF סרוק ו-OCR</h2>
+    <p>לעמוד סרוק אין שכבת טקסט, ולכן אין מה לזהות אוטומטית. הכלי מזהה זאת לכל עמוד בנפרד ומציע שתי דרכים:</p>
+    <ol>
+      <li><b>המרה מוקדמת (מומלץ).</b> ממירים את המסמך ב-ABBYY FineReader ל-PDF מבוסס-טקסט, מעלים, ולוחצים <b>"עבר OCR ב-ABBYY? טפל כטקסט"</b>. הזיהוי אוטומטי ומדויק יותר.</li>
+      <li><b>OCR מובנה.</b> הכלי כולל מנוע OCR מקומי לעברית ולאנגלית, שמסמן את האזורים שזוהו.</li>
+    </ol>
+    <div class="warn" style="margin-top:12px;">
+      ⚠ <b>ה-OCR המובנה אינו נטען בפתיחה בלחיצה כפולה.</b> דפדפנים חוסמים טעינת Worker וקריאת קבצים כשהעמוד נפתח מהדיסק בפרוטוקול <span class="path">file://</span>, וזו דרישה של מנוע ה-OCR. כל שאר הפעולות עובדות כרגיל בלחיצה כפולה. להפעלת ה-OCR יש שתי אפשרויות: להמיר קודם ב-ABBYY לפי סעיף 1, או להריץ את התיקייה דרך שרת מקומי בפקודה אחת:
+    </div>
+    <span class="install">python -m http.server 8000</span>
+    <p class="meta" style="margin-top:2px;">ואז לגלוש אל <span class="path">http://localhost:8000</span>. גם כך העיבוד נשאר מקומי לחלוטין: השרת מגיש את הקבצים מהמחשב שלכם ואינו יוצא לרשת.</p>
+  </div>
+
+  <div class="card">
+    <h2>מה עוד מנוקה, מלבד הטקסט הגלוי</h2>
+    <ul>
+      <li><b>Word:</b> כותרות ותחתונות, הערות סוקר ושמות המגיבים, טקסט שנמחק במעקב שינויים, ומטא-דאטה (יוצר, כותרת, חברה, מנהל).</li>
+      <li><b>תמונות ואובייקטים מוטמעים ב-Word</b> מוסרים כברירת מחדל. הכלי אינו סורק את התוכן שבתוכם, וצילום מסך של דף בנק שהודבק למסמך היה שורד אחרת במלואו.</li>
+      <li><b>Excel:</b> תאי טקסט ותאי מספר (ת"ז נשמרת לעיתים כמספר), נוסחאות, הערות תא, קישורים ושמות גיליונות.</li>
+      <li><b>PDF:</b> מטא-דאטה, וכן XMP, שדות טופס והערות במצב טקסטואלי.</li>
+    </ul>
+  </div>
+
+  <div class="ok">
+    🔒 <b>אבטחה:</b> כל העיבוד רץ בדפדפן, והכלי חוסם ברמת הדפדפן (CSP) כל בקשת רשת יוצאת, כך שההבטחה על עבודה מקומית נאכפת ולא רק מוצהרת. אין שרת, אין העלאה ואין טלמטריה.
+  </div>
+
+  <div class="warn">
+    ⚠ <b>סודיות:</b> החבילה עצמה גנרית וללא נתוני לקוח. הקבצים המקוריים, הקבצים הנקיים וקובץ המפתח הם מידע לקוח ונשארים על המחשב שלכם. <b>אין להעלות את קובץ המפתח למודל שפה</b> ואין להעביר אותו יחד עם הקבצים הנקיים. הכלי אינו מחליף בדיקה אנושית של הפלט לפני העברתו לגורם חיצוני.
+  </div>
+
+  <footer>
+    הכלי פועל כולו בדפדפן שעל המחשב המקומי - שום נתון אינו נשלח לשרת<br>
+    <a href="../policy/">הצהרת נגישות, פרטיות ותנאי שימוש</a> ·
+    <a href="../">כל הכלים</a>
+  </footer>
+
 </div>
-
-<script src="js/app.js"></script>
 </body>
 </html>
