@@ -48,6 +48,8 @@
     box-shadow: var(--shadow); padding: 22px 24px;
   }
   .card h2 { margin: 0 0 12px; font-size: 1.15rem; color: var(--ink); }
+  .card h3 { margin: 18px 0 6px; font-size: .98rem; color: var(--ink); }
+  .card h3:first-of-type { margin-top: 14px; }
   .download {
     display: inline-flex; align-items: center; gap: 10px; background: var(--accent);
     color: var(--accent-ink); text-decoration: none; font-weight: 700; font-size: 1.05rem;
@@ -65,6 +67,9 @@
     border: 1px solid var(--border); border-radius: 5px; padding: 1px 7px; font-size: .9em;
     direction: ltr; unicode-bidi: isolate; display: inline-block;
   }
+  /* מחרוזת שרובה עברית (שם קובץ פלט, פקודה בעברית) חייבת RTL,
+     אחרת סיומת כמו .xlsx נדחפת לימין ונקראת ראשונה. */
+  .path.he { direction: rtl; }
   .install { display: block; direction: ltr; text-align: left; padding: 12px 14px; margin: 6px 0;
     background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px;
     font-family: Consolas, monospace; font-size: .88rem; overflow-x: auto; }
@@ -72,7 +77,7 @@
     border-radius: 10px; padding: 14px 18px; font-weight: 600; }
   .ok { background: var(--ok-bg); border: 1px solid var(--ok-border); color: var(--ok-ink);
     border-radius: 10px; padding: 14px 18px; }
-  .tokens { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .tokens { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
   .tok { background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px;
     padding: 2px 8px; font-size: .82rem; }
   footer { color: var(--ink-soft); font-size: .82rem; text-align: center; padding-top: 4px; }
@@ -89,11 +94,11 @@
 
   <header>
     <h1 class="title">📄 כלי הגהת דוחות כספיים</h1>
-    <p class="subtitle">סקיל של Claude לבדיקת תקינות דוח כספי לפני שליחתו ללקוח: כתיב, דקדוק, טרמינולוגיה, מבנה, גילויים נדרשים ואימות מספרי מלא. הפלט הוא קובץ Excel מסודר עם שלושה גיליונות בעברית.</p>
+    <p class="subtitle">סקיל של Claude שעובר על דוח כספי עמוד אחר עמוד לפני שליחתו ללקוח, ומפיק דוח ממצאים באקסל.</p>
   </header>
 
   <div class="ok" style="display:flex;align-items:center;gap:10px;">
-    🤖 <span>זהו <b>סקיל של Claude</b>, לא כלי דפדפן. מורידים את החבילה ומטעינים אותה ל-Claude (Claude Code או Claude Desktop). Claude קורא את עמודי הדוח ומפיק את דוח ההגהה.</span>
+    🤖 <span>זהו <b>סקיל של Claude</b>, לא כלי דפדפן. מורידים את החבילה, מטעינים ל-Claude, ומצביעים על ה-PDF של הדוח.</span>
   </div>
 
   <div class="card">
@@ -104,45 +109,37 @@
       </svg>
       הורדת החבילה (ZIP)
     </a>
-    <p class="meta">החבילה כוללת את ההנחיות, הסקריפטים והתיעוד. גנרית לחלוטין, ללא נתוני לקוח.</p>
-    <div class="warn" style="margin-top:12px;">⚠ נדרשים: <b>Claude</b> (Claude Code או Claude Desktop) עם יכולת ראייה, ו-<b>Python 3</b> מותקן. פעם אחת יש להריץ: <span class="path">pip install pymupdf openpyxl</span></div>
-  </div>
-
-  <div class="card">
-    <h2>למה הכלי מיועד</h2>
-    <p>הכלי עובר על הדוח הכספי עמוד אחר עמוד ומאתר שגיאות טרם השליחה ללקוח. הוא קורא את העמודים <b>ויזואלית</b> (כתמונות), משום שחילוץ טקסט מ-PDF עברי אינו אמין: אותיות נשמטות משכבת הטקסט (במיוחד האות נ') ואותיות דומות מתבלבלות. לצד בדיקת הניסוח, הכלי מאמת באופן עצמאי כל סכום וסיכום ביניים בדוח.</p>
     <div class="tokens">
       <span class="tok">כתיב ודקדוק</span><span class="tok">טרמינולוגיה חשבונאית</span><span class="tok">מבנה וסדר ביאורים</span>
       <span class="tok">גילויים נדרשים</span><span class="tok">אימות מספרי</span><span class="tok">עסק חי</span>
     </div>
-    <p class="meta">הפלט: <span class="path">הגהה_&lt;לקוח&gt;_&lt;שנה&gt;.xlsx</span> עם גיליונות סיכום, פירוט ממצאים ואימות נתונים מספריים. זו טיוטה לבדיקת אדם לפני שליחה ללקוח.</p>
-  </div>
-
-  <div class="card">
-    <h2>איך משתמשים</h2>
-    <ol>
-      <li><b>Claude Code:</b> מחלצים את התיקייה ומעתיקים אותה אל <span class="path">~/.claude/skills/</span> (ב-Windows: <span class="path">C:\Users\&lt;שם&gt;\.claude\skills\</span>).</li>
-      <li><b>Claude Desktop:</b> מעלים את קובץ ה-ZIP תחת Settings &gt; Capabilities / Skills.</li>
-      <li>פותחים שיחה בתיקייה שבה נמצא ה-PDF של הדוח, ומבקשים למשל: <span class="path">תעבור הגהה על הדוח</span>.</li>
-      <li>Claude מרנדר את העמודים, קורא אותם, מאמת את המספרים, ומפיק את קובץ ה-Excel לצד הדוח.</li>
-    </ol>
-    <div class="warn">⚠ הליבה החכמה, קריאת העמודים, מתבצעת על ידי Claude. הרצה מקומית של הסקריפטים לבדה מבצעת רק את החלקים המכניים (רינדור ויצירת ה-Excel), לא את הקריאה והשיפוט.</div>
-  </div>
-
-  <div class="card">
-    <h2>דרישות והתקנה</h2>
-    <p>Claude עם יכולת ראייה (Claude Code או Claude Desktop) ו-<b>Python 3</b> מותקן. אם אין Python על המחשב, מתקינים אותו מהמקור הרשמי:</p>
-    <p>
-      <a class="download secondary" href="https://www.python.org/downloads/" target="_blank" rel="noopener noreferrer">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
-        </svg>
-        הורדת Python (python.org, המקור הרשמי)
-      </a>
+    <p class="meta">
+      הכלי קורא את העמודים <b>ויזואלית</b>, כתמונות, משום שחילוץ טקסט מ-PDF עברי אינו אמין ומשמיט אותיות בשקט. לצד בדיקת הניסוח הוא מאמת עצמאית כל סכום וסיכום ביניים.
+      הפלט: <span class="path he">הגהה_[לקוח]_[שנה].xlsx</span> בשלושה גיליונות. זו טיוטה לבדיקת אדם לפני שליחה ללקוח.
     </p>
-    <p class="meta">בהתקנה יש לסמן <span class="path">Add python.exe to PATH</span>. לאחר מכן מריצים פעם אחת בשורת הפקודה:</p>
+  </div>
+
+  <div class="card">
+    <h2>התקנה והפעלה</h2>
+
+    <h3>1. Python</h3>
+    <p class="meta" style="margin-top:2px;">נדרש <b>Python 3</b> מותקן. אם אין, מתקינים מהמקור הרשמי ומסמנים בהתקנה <span class="path">Add python.exe to PATH</span>:</p>
+    <p style="margin:8px 0;">
+      <a class="download secondary" href="https://www.python.org/downloads/" target="_blank" rel="noopener noreferrer">הורדת Python (python.org)</a>
+    </p>
+    <p class="meta" style="margin-top:2px;">ואז פעם אחת בשורת הפקודה:</p>
     <span class="install">pip install pymupdf openpyxl</span>
-    <p class="meta">הוראות מפורטות בתוך החבילה: <span class="path">INSTALL.md</span> ו-<span class="path">README.md</span></p>
+
+    <h3>2. הטענת הסקיל</h3>
+    <ul>
+      <li><b>Claude Desktop או claude.ai:</b> Settings &gt; Capabilities &gt; Skills, ומעלים את קובץ ה-ZIP כמו שהוא.</li>
+      <li><b>Claude Code:</b> מחלצים את ה-ZIP ומעבירים את התיקייה שנוצרה אל <span class="path">~/.claude/skills/</span> (בווינדוס: <span class="path">C:\Users\[שם]\.claude\skills\</span>).</li>
+    </ul>
+
+    <h3>3. הפעלה</h3>
+    <p class="meta" style="margin-top:2px;">פותחים שיחה בתיקייה שבה נמצא ה-PDF ומבקשים <span class="path he">תעבור הגהה על הדוח</span>. קובץ האקסל נכתב לצד הדוח.</p>
+
+    <div class="warn" style="margin-top:16px;">⚠ הסקריפטים רצים על המחשב המקומי, ולכן הכלי עובד ב-Claude Desktop או ב-Claude Code ולא בסביבת הרצה בענן. הליבה, קריאת העמודים והשיפוט המקצועי, מתבצעת על ידי Claude. הרצת הסקריפטים לבדם מבצעת רק רינדור ויצירת אקסל.</div>
   </div>
 
   <div class="warn">
