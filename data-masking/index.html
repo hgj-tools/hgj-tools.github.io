@@ -104,7 +104,7 @@
       הורדת הכלי (ZIP)
     </a>
     <p class="meta">חילוץ התיקייה למחשב, ולחיצה כפולה על <span class="path">הפעלה.bat</span>. הכלי רץ מקומית בלבד, שום נתון לא נשלח לרשת.</p>
-    <div class="warn" style="margin-top:12px;">⚠ נדרש <b>Python 3</b> מותקן על המחשב. אם הוא חסר, הכלי יפתח את עמוד ההורדה של Python. בהתקנה יש לסמן <span class="path">Add python.exe to PATH</span>, ואז להריץ פעם אחת: <span class="path">pip install pandas openpyxl xlrd cryptography</span></div>
+    <div class="warn" style="margin-top:12px;">⚠ נדרש <b>Python 3</b> מותקן על המחשב. את שאר ההתקנה הכלי עושה לבד: בהפעלה הראשונה הוא בודק אם החבילות הנדרשות קיימות, ואם לא, מציע להתקין אותן בלחיצה אחת.</div>
   </div>
 
   <div class="card">
@@ -139,7 +139,7 @@
         הורדת Python (python.org, המקור הרשמי)
       </a>
     </p>
-    <p class="meta">בהתקנה יש לסמן <span class="path">Add python.exe to PATH</span>. לאחר מכן, אם חסרות חבילות, מריצים פעם אחת בשורת הפקודה:</p>
+    <p class="meta">בהתקנה חשוב לסמן <span class="path">Add python.exe to PATH</span>. את החבילות הנדרשות <b>אין צורך להתקין ידנית</b>: <span class="path">הפעלה.bat</span> בודק אותן לפני כל הרצה, ואם חסרה אחת הוא מציג מסך ומתקין את כולן בלחיצה אחת. להתקנה ידנית, אם מעדיפים:</p>
     <span class="install">pip install pandas openpyxl xlrd cryptography</span>
     <p class="meta">הוראות מפורטות בתוך החבילה: <span class="path">_קבצי מערכת (לא לגעת)/הוראות-שימוש.html</span></p>
   </div>
