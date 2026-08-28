@@ -25,38 +25,69 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700;800&display=swap">
 
 <!-- ══════════════════════════════════════════════════════════════════
-     כל התוכן של השאלון נמצא כאן. לשאלון הבא מחליפים רק את הבלוק הזה.
-     endpoint  = כתובת ה-Web app של Apps Script
-     secret    = חייב להיות זהה למשתנה SECRET שבסקריפט
+     כאן יושב כל התוכן. כל אירוע הוא בלוק משלו תחת events.
+     הכתובת בוחרת אירוע:  ...‎/feedback/?e=ai2026
+     בלי פרמטר, נטען מה שרשום ב-default.
+
+     לשאלון חדש:
+       1. להעתיק את הבלוק "ai2026" ולתת לו מפתח חדש, למשל "ai2027".
+       2. לעדכן name, date, sessions, ו-endpoint לגיליון החדש.
+       3. לשנות את default למפתח החדש, או לשלוח קישור עם ?e=ai2027.
      ══════════════════════════════════════════════════════════════════ -->
 <script id="cfg" type="application/json">
 {
-  "event": "יום עיון רואי חשבון AI · 27.8.2026",
-  "endpoint": "",
-  "secret": "hgj-ai-2026",
-  "deckUrl": "https://claude.ai/code/artifact/b234ab19-564e-42ce-afdb-42d231d40070",
-  "sessions": [
-    { "id": "oleg",  "name": "אולג זנין",   "topic": "Claude כסביבת עבודה לרואה החשבון" },
-    { "id": "lior",  "name": "ליאור אגאי",  "topic": "Excel ובינה מלאכותית" },
-    { "id": "alon",  "name": "אלון נחמיאס", "topic": "לעדכן את הנושא" },
-    { "id": "ariel", "name": "אריאל",       "topic": "לעדכן את הנושא" }
-  ],
-  "addTopics": [
-    "ניתוח דוחות כספיים",
-    "ביקורת ובקרות פנימיות",
-    "מיסוי ורגולציה",
-    "אוטומציה של עבודה חוזרת",
-    "Excel מתקדם עם AI",
-    "אבטחת מידע וסודיות לקוחות",
-    "בניית כלים למשרד",
-    "כתיבה וניסוח מקצועי"
-  ],
-  "formats": [
-    "עוד יום עיון בהרצאות",
-    "סדנה מעשית מול מחשב",
-    "ליווי אישי או קבוצה קטנה",
-    "חומרים כתובים והדרכות מוקלטות"
-  ]
+  "default": "ai2026",
+  "events": {
+    "ai2026": {
+      "name": "יום עיון רואי חשבון AI",
+      "date": "27.8.2026",
+      "endpoint": "",
+      "secret": "hgj-ai-2026",
+      "deckUrl": "https://claude.ai/code/artifact/b234ab19-564e-42ce-afdb-42d231d40070",
+      "sessions": [
+        {
+          "id": "oleg",
+          "name": "רו״ח אולג זנין",
+          "topic": "Claude ככלי עבודה לרואה החשבון",
+          "time": "09:00 - 10:30"
+        },
+        {
+          "id": "lior",
+          "name": "ליאור אגאי",
+          "topic": "AI באקסל לאנשי כספים",
+          "time": "11:00 - 12:30"
+        },
+        {
+          "id": "ariel",
+          "name": "רו״ח אריאל פתאל",
+          "topic": "ציות, אתיקה, מידע פנים ואבטחת מידע",
+          "time": "13:00 - 14:30"
+        },
+        {
+          "id": "alon",
+          "name": "אלון נחמיאס",
+          "topic": "כיצד AI פועל מאחורי הקלעים, ו‑MCP",
+          "time": "15:00 - 16:00"
+        }
+      ],
+      "addTopics": [
+        "ניתוח דוחות כספיים",
+        "ביקורת ובקרות פנימיות",
+        "מיסוי ורגולציה",
+        "אוטומציה של עבודה חוזרת",
+        "Excel מתקדם עם AI",
+        "אבטחת מידע וסודיות לקוחות",
+        "בניית כלים למשרד",
+        "כתיבה וניסוח מקצועי"
+      ],
+      "formats": [
+        "עוד יום עיון בהרצאות",
+        "סדנה מעשית מול מחשב",
+        "ליווי אישי או קבוצה קטנה",
+        "חומרים כתובים והדרכות מוקלטות"
+      ]
+    }
+  }
 }
 </script>
 
@@ -199,7 +230,10 @@ footer{ margin-top:26px; padding-top:16px; border-top:1px solid var(--line);
 <script>
 (function () {
 "use strict";
-var CFG = JSON.parse(document.getElementById('cfg').textContent);
+var ALL = JSON.parse(document.getElementById('cfg').textContent);
+var EK  = (new URLSearchParams(location.search).get('e') || ALL['default']);
+var CFG = (ALL.events || {})[EK] || (ALL.events || {})[ALL['default']] || {};
+CFG.event = CFG.name + (CFG.date ? ' · ' + CFG.date : '');
 var A = {};                       // כל התשובות
 var KEY = 'survey-' + (CFG.event || 'x');
 var LIVE = !!(CFG.endpoint && CFG.endpoint.indexOf('http') === 0);
@@ -293,7 +327,8 @@ step(function (d) {
 /* 2 עד 5. מושב לכל מרצה */
 CFG.sessions.forEach(function (s, i) {
   step(function (d) {
-    var c = card('שלב ' + (i + 2), s.name, s.topic);
+    var c = card('שלב ' + (i + 2), s.name,
+      s.topic + (s.time ? '  ·  ' + s.time : ''));
     c.appendChild(choice('u_' + s.id, 'עד כמה זה היה שימושי לעבודה היומיומית שלכם?',
       ['1', '2', '3', '4', '5'], { scale: true, ends: ['בכלל לא', 'מאוד'] }));
     c.appendChild(choice('l_' + s.id, 'הרמה הייתה',
