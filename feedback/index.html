@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>משוב · יום עיון רואי חשבון AI</title>
+<meta name="theme-color" content="#051C2C">
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="שאלון משוב קצר למשתתפי יום העיון. שתי דקות.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700;800&display=swap">
+
+<!-- ══════════════════════════════════════════════════════════════════
+     כל התוכן של השאלון נמצא כאן. לשאלון הבא מחליפים רק את הבלוק הזה.
+     endpoint  = כתובת ה-Web app של Apps Script
+     secret    = חייב להיות זהה למשתנה SECRET שבסקריפט
+     ══════════════════════════════════════════════════════════════════ -->
+<script id="cfg" type="application/json">
+{
+  "event": "יום עיון רואי חשבון AI · 27.8.2026",
+  "endpoint": "",
+  "secret": "hgj-ai-2026",
+  "deckUrl": "https://claude.ai/code/artifact/b234ab19-564e-42ce-afdb-42d231d40070",
+  "sessions": [
+    { "id": "oleg",  "name": "אולג זנין",   "topic": "Claude כסביבת עבודה לרואה החשבון" },
+    { "id": "lior",  "name": "ליאור אגאי",  "topic": "Excel ובינה מלאכותית" },
+    { "id": "alon",  "name": "אלון נחמיאס", "topic": "לעדכן את הנושא" },
+    { "id": "ariel", "name": "אריאל",       "topic": "לעדכן את הנושא" }
+  ],
+  "addTopics": [
+    "ניתוח דוחות כספיים",
+    "ביקורת ובקרות פנימיות",
+    "מיסוי ורגולציה",
+    "אוטומציה של עבודה חוזרת",
+    "Excel מתקדם עם AI",
+    "אבטחת מידע וסודיות לקוחות",
+    "בניית כלים למשרד",
+    "כתיבה וניסוח מקצועי"
+  ],
+  "formats": [
+    "עוד יום עיון בהרצאות",
+    "סדנה מעשית מול מחשב",
+    "ליווי אישי או קבוצה קטנה",
+    "חומרים כתובים והדרכות מוקלטות"
+  ]
+}
+</script>
+
+<style>
+:root{
+  --ink:#051C2C; --ink-2:#2B3F4E; --ink-3:#6B7C8A;
+  --blue:#2251FF; --blue-d:#1636C4; --cyan:#00A9F4;
+  --paper:#FFFFFF; --wash:#F4F6F8; --line:#DCE3E9; --line-2:#EDF1F4;
+  --ok:#0B7A54;
+  --r:4px;
+}
+*{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html,body{ margin:0; padding:0; direction:rtl; text-align:right; }
+body{
+  background:var(--wash); color:var(--ink);
+  font-family:"Assistant","Segoe UI",Arial,sans-serif;
+  font-size:17px; line-height:1.6; -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+p,li,h1,h2,h3,label,span{ unicode-bidi:isolate; }
+
+/* ── פס התקדמות ── */
+#bar{ position:fixed; top:0; inset-inline:0; height:3px; background:var(--line); z-index:60; }
+#bar i{ display:block; height:100%; width:0; background:var(--blue); transition:width .35s cubic-bezier(.4,0,.2,1); }
+
+/* ── מעטפת ── */
+.wrap{ max-width:760px; margin:0 auto; padding:0 20px 120px; }
+header.top{ padding:34px 0 26px; }
+.kicker{ font-size:.78rem; letter-spacing:.14em; color:var(--ink-3); font-weight:600; }
+h1{ font-size:2.1rem; line-height:1.15; margin:.5rem 0 .5rem; font-weight:800; letter-spacing:-.02em; }
+.sub{ color:var(--ink-2); margin:0; max-width:56ch; }
+
+/* ── שלב ── */
+.step{ display:none; animation:in .32s ease both; }
+.step.on{ display:block; }
+@keyframes in{ from{ opacity:0; transform:translateY(10px);} to{ opacity:1; transform:none; } }
+
+.card{ background:var(--paper); border:1px solid var(--line); border-radius:var(--r);
+       padding:26px 24px; margin-bottom:14px; }
+.card.lead{ border-top:3px solid var(--blue); }
+.stepno{ font-size:.75rem; letter-spacing:.12em; color:var(--blue); font-weight:700; margin-bottom:.5rem; }
+h2{ font-size:1.4rem; margin:0 0 .3rem; font-weight:700; letter-spacing:-.01em; }
+h2 small{ display:block; font-weight:400; font-size:.92rem; color:var(--ink-3); margin-top:.25rem; letter-spacing:0; }
+
+.q{ margin:0 0 26px; }
+.q:last-child{ margin-bottom:0; }
+.q > .lbl{ display:block; font-weight:700; margin-bottom:.7rem; font-size:1.02rem; }
+.q > .hint{ display:block; color:var(--ink-3); font-size:.9rem; margin:-.5rem 0 .7rem; }
+
+/* ── כפתורי בחירה ── */
+.opts{ display:flex; flex-wrap:wrap; gap:8px; }
+.opts.col{ flex-direction:column; }
+.opt{
+  flex:1 1 auto; min-height:50px; display:flex; align-items:center; justify-content:center;
+  gap:.5rem; padding:10px 14px; text-align:center;
+  background:var(--paper); border:1.5px solid var(--line); border-radius:var(--r);
+  font:inherit; font-size:.97rem; color:var(--ink-2); cursor:pointer;
+  transition:border-color .15s, background .15s, color .15s;
+}
+.opts.col .opt{ justify-content:flex-start; text-align:start; }
+.opt:hover{ border-color:var(--ink-3); }
+.opt[aria-pressed="true"]{ background:var(--blue); border-color:var(--blue); color:#fff; font-weight:600; }
+.opt:focus-visible{ outline:2px solid var(--cyan); outline-offset:2px; }
+
+/* ── סולם 1 עד 5 / 1 עד 10 ── */
+.scale{ display:flex; gap:6px; }
+.scale .opt{ flex:1 1 0; min-width:0; padding:12px 4px; font-size:1.05rem; font-weight:600; }
+.scends{ display:flex; justify-content:space-between; margin-top:.5rem;
+         font-size:.82rem; color:var(--ink-3); }
+@media (max-width:520px){ .scale.ten{ flex-wrap:wrap; } .scale.ten .opt{ flex:1 1 18%; } }
+
+textarea{
+  width:100%; min-height:92px; resize:vertical; padding:12px 14px;
+  font:inherit; font-size:1rem; color:var(--ink);
+  background:var(--paper); border:1.5px solid var(--line); border-radius:var(--r);
+  direction:rtl; text-align:right;
+}
+textarea:focus, input[type=text]:focus{ outline:none; border-color:var(--blue); }
+input[type=text]{ width:100%; padding:12px 14px; font:inherit; border:1.5px solid var(--line);
+  border-radius:var(--r); background:var(--paper); }
+
+/* ── ניווט ── */
+.nav{ position:fixed; bottom:0; inset-inline:0; background:rgba(255,255,255,.94);
+      backdrop-filter:blur(8px); border-top:1px solid var(--line); z-index:50; }
+.nav .in{ max-width:760px; margin:0 auto; padding:14px 20px calc(14px + env(safe-area-inset-bottom));
+          display:flex; align-items:center; gap:12px; }
+.btn{ font:inherit; font-weight:700; font-size:1rem; padding:13px 26px; border-radius:var(--r);
+      cursor:pointer; border:1.5px solid transparent; transition:background .15s, border-color .15s; }
+.btn.pri{ background:var(--blue); color:#fff; }
+.btn.pri:hover{ background:var(--blue-d); }
+.btn.pri[disabled]{ background:var(--line); color:var(--ink-3); cursor:not-allowed; }
+.btn.gho{ background:transparent; color:var(--ink-2); border-color:var(--line); }
+.btn.gho:hover{ border-color:var(--ink-3); }
+.count{ margin-inline-start:auto; font-size:.85rem; color:var(--ink-3); font-variant-numeric:tabular-nums; }
+
+/* ── סיום ── */
+.done{ text-align:center; padding:52px 0 20px; }
+.done .tick{ width:64px; height:64px; border-radius:50%; background:var(--ok); color:#fff;
+  display:flex; align-items:center; justify-content:center; font-size:30px; margin:0 auto 20px; }
+.done h2{ font-size:1.8rem; }
+.done p{ color:var(--ink-2); max-width:44ch; margin:.6rem auto 0; }
+.done .go{ display:inline-block; margin-top:26px; background:var(--ink); color:#fff;
+  padding:14px 28px; border-radius:var(--r); text-decoration:none; font-weight:700; }
+
+.warn{ background:#FFF4E5; border:1px solid #F0C48A; border-inline-start:4px solid #D97706;
+       border-radius:var(--r); padding:14px 16px; margin-bottom:14px; font-size:.95rem; }
+.note{ font-size:.85rem; color:var(--ink-3); margin-top:10px; }
+footer{ margin-top:26px; padding-top:16px; border-top:1px solid var(--line);
+        font-size:.8rem; color:var(--ink-3); }
+@media (max-width:600px){
+  body{ font-size:16px; } h1{ font-size:1.65rem; } .card{ padding:20px 16px; }
+  .wrap{ padding-inline:14px; }
+}
+@media (prefers-reduced-motion:reduce){ *{ animation:none !important; transition:none !important; } }
+</style>
+</head>
+<body>
+
+<div id="bar"><i></i></div>
+
+<div class="wrap">
+  <header class="top">
+    <div class="kicker" id="evName">משוב משתתפים</div>
+    <h1>שתי דקות, וזה יקבע איך ייראה היום הבא</h1>
+    <p class="sub">השאלון אנונימי. אין שאלות חובה, וכל שאלה שתדלגו עליה פשוט לא תיספר.
+       מה שחשוב לנו הוא לא הציון, אלא <b>איפה הזמן הלך לאיבוד ומה היה חסר</b>.</p>
+  </header>
+
+  <div id="steps"></div>
+
+  <footer id="foot"></footer>
+</div>
+
+<div class="nav" id="nav"><div class="in">
+  <button class="btn gho" id="bPrev" hidden>הקודם</button>
+  <button class="btn pri" id="bNext">מתחילים</button>
+  <span class="count" id="count"></span>
+</div></div>
+
+<script>
+(function () {
+"use strict";
+var CFG = JSON.parse(document.getElementById('cfg').textContent);
+var A = {};                       // כל התשובות
+var KEY = 'survey-' + (CFG.event || 'x');
+var LIVE = !!(CFG.endpoint && CFG.endpoint.indexOf('http') === 0);
+
+document.getElementById('evName').textContent = CFG.event;
+
+/* ── שחזור טיוטה, כדי שמי שנקטע באמצע לא יתחיל מחדש ── */
+try { var s = localStorage.getItem(KEY); if (s) A = JSON.parse(s) || {}; } catch (e) {}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(A)); } catch (e) {} }
+
+function el(t, c, h) { var x = document.createElement(t); if (c) x.className = c;
+  if (h != null) x.innerHTML = h; return x; }
+
+/* ── רכיבי שאלה ── */
+function qWrap(label, hint) {
+  var q = el('div', 'q');
+  q.appendChild(el('span', 'lbl', label));
+  if (hint) q.appendChild(el('span', 'hint', hint));
+  return q;
+}
+function choice(key, label, opts, o) {
+  o = o || {};
+  var q = qWrap(label, o.hint);
+  var box = el('div', 'opts' + (o.col ? ' col' : '') + (o.scale ? ' scale' : '') + (o.ten ? ' ten' : ''));
+  opts.forEach(function (t) {
+    var b = el('button', 'opt', t);
+    b.type = 'button';
+    b.setAttribute('aria-pressed', String(A[key] === t));
+    b.addEventListener('click', function () {
+      if (o.multi) {
+        var cur = A[key] || []; var i = cur.indexOf(t);
+        if (i > -1) cur.splice(i, 1); else cur.push(t);
+        A[key] = cur; b.setAttribute('aria-pressed', String(cur.indexOf(t) > -1));
+      } else {
+        A[key] = (A[key] === t) ? '' : t;
+        Array.prototype.forEach.call(box.children, function (c) {
+          c.setAttribute('aria-pressed', String(c.textContent === A[key]));
+        });
+      }
+      save(); paint();
+    });
+    if (o.multi && (A[key] || []).indexOf(t) > -1) b.setAttribute('aria-pressed', 'true');
+    box.appendChild(b);
+  });
+  q.appendChild(box);
+  if (o.ends) {
+    var e = el('div', 'scends');
+    e.appendChild(el('span', '', o.ends[0]));
+    e.appendChild(el('span', '', o.ends[1]));
+    q.appendChild(e);
+  }
+  return q;
+}
+function text(key, label, ph, o) {
+  o = o || {};
+  var q = qWrap(label, o.hint);
+  var t = el(o.short ? 'input' : 'textarea');
+  if (o.short) t.type = 'text';
+  t.placeholder = ph || '';
+  t.value = A[key] || '';
+  t.addEventListener('input', function () { A[key] = t.value; save(); });
+  q.appendChild(t);
+  return q;
+}
+function card(no, title, sub, cls) {
+  var c = el('div', 'card' + (cls ? ' ' + cls : ''));
+  if (no) c.appendChild(el('div', 'stepno', no));
+  c.appendChild(el('h2', '', title + (sub ? '<small>' + sub + '</small>' : '')));
+  return c;
+}
+
+/* ══════════ בניית השלבים ══════════ */
+var host = document.getElementById('steps');
+var STEPS = [];
+function step(build) {
+  var d = el('div', 'step');
+  build(d);
+  host.appendChild(d);
+  STEPS.push(d);
+}
+
+/* 1. פתיחה */
+step(function (d) {
+  var c = card('שלב 1', 'קודם כל, מאיפה הגעתם',
+    'התשובה הזאת היא מה שיאפשר לנו להבין אם הרמה הייתה מתאימה. בלעדיה כל השאר חסר משמעות.', 'lead');
+  c.appendChild(choice('prior', 'מה הייתה רמת הידע שלכם ב‑AI לפני יום העיון?',
+    ['לא הכרתי', 'שיחקתי קצת בבית', 'משתמש שוטף בעבודה'], { col: true }));
+  d.appendChild(c);
+});
+
+/* 2 עד 5. מושב לכל מרצה */
+CFG.sessions.forEach(function (s, i) {
+  step(function (d) {
+    var c = card('שלב ' + (i + 2), s.name, s.topic);
+    c.appendChild(choice('u_' + s.id, 'עד כמה זה היה שימושי לעבודה היומיומית שלכם?',
+      ['1', '2', '3', '4', '5'], { scale: true, ends: ['בכלל לא', 'מאוד'] }));
+    c.appendChild(choice('l_' + s.id, 'הרמה הייתה',
+      ['בסיסית מדי בשבילי', 'מתאימה', 'גבוהה מדי'], { col: true }));
+    c.appendChild(choice('p_' + s.id, 'חלוקת הזמן במושב הזה',
+      ['יותר מדי זמן על מבוא ויסודות, לא הגיע מספיק לתכלס',
+       'האיזון היה טוב',
+       'רץ מהר מדי, היה חסר בסיס'],
+      { col: true, hint: 'זו השאלה שהכי תעזור לנו לתקן את היום הבא.' }));
+    c.appendChild(text('n_' + s.id, 'הערה למרצה, לא חובה',
+      'מה עבד, ומה הייתם משנים'));
+    d.appendChild(c);
+  });
+});
+
+/* 6. תמונה כללית */
+step(function (d) {
+  var n = CFG.sessions.length + 2;
+  var c = card('שלב ' + n, 'התמונה הכללית');
+  c.appendChild(choice('overall', 'ציון כולל ליום העיון',
+    ['1','2','3','4','5','6','7','8','9','10'],
+    { scale: true, ten: true, ends: ['חלש', 'מצוין'] }));
+  c.appendChild(text('tryThis', 'מה הדבר הראשון שתנסו ליישם בעבודה?',
+    'משפט אחד מספיק. אם כלום, כתבו כלום, גם זו תשובה חשובה.'));
+  d.appendChild(c);
+});
+
+/* 7. היום הבא */
+step(function (d) {
+  var n = CFG.sessions.length + 3;
+  var c = card('שלב ' + n, 'היום הבא');
+  c.appendChild(text('changeOne', 'אם היינו יכולים לשנות דבר אחד ביום הבא, מה זה היה?',
+    '', { hint: 'זו השאלה שאנחנו הכי רוצים תשובה עליה.' }));
+  c.appendChild(choice('addTopics', 'אילו נושאים תרצו שנוסיף או נעמיק בהם?',
+    CFG.addTopics, { multi: true, col: true, hint: 'אפשר לבחור כמה שרוצים.' }));
+  c.appendChild(text('addOther', 'נושא נוסף שלא מופיע ברשימה', '', { short: true }));
+  c.appendChild(choice('format', 'מה יעזור לכם יותר מהכול?', CFG.formats, { col: true }));
+  d.appendChild(c);
+});
+
+/* 8. סיום */
+step(function (d) {
+  var n = CFG.sessions.length + 4;
+  var c = card('שלב ' + n, 'זהו, סיימנו', 'תודה. שם הוא רשות בלבד.');
+  if (!LIVE) c.insertBefore(el('div', 'warn',
+    '<b>הטופס עדיין לא חובר לאיסוף התשובות.</b> זו תצוגה מקדימה. אין לשלוח את הקישור למשתתפים בשלב הזה.'), c.firstChild);
+  c.appendChild(text('name', 'שם, למי שרוצה שנחזור אליו',
+    'אפשר להשאיר ריק', { short: true }));
+  c.appendChild(text('free', 'משהו נוסף שלא נשאלתם עליו', ''));
+  d.appendChild(c);
+});
+
+/* מסך תודה */
+var DONE = el('div', 'step');
+DONE.innerHTML =
+  '<div class="done"><div class="tick">&#10003;</div>' +
+  '<h2>תודה רבה</h2>' +
+  '<p>התשובות שלכם נקלטו. הן ייקראו אחת אחת, וישפיעו ישירות על היום הבא.</p>' +
+  (CFG.deckUrl ? '<a class="go" href="' + CFG.deckUrl + '" target="_blank" rel="noopener">למצגת מיום העיון</a>' : '') +
+  '</div>';
+host.appendChild(DONE);
+
+/* ══════════ ניווט ══════════ */
+var i = 0, sent = false;
+var bar = document.querySelector('#bar i');
+var bPrev = document.getElementById('bPrev'), bNext = document.getElementById('bNext');
+var cnt = document.getElementById('count');
+
+function paint() {
+  STEPS.forEach(function (s, k) { s.classList.toggle('on', k === i && !sent); });
+  DONE.classList.toggle('on', sent);
+  document.getElementById('nav').hidden = sent;
+  document.querySelector('header.top').style.display = sent ? 'none' : '';
+  bar.style.width = (sent ? 100 : (i / STEPS.length) * 100) + '%';
+  bPrev.hidden = (i === 0);
+  bNext.textContent = (i === 0) ? 'מתחילים' : (i === STEPS.length - 1 ? 'שליחה' : 'הבא');
+  cnt.textContent = (i + 1) + ' מתוך ' + STEPS.length;
+}
+function go(n) {
+  i = Math.max(0, Math.min(STEPS.length - 1, n));
+  paint();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+bPrev.addEventListener('click', function () { go(i - 1); });
+bNext.addEventListener('click', function () {
+  if (i < STEPS.length - 1) { go(i + 1); return; }
+  submit();
+});
+
+/* ══════════ שליחה ══════════ */
+function payload() {
+  return {
+    secret: CFG.secret,
+    event: CFG.event,
+    id: (A._id = A._id || (Date.now().toString(36) + Math.random().toString(36).slice(2, 7))),
+    prior: A.prior || '', overall: A.overall || '',
+    tryThis: A.tryThis || '', changeOne: A.changeOne || '',
+    addTopics: (A.addTopics || []).concat(A.addOther ? [A.addOther] : []),
+    format: A.format || '', name: A.name || '', free: A.free || '',
+    sessions: CFG.sessions.map(function (s) {
+      return { id: s.id, name: s.name,
+               useful: A['u_' + s.id] || '', level: A['l_' + s.id] || '',
+               pace: A['p_' + s.id] || '', note: A['n_' + s.id] || '' };
+    })
+  };
+}
+function submit() {
+  if (!LIVE) { alert('הטופס עדיין לא חובר לאיסוף התשובות.'); return; }
+  bNext.disabled = true; bNext.textContent = 'שולח...';
+  var body = JSON.stringify(payload());
+  fetch(CFG.endpoint, {
+    method: 'POST', mode: 'no-cors', redirect: 'follow',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: body
+  }).then(function () { finish(); })
+    .catch(function () {
+      bNext.disabled = false; bNext.textContent = 'שליחה';
+      alert('השליחה נכשלה. בדקו חיבור אינטרנט ונסו שוב. התשובות שלכם נשמרו בדפדפן ולא אבדו.');
+    });
+}
+function finish() {
+  sent = true;
+  try { localStorage.removeItem(KEY); } catch (e) {}
+  paint();
+  window.scrollTo({ top: 0 });
+}
+
+document.getElementById('foot').innerHTML =
+  'השאלון אנונימי. לא נאסף מידע מזהה מעבר לשם שתבחרו למלא.';
+paint();
+})();
+</script>
+</body>
+</html>
