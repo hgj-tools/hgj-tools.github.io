@@ -106,16 +106,16 @@
 
   <div class="card">
     <h2>הורדה והתקנה</h2>
-    <a class="download" href="https://github.com/hgj-tools/hgj-tools.github.io/releases/download/v1.0.0-dictation-desktop/HGJ-Dictation-Setup-1.0.0.exe">
+    <a class="download" href="https://github.com/hgj-tools/hgj-tools.github.io/releases/download/v1.0.1-dictation-desktop/HGJ-Dictation-Setup-1.0.1.exe">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
       הורדת המתקין (Setup, 64MB)
     </a>
-    <div class="meta">גרסה 1.0.0 · Windows 10/11 · בלי Python · כ-2.5GB פנויים (מודל השפה 1.6GB מורד בהפעלה הראשונה) · מיקרופון</div>
+    <div class="meta">גרסה 1.0.1 · Windows 10/11 · בלי Python · כ-2.5GB פנויים (מודל השפה 1.6GB מורד בהפעלה הראשונה) · מיקרופון</div>
     <div class="note" style="margin-top:12px"><b>Windows יציג אזהרת "מפרסם לא ידוע"</b> (SmartScreen), כי המתקין אינו חתום בחתימת קוד מסחרית. לוחצים "מידע נוסף" ואז "הפעל בכל זאת".</div>
     <details class="verify" style="margin-top:12px">
       <summary>אימות שהקובץ לא שונה בדרך (למתקדמים)</summary>
       <div class="meta">מריצים ב-PowerShell <code>Get-FileHash</code> על הקובץ שהורד ומשווים לחתימה הזו:</div>
-      <code class="hash">1c661af6d37c98a064693d863e16391af7c3f9e29bd011752eda26644b4495d6</code>
+      <code class="hash">2e09b227b40b177b4ba547a27bae5ed2ba4b80d0f856962c3145bf625477a482</code>
     </details>
     <div class="meta" style="margin-top:12px">הכלי מיועד ל-Windows בלבד. בטלפון משתמשים במיקרופון של המקלדת, שמכתיב בעברית ממילא.</div>
     <div class="meta" style="margin-top:8px">גרסת Python למפתחים (ZIP, דורשת Python 3.10 ומעלה): <a href="hgj-dictation-desktop.zip" download>hgj-dictation-desktop.zip</a></div>
@@ -149,6 +149,8 @@
       <tr><td>דיוק</td><td>גבוה בעברית, כולל פיסוק. מספרים מומרים לספרות.</td></tr>
       <tr><td>עיכוב</td><td>כל משפט מופיע כ-5 שניות אחרי שסיימתם אותו (עלות קבועה של המנוע על המעבד, בלי קשר לאורך המשפט). בזמן הזה כבר מדברים את המשפט הבא, כך שבפועל מחכים רק בסוף.</td></tr>
       <tr><td>המיקוד קובע</td><td>הטקסט נכנס לחלון הממוקד ברגע סיום התמלול. לא לעבור חלון עד שהכפתור חוזר לכחול.</td></tr>
+      <tr><td>לאן הטקסט נכתב</td><td>לשדה שבו הסמן מהבהב כשמתחילים לדבר (קלוד, Word, תא באקסל, מייל). לחיצה על הכפתור לא מזיזה את המיקוד. הכלי זוכר את החלון שבו התחלתם ומדביק שם גם אם עברתם חלון בזמן התמלול.</td></tr>
+      <tr><td>מילון אישי</td><td>שמות לקוחות, חברות ומונחים שהמנוע נוטה לשבש. לחיצה ימנית על הכפתור ← "המילון האישי". שורה למונח, או <code>מה שהמנוע כותב =&gt; מה שצריך</code> להחלפה קבועה. נשמר במחשב בלבד.</td></tr>
       <tr><td>הגדרות</td><td><code>config.json</code>: מקש הקיצור, אורך השקט שמסיים משפט, רגישות המיקרופון ועוד. לחיצה ימנית על הכפתור פותחת אותו.</td></tr>
       <tr><td>אבטחה</td><td>35 חבילות Python נבדקו לפי נוהל אבטחת החבילות של המשרד ונעולות בגרסה ובחתימה. המודל מאומת מול Hugging Face.</td></tr>
     </table></div>
