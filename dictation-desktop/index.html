@@ -70,6 +70,23 @@
   tr:last-child td { border-bottom: none; }
   .note { background: var(--warn-bg); border: 1px solid var(--warn-border); color: var(--warn-ink); border-radius: 10px; padding: 12px 14px; font-size: .92rem; }
   .ok-note { border-inline-start: 4px solid var(--ok); }
+  /* אימות SHA256: מקופל כברירת מחדל, ונשבר לשורות כדי לא לפרוץ את הרוחב בטלפון */
+  details.verify summary { cursor: pointer; color: var(--accent); font-weight: 600; font-size: .88rem; list-style-position: inside; }
+  details.verify summary:hover { text-decoration: underline; }
+  .hash {
+    display: block; margin-top: 6px; padding: 8px 10px;
+    font-family: Consolas, "Courier New", monospace; font-size: .78rem; line-height: 1.5;
+    direction: ltr; text-align: left; unicode-bidi: embed;
+    word-break: break-all; overflow-wrap: anywhere;
+    background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px;
+  }
+  .table-wrap { overflow-x: auto; }
+  @media (max-width: 520px) {
+    body { padding: 12px 10px; }
+    .card { padding: 16px; }
+    .download { width: 100%; justify-content: center; }
+    th, td { padding: 7px 6px; font-size: .88rem; }
+  }
   footer { color: var(--ink-soft); font-size: .82rem; text-align: center; padding-top: 4px; }
   footer a { color: var(--accent); text-decoration: none; font-weight: 600; }
 </style>
@@ -94,9 +111,14 @@
       הורדת המתקין (Setup, 64MB)
     </a>
     <div class="meta">גרסה 1.0.0 · Windows 10/11 · בלי Python · כ-2.5GB פנויים (מודל השפה 1.6GB מורד בהפעלה הראשונה) · מיקרופון</div>
-    <div class="meta" style="margin-top:6px">SHA256 לאימות: <code style="font-size:.78em">1c661af6d37c98a064693d863e16391af7c3f9e29bd011752eda26644b4495d6</code></div>
-    <div class="note" style="margin-top:12px"><b>Windows יציג אזהרת "מפרסם לא ידוע"</b> (SmartScreen), כי המתקין אינו חתום בחתימת קוד מסחרית. לוחצים "מידע נוסף" ואז "הפעל בכל זאת". מי שרוצה לוודא שהקובץ לא שונה בדרך יכול להשוות את ה-SHA256 שלמעלה עם <code>Get-FileHash</code> ב-PowerShell.</div>
-    <div class="meta" style="margin-top:12px">גרסת Python למפתחים (ZIP, דורשת Python 3.10 ומעלה): <a href="hgj-dictation-desktop.zip" download>hgj-dictation-desktop.zip</a></div>
+    <div class="note" style="margin-top:12px"><b>Windows יציג אזהרת "מפרסם לא ידוע"</b> (SmartScreen), כי המתקין אינו חתום בחתימת קוד מסחרית. לוחצים "מידע נוסף" ואז "הפעל בכל זאת".</div>
+    <details class="verify" style="margin-top:12px">
+      <summary>אימות שהקובץ לא שונה בדרך (למתקדמים)</summary>
+      <div class="meta">מריצים ב-PowerShell <code>Get-FileHash</code> על הקובץ שהורד ומשווים לחתימה הזו:</div>
+      <code class="hash">1c661af6d37c98a064693d863e16391af7c3f9e29bd011752eda26644b4495d6</code>
+    </details>
+    <div class="meta" style="margin-top:12px">הכלי מיועד ל-Windows בלבד. בטלפון משתמשים במיקרופון של המקלדת, שמכתיב בעברית ממילא.</div>
+    <div class="meta" style="margin-top:8px">גרסת Python למפתחים (ZIP, דורשת Python 3.10 ומעלה): <a href="hgj-dictation-desktop.zip" download>hgj-dictation-desktop.zip</a></div>
   </div>
 
   <div class="card">
@@ -121,7 +143,7 @@
 
   <div class="card">
     <h2>מה חשוב לדעת</h2>
-    <table>
+    <div class="table-wrap"><table>
       <tr><th>נושא</th><th>פירוט</th></tr>
       <tr><td>פרטיות</td><td>מודל Whisper בעברית של פרויקט ivrit.ai רץ על המעבד של המחשב. האודיו מעובד בזיכרון ונמחק. שום דבר לא נשלח לשרת, בשונה מכלי ההכתבה בדפדפן.</td></tr>
       <tr><td>דיוק</td><td>גבוה בעברית, כולל פיסוק. מספרים מומרים לספרות.</td></tr>
@@ -129,7 +151,7 @@
       <tr><td>המיקוד קובע</td><td>הטקסט נכנס לחלון הממוקד ברגע סיום התמלול. לא לעבור חלון עד שהכפתור חוזר לכחול.</td></tr>
       <tr><td>הגדרות</td><td><code>config.json</code>: מקש הקיצור, אורך השקט שמסיים משפט, רגישות המיקרופון ועוד. לחיצה ימנית על הכפתור פותחת אותו.</td></tr>
       <tr><td>אבטחה</td><td>35 חבילות Python נבדקו לפי נוהל אבטחת החבילות של המשרד ונעולות בגרסה ובחתימה. המודל מאומת מול Hugging Face.</td></tr>
-    </table>
+    </table></div>
   </div>
 
   <div class="card ok-note">
