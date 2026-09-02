@@ -88,12 +88,15 @@
   </header>
 
   <div class="card">
-    <h2>הורדה</h2>
-    <a class="download" href="hgj-dictation-desktop.zip" download>
+    <h2>הורדה והתקנה</h2>
+    <a class="download" href="https://github.com/hgj-tools/hgj-tools.github.io/releases/download/v1.0.0-dictation-desktop/HGJ-Dictation-Setup-1.0.0.exe">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
-      הורדת הכלי (ZIP)
+      הורדת המתקין (Setup, 64MB)
     </a>
-    <div class="meta">Windows 10/11 · Python 3.10 ומעלה · כ-2.5GB פנויים (מודל השפה 1.6GB) · מיקרופון · אינטרנט להתקנה בלבד</div>
+    <div class="meta">גרסה 1.0.0 · Windows 10/11 · בלי Python · כ-2.5GB פנויים (מודל השפה 1.6GB מורד בהפעלה הראשונה) · מיקרופון</div>
+    <div class="meta" style="margin-top:6px">SHA256 לאימות: <code style="font-size:.78em">1c661af6d37c98a064693d863e16391af7c3f9e29bd011752eda26644b4495d6</code></div>
+    <div class="note" style="margin-top:12px"><b>Windows יציג אזהרת "מפרסם לא ידוע"</b> (SmartScreen), כי המתקין אינו חתום בחתימת קוד מסחרית. לוחצים "מידע נוסף" ואז "הפעל בכל זאת". מי שרוצה לוודא שהקובץ לא שונה בדרך יכול להשוות את ה-SHA256 שלמעלה עם <code>Get-FileHash</code> ב-PowerShell.</div>
+    <div class="meta" style="margin-top:12px">גרסת Python למפתחים (ZIP, דורשת Python 3.10 ומעלה): <a href="hgj-dictation-desktop.zip" download>hgj-dictation-desktop.zip</a></div>
   </div>
 
   <div class="card">
@@ -101,19 +104,19 @@
     <div class="flow">
       <div class="step"><span class="n">1</span><b>עומדים בשדה</b><span>הסמן בשורת ההודעה של Claude, או בכל שדה טקסט</span></div>
       <div class="step"><span class="n">2</span><b>לוחצים ומדברים</b><span>על הכפתור המרחף או על F9. הכפתור נהיה אדום</span></div>
-      <div class="step"><span class="n">3</span><b>שקט קצר מסיים</b><span>שנייה וחצי בלי דיבור, או לחיצה נוספת</span></div>
-      <div class="step"><span class="n">4</span><b>הטקסט מוקלד</b><span>תוך 2 עד 5 שניות, ישר לשדה. נשאר Enter</span></div>
+      <div class="step"><span class="n">3</span><b>ממשיכים לדבר</b><span>הפסקה קצרה סוגרת משפט ושולחת אותו, וההאזנה ממשיכה</span></div>
+      <div class="step"><span class="n">4</span><b>הטקסט מוקלד</b><span>כל משפט מופיע בשדה תוך כ-5 שניות, בזמן שכבר מדברים את הבא. סיום: לחיצה, או 15 שניות שקט</span></div>
     </div>
   </div>
 
   <div class="card">
     <h2>התקנה, פעם אחת</h2>
     <ol>
-      <li>מחלצים את ה-ZIP לתיקייה קבועה (למשל בתיקיית המשתמש).</li>
-      <li>מריצים <code>התקנה.bat</code>. נוצרת סביבת Python מבודדת, מותקנות החבילות בגרסאות ובחתימות שנבדקו, ומורד מודל השפה תוך אימות. אורך: כמה דקות.</li>
-      <li>מריצים <code>הפעלה.bat</code>. הכפתור מופיע בפינה, אפור בזמן הטעינה (כ-4 שניות) ואז כחול. אפשר לגרור אותו לכל מקום; לחיצה ימנית פותחת תפריט.</li>
+      <li>מריצים את המתקין. ההתקנה למשתמש הנוכחי בלבד, בלי הרשאות מנהל. באפשרויות: אייקון בשולחן העבודה, והפעלה אוטומטית עם Windows (מומלץ, כך הכפתור תמיד זמין).</li>
+      <li>בהפעלה הראשונה נפתח חלון קטן שמוריד את מודל השפה (1.6GB) עם פס התקדמות. פעם אחת בלבד.</li>
+      <li>הכפתור מופיע בפינה, אפור בזמן הטעינה (כ-4 שניות) ואז כחול. אפשר לגרור אותו לכל מקום; לחיצה ימנית פותחת תפריט (הגדרות, יציאה).</li>
     </ol>
-    <div class="note">אם Python לא מותקן: להוריד מ-<code>python.org</code> ולסמן בהתקנה "Add python.exe to PATH". במחשבי המשרד ייתכן שנדרש אישור IT להתקנת תוכנות.</div>
+    <div class="note">הסרה: תפריט התחלה ← HGJ ← הסרת הכתבה קולית HGJ, או דרך "אפליקציות" בהגדרות Windows. במחשבי המשרד ייתכן שנדרש אישור IT להתקנת תוכנות.</div>
   </div>
 
   <div class="card">
@@ -122,7 +125,7 @@
       <tr><th>נושא</th><th>פירוט</th></tr>
       <tr><td>פרטיות</td><td>מודל Whisper בעברית של פרויקט ivrit.ai רץ על המעבד של המחשב. האודיו מעובד בזיכרון ונמחק. שום דבר לא נשלח לשרת, בשונה מכלי ההכתבה בדפדפן.</td></tr>
       <tr><td>דיוק</td><td>גבוה בעברית, כולל פיסוק. מספרים מומרים לספרות.</td></tr>
-      <tr><td>עיכוב</td><td>הטקסט מופיע אחרי סיום המשפט, לא תוך כדי. במעבד חזק: כ-2 שניות למשפט. במחשב חלש: יותר.</td></tr>
+      <tr><td>עיכוב</td><td>כל משפט מופיע כ-5 שניות אחרי שסיימתם אותו (עלות קבועה של המנוע על המעבד, בלי קשר לאורך המשפט). בזמן הזה כבר מדברים את המשפט הבא, כך שבפועל מחכים רק בסוף.</td></tr>
       <tr><td>המיקוד קובע</td><td>הטקסט נכנס לחלון הממוקד ברגע סיום התמלול. לא לעבור חלון עד שהכפתור חוזר לכחול.</td></tr>
       <tr><td>הגדרות</td><td><code>config.json</code>: מקש הקיצור, אורך השקט שמסיים משפט, רגישות המיקרופון ועוד. לחיצה ימנית על הכפתור פותחת אותו.</td></tr>
       <tr><td>אבטחה</td><td>35 חבילות Python נבדקו לפי נוהל אבטחת החבילות של המשרד ונעולות בגרסה ובחתימה. המודל מאומת מול Hugging Face.</td></tr>
