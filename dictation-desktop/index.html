@@ -106,16 +106,16 @@
 
   <div class="card">
     <h2>הורדה והתקנה</h2>
-    <a class="download" href="https://github.com/hgj-tools/hgj-tools.github.io/releases/download/v1.0.3-dictation-desktop/HGJ-Dictation-Setup-1.0.3.exe">
+    <a class="download" href="https://github.com/hgj-tools/hgj-tools.github.io/releases/download/v1.1.0-dictation-desktop/HGJ-Dictation-Setup-1.1.0.exe">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
       הורדת המתקין (Setup, 64MB)
     </a>
-    <div class="meta">גרסה 1.0.3 · Windows 10/11 · בלי Python · כ-2.5GB פנויים (מודל השפה 1.6GB מורד בהפעלה הראשונה) · מיקרופון</div>
-    <div class="note" style="margin-top:12px"><b>Windows יציג אזהרת "מפרסם לא ידוע"</b> (SmartScreen), כי המתקין אינו חתום בחתימת קוד מסחרית. לוחצים "מידע נוסף" ואז "הפעל בכל זאת".</div>
+    <div class="meta">גרסה 1.1.0 · Windows 10/11 · בלי Python · כ-2.5GB פנויים (מודל השפה 1.6GB מורד בהפעלה הראשונה) · מיקרופון</div>
+    <div class="note" style="margin-top:12px"><b>Windows יציג אזהרת "מפרסם לא ידוע"</b> (SmartScreen), כי המתקין אינו חתום בחתימת קוד מסחרית. לוחצים "מידע נוסף" ואז "הפעל בכל זאת". מה שהמתקין מתקין ומריץ הוא הפייתון הרשמי, חתום דיגיטלית על ידי Python Software Foundation, ולא קובץ ארוז. אם תוכנת ההגנה במחשב בכל זאת מסמנת את המתקין, בקשו מה-IT חריגה לתיקיית ההתקנה של הכלי (תיקיית HGJ בתיקיית הנתונים המקומית של המשתמש).</div>
     <details class="verify" style="margin-top:12px">
       <summary>אימות שהקובץ לא שונה בדרך (למתקדמים)</summary>
       <div class="meta">מריצים ב-PowerShell <code>Get-FileHash</code> על הקובץ שהורד ומשווים לחתימה הזו:</div>
-      <code class="hash">cdc84695da5a067440c3ec690c94611c994dea63d2548514d7bcc73dbbc220e5</code>
+      <code class="hash">863ee58dcb5f5e8f8980d1f3b6e30b39a79680f8c052a7be3cdb188de2cdb15a</code>
     </details>
     <div class="meta" style="margin-top:12px">הכלי מיועד ל-Windows בלבד. במק אין צורך בו: ההכתבה המובנית של macOS תומכת בעברית (מקש המיקרופון או Fn פעמיים). בטלפון משתמשים במיקרופון של המקלדת, שמכתיב בעברית ממילא.</div>
     <div class="meta" style="margin-top:8px">גרסת Python למפתחים (ZIP, דורשת Python 3.10 ומעלה): <a href="hgj-dictation-desktop.zip" download>hgj-dictation-desktop.zip</a></div>
@@ -166,6 +166,7 @@
       <tr><td>ההבדל מכלי ההכתבה בדפדפן</td><td>כלי <a href="../dictation/">הכתבה קולית בעברית</a> (בדפדפן) שולח את הקול לשירות זיהוי הדיבור של Google או Microsoft ומחזיר טקסט. הוא מהיר ובזמן אמת, אבל הקול <b>יוצא מהמחשב</b>. לכן שם אסור להכתיב פרטי לקוחות. הכלי הזה נבנה בדיוק בשביל המקרים האלה.</td></tr>
       <tr><td>כמה זמן זה לוקח</td><td>כ-5 שניות מסיום כל משפט ועד שהוא מוקלד, בלי קשר לאורך המשפט (עלות קבועה של המנוע על מעבד). במצב הרציף כבר מדברים את המשפט הבא בזמן הזה, כך שבפועל מחכים רק בסוף.</td></tr>
       <tr><td>עדכונים</td><td>המודל והחבילות נעולים לגרסאות מדויקות שנבדקו (חתימות SHA256). הכלי לא מעדכן את עצמו ולא מוריד דבר מלבד המודל בהפעלה הראשונה. גרסה חדשה מתפרסמת בדף הזה אחרי בדיקה.</td></tr>
+      <tr><td>מה מותקן במחשב</td><td>הפייתון המוטמע הרשמי (Python 3.10, חתום דיגיטלית על ידי Python Software Foundation), החבילות שנבדקו, וקוד הכלי כקובצי טקסט קריאים. אין קובץ EXE ארוז או מוצפן. התקנה למשתמש הנוכחי בלבד, בלי הרשאות מנהל, והסרה נקייה.</td></tr>
       <tr><td>מה נבדק</td><td>35 חבילות Python וכלי הבנייה נבדקו לפי נוהל אבטחת החבילות של המשרד: הורדה פסיבית, אימות מקור, השוואת חתימות, סריקת קוד ובינארים. הקוד של הכלי עצמו (כ-500 שורות Python) כלול ב-ZIP למי שרוצה לקרוא.</td></tr>
     </table></div>
   </div>
