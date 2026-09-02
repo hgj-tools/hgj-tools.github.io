@@ -180,6 +180,17 @@
   }
   .dot.live { background: var(--rec); }
   .hint { color: var(--ink-soft); font-size: .85rem; line-height: 1.4; }
+  .countdown {
+    display: inline-grid; place-items: center;
+    min-width: 28px; height: 28px; padding: 0 9px;
+    border-radius: 999px;
+    background: var(--rec); color: #fff;
+    font-weight: 800; font-size: .95rem;
+    font-variant-numeric: tabular-nums;
+    animation: tick .9s ease-in-out infinite;
+  }
+  @keyframes tick { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.12); } }
+  @media (prefers-reduced-motion: reduce) { .countdown { animation: none; } }
 
   /* Text area */
   .editor-wrap { position: relative; }
@@ -408,8 +419,8 @@
         </svg>
       </button>
       <div class="status">
-        <div class="status-line"><span class="dot" id="dot"></span><span id="statusText">מוכן להקלטה</span></div>
-        <div class="hint">לחצו על המיקרופון ודברו. ההקלטה נעצרת לבד אחרי 5 שניות של שקט, או בלחיצה חוזרת.</div>
+        <div class="status-line"><span class="dot" id="dot"></span><span id="statusText">מוכן להקלטה</span><span class="countdown" id="countdown" hidden aria-live="off">5</span></div>
+        <div class="hint">לחצו על המיקרופון ודברו. כשמפסיקים לדבר מתחילה ספירה לאחור של 5 שניות, ודיבור מאפס אותה. בסיומה ההקלטה נעצרת והטקסט מועתק לבד.</div>
       </div>
       <button class="icon-btn" id="collapseBtn" aria-label="קיפול החלון לאייקון" title="קיפול החלון לאייקון">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -492,8 +503,12 @@
   var paused = false;         // user intent: temporarily suspended
   var finalText = "";         // הטקסט ה"נעול"; תוצאות ביניים מוצגות אחריו בתיבה
   var pendingInterim = "";    // תוצאת ביניים אחרונה שטרם ננעלה ע"י המנוע
-  var silenceTimer = null;    // 5 שניות שקט = נעילת תוצאת הביניים
+  var silenceTimer = null;    // 5 שניות שקט = עצירה אוטומטית
   var SILENCE_MS = 5000;
+  var countdownEl = document.getElementById("countdown");
+  var lastActivity = 0;       // מתי הגיעה התוצאה האחרונה מהמנוע (= דיבור)
+  var hadResult = false;      // האם היה דיבור בסשן הנוכחי (הספירה מוצגת רק אחרי דיבור)
+  var tickTimer = null;
   var compactBtn = document.getElementById("compactBtn");
   var collapseBtn = document.getElementById("collapseBtn");
   // האם רצים כאפליקציה מותקנת (חלון עצמאי) ולא כלשונית בדפדפן
@@ -531,6 +546,34 @@
 
   function clearSilenceTimer() {
     if (silenceTimer) { clearTimeout(silenceTimer); silenceTimer = null; }
+  }
+
+  // ספירה לאחור גלויה: מתחילה כשהדיבור נפסק, מתאפסת כשהוא חוזר,
+  // ומסתיימת בדיוק כשטיימר השקט עוצר את ההקלטה.
+  function tick() {
+    var active = recording && !paused && hadResult && (finalText || pendingInterim);
+    var silentFor = Date.now() - lastActivity;
+    if (active && silentFor >= 700) {
+      var left = Math.max(1, Math.ceil((SILENCE_MS - silentFor) / 1000));
+      countdownEl.textContent = left;
+      countdownEl.hidden = false;
+      setStatus("שקט. עצירה והעתקה בעוד", true);
+    } else {
+      countdownEl.hidden = true;
+      if (recording && !paused) setStatus("מקשיב… דברו בחופשיות", true);
+    }
+  }
+
+  function startTicker() {
+    stopTicker();
+    lastActivity = Date.now();
+    hadResult = false;
+    tickTimer = setInterval(tick, 200);
+  }
+
+  function stopTicker() {
+    if (tickTimer) { clearInterval(tickTimer); tickTimer = null; }
+    countdownEl.hidden = true;
   }
 
   // 5 שניות בלי תוצאה חדשה מהמנוע = המשתמש שותק: עוצרים את ההקלטה אוטומטית.
@@ -580,6 +623,8 @@
       }
       pendingInterim = interim.trim();
       render();
+      lastActivity = Date.now();
+      hadResult = true;
       armSilenceTimer();
     };
 
@@ -634,11 +679,13 @@
     try { recognition.start(); }
     catch (err) { /* start() called too soon after stop */ }
     syncUI();
+    startTicker();
   }
 
   function stop() {
     if (!recognition) return;
     clearSilenceTimer();
+    stopTicker();
     recording = false;
     paused = false;
     try { recognition.stop(); } catch (err) {}
@@ -656,9 +703,11 @@
     if (paused) {
       paused = false;
       try { recognition.start(); } catch (err) { /* already starting */ }
+      startTicker();
     } else {
       paused = true;
       clearSilenceTimer();
+      stopTicker();
       try { recognition.stop(); } catch (err) {}
     }
     syncUI();
