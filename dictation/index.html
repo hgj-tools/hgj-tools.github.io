@@ -240,6 +240,13 @@
     white-space: nowrap;
   }
   .count strong { color: var(--ink); font-weight: 700; }
+  .auto-copy {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: .85rem; color: var(--ink-soft);
+    cursor: pointer; user-select: none; white-space: nowrap;
+  }
+  .auto-copy input { accent-color: var(--accent); width: 15px; height: 15px; margin: 0; cursor: pointer; }
+  body.compact .auto-copy { font-size: .8rem; }
 
   .toast {
     position: fixed;
@@ -425,6 +432,10 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
         נקה
       </button>
+      <label class="auto-copy" title="בסיום ההקלטה הטקסט מועתק ללוח מעצמו, ובקלוד נשאר רק להדביק">
+        <input type="checkbox" id="autoCopy" checked>
+        <span>העתקה אוטומטית בסיום</span>
+      </label>
       <span class="spacer"></span>
       <span class="count"><strong id="words">0</strong> מילים · <strong id="chars">0</strong> תווים</span>
       <button class="icon-btn" id="compactBtn" aria-pressed="false" aria-label="מצב חלונית קטנה" title="מצב חלונית קטנה">
@@ -441,6 +452,7 @@
     <summary>איך פותחים את הכלי כחלונית קטנה, ופתרון בעיות מיקרופון</summary>
     <ul>
       <li><b>התקנה כאפליקציה (מומלץ):</b> ב-Chrome או Edge לחצו על אייקון ההתקנה בשורת הכתובת, או תפריט ← "התקנת אפליקציה". הכלי יקבל אייקון מיקרופון בשולחן העבודה ובשורת המשימות, וייפתח כחלון קטן ונקי אחד בלי שורת כתובת: מיקרופון, תיבת טקסט והעתקה בלבד. הצמידו אותו לשורת המשימות, ומשם לחיצה על האייקון פותחת אותו ולחיצה נוספת מסתירה אותו. הדפדפן זוכר את הגודל והמיקום שקבעתם.</li>
+      <li><b>הזרימה הקצרה ביותר לקלוד:</b> כשההקלטה נעצרת (אחרי 5 שניות שקט או בלחיצה) הטקסט מועתק ללוח מעצמו, בתנאי שחלון הכלי עדיין במיקוד. עוברים לקלוד, Ctrl+V, שליחה. אפשר לבטל את ההעתקה האוטומטית בתיבת הסימון שליד "נקה".</li>
       <li><b>מצב חלונית קטנה בדפדפן:</b> הכפתור עם ארבע הפינות מכווץ את התצוגה למינימום גם בלשונית רגילה. המצב נשמר לפעמים הבאות. באפליקציה המותקנת זו ממילא התצוגה הקבועה.</li>
       <li><b>דפדפנים נתמכים:</b> Google Chrome או Microsoft Edge - שניהם עובדים מצוין. Firefox לא נתמך.</li>
       <li><b>הדפדפן מבקש הרשאת מיקרופון:</b> בחרו <b>"רק בזמן הביקור באתר"</b> (Allow while visiting) כדי שההרשאה תישמר.</li>
@@ -595,6 +607,8 @@
         try { recognition.start(); } catch (err) { /* already starting */ }
       } else {
         syncUI();
+        // ההקלטה נעצרה (ידנית או אחרי שקט) והטקסט סופי: מעתיקים ללוח מעצמנו
+        if (!recording && autoCopyEl && autoCopyEl.checked) copyAll(true);
       }
     };
   }
@@ -650,17 +664,36 @@
     syncUI();
   });
 
-  copyBtn.addEventListener("click", function () {
+  // auto=true: העתקה שקטה בסיום ההקלטה. אם החלון כבר לא במיקוד הדפדפן
+  // מסרב לכתוב ללוח, ואז משאירים הודעה בשורת הסטטוס במקום להיכשל בשקט.
+  function copyAll(auto) {
     var val = textEl.value;
-    if (!val.trim()) { showToast("אין טקסט להעתקה"); return; }
+    if (!val.trim()) { if (!auto) showToast("אין טקסט להעתקה"); return; }
+    var done = function () {
+      showToast("הועתק ללוח ✓");
+      if (auto) setStatus("הועתק ללוח. בקלוד: Ctrl+V ושליחה", false);
+    };
+    var fail = function () {
+      if (auto) setStatus("ההקלטה הסתיימה. לחצו \"העתק הכל\"", false);
+      else fallbackCopy(val);
+    };
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(val).then(
-        function () { showToast("הועתק ללוח ✓"); },
-        function () { fallbackCopy(val); }
-      );
+      navigator.clipboard.writeText(val).then(done, fail);
     } else {
-      fallbackCopy(val);
+      fail();
     }
+  }
+
+  copyBtn.addEventListener("click", function () { copyAll(false); });
+
+  var autoCopyEl = document.getElementById("autoCopy");
+  var AUTOCOPY_KEY = "hgj-dictation-autocopy";
+  try {
+    var savedAuto = localStorage.getItem(AUTOCOPY_KEY);
+    if (savedAuto !== null) autoCopyEl.checked = savedAuto === "1";
+  } catch (err) {}
+  autoCopyEl.addEventListener("change", function () {
+    try { localStorage.setItem(AUTOCOPY_KEY, autoCopyEl.checked ? "1" : "0"); } catch (err) {}
   });
 
   function fallbackCopy(val) {
