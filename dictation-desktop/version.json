@@ -1,0 +1,21 @@
+{
+  "version": "1.3.0",
+  "published": "2026-09-03",
+  "runtime_id": "4f9bab37",
+  "notes": "מנגנון עדכונים: מעכשיו הכלי מודיע על גרסאות חדשות ומתעדכן בלחיצה.",
+  "page": "https://hgj-tools.github.io/dictation-desktop/",
+  "installer": "https://github.com/hgj-tools/hgj-tools.github.io/releases/download/v1.3.0-dictation-desktop/HGJ-Dictation-Setup-1.3.0.exe",
+  "installer_sha256": "596333d29356823f4177b3556fe5c791141b804ad8fd93a0c1d8c2cf5d319c52",
+  "files": [
+    {
+      "name": "dictate.py",
+      "url": "https://hgj-tools.github.io/dictation-desktop/dictate.py",
+      "sha256": "51e17529cd9c3ca2bb361c8798d81cc3ee156d8a98ce30725be66dd256ffc123"
+    },
+    {
+      "name": "download_model.py",
+      "url": "https://hgj-tools.github.io/dictation-desktop/download_model.py",
+      "sha256": "fabf6e986ebcbfe086a2c0f6e1593ef635ab8bb9d60a182d14ee24abe486d712"
+    }
+  ]
+}
