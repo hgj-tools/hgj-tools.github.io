@@ -1,6 +1,6 @@
 /* service worker מינימלי: מאפשר התקנה כאפליקציה + פתיחה גם בלי רשת.
    אסטרטגיה: רשת קודם, מטמון כגיבוי. כך עדכון של הכלי נכנס מיד ואין גרסה תקועה. */
-var CACHE = "hgj-dictation-v1";
+var CACHE = "hgj-dictation-v2";
 var ASSETS = ["./", "./index.html", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png"];
 
 self.addEventListener("install", function (e) {
