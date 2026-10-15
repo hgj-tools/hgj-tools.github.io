@@ -10,6 +10,7 @@
 |---|---|---|
 | [כלי סיור - הגנת הפרטיות](https://hgj-tools.github.io/privacy-survey/) | אבטחת מידע והגנת הפרטיות | דפדפן (PWA) |
 | [כלי השחרת נתונים](https://hgj-tools.github.io/data-masking/) | אבטחת מידע והגנת הפרטיות | הורדה (Windows + Python) |
+| [איחוד ופיצול PDF](https://hgj-tools.github.io/pdf-merge/) | כלים כלליים | דפדפן (Chrome / Edge), או הורדה כקובץ HTML אחד |
 | [הכתבה קולית בעברית](https://hgj-tools.github.io/dictation/) | כלים כלליים | דפדפן (Chrome / Edge) |
 
 ## עקרונות
