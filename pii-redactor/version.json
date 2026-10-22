@@ -1,7 +1,7 @@
 {
- "version": "2.6",
- "sha256": "5e3d47b8f98b1e5a4fed4c2f716e1ca757bed1cf45019b0e674ab17e1d79fb20",
- "signature": "aHoASYmCvV1LYHud6AX5PKW086k4iZx0hNvjHeJCD943Yv0+tTvrsPmfqmAtZtnbeBdQ0WkhjXw8l17LKqJnAVRXiXoX/FJyNb3/NKAcrhtOoUFJB9xxPNi6im+KYxUD7Lqbd4jMyO3RrqKqCqONRHJWcHq+Y0xY96FPNl4AZCqN5d9tWbpyLhn90cgfxUD+g86npoeVO9sT5NOQqXggkoXq0L8cA/CX+qjn0yWed4nUJMHBjqouI2AKuIesjDMCAcLxLQ8Q6tDyxIopHEypPF9UL+CPInciWpUK4SVIxAYbpRSRoWfptU69cwoGJZ1XxZMYNCQRGzTOjzjt1Tc9BndMy7TmmSpde2cxZKntrQt4g7ddGAUbuXXAtd+X3LvL1yJ67S7r4yeWGu4H/5ZQDj1Atv+URsyPe1DRkzQnEdZcwgUqm4HlGDQpYiQ/g5NDWcZDGDMi6c62s41xSsEjddisGF5CEv/npUjSvXL7KxvmP3QSwsXkDWr+cjpjXuuG",
+ "version": "2.7",
+ "sha256": "09df293471e4feff729c5dd10aa9915083a103c49dae664c41adfef8ad9d38e0",
+ "signature": "dGwfrXHKTd7c02Uqawmk4ymwZapsryoZv/1O3pR3b/7aTxRYpyD5NxH7GozOCKVkFYP6Jwrt5bQG+OSxKBW5LeYPYksg0MfThkMXdrW7hxJVzeCMGFRqNeepW0RrQkogEQC6gRLE9dZDjWO581s2e805xYVvKK4VUkkfuFvPNOf1vL14+Fha0jWH1rUYD/WUY42LjOyxW0nY7HfxtLhEGm4tttG0M9lSkv4FXmtNY5djuovRCf2/ejekGG0AeHOztVBiIPv9vGpfb+vEEtHh6yslvQj9vW09ISTaSUyhCSocfdCIXzeR9KIEQbfb9zhxUc8GZXiip7wFWhCN7hE44byy/R/GZfNHToR/hMY4qSRqZ0e9uIDP/+YeOi0DJGsi9TPkaP2L/ZMTzwGdC5m6+LmjKMuKcUv2GgMkBwwmVUq/OyhUvx2vPgnVa6KCaQGJ8bw+wc4Jt+qz+cMpQ8aPQs4T28InCwo9drWBivVB92DyifE+ZzYU6RyUYl0I8EPv",
  "url": "https://hgj-tools.github.io/pii-redactor/pii-redactor.zip",
- "notes": "תיקייה שלמה ומאות קבצים, מלבן תבנית לכל הקבצים, השחרה לפי תווית (לכבוד), ועדכון אוטומטי חתום"
+ "notes": "מבנה פשוט: בתיקייה רק קובץ הפעלה וקרא אותי, וכל השאר מוסתר"
 }
