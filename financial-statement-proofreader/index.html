@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="robots" content="noindex, nofollow">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>כלי הגהת דוחות כספיים | HGJ</title>
+<title>סקיל להגהת דוחות כספיים | HGJ</title>
 <link rel="icon" href="../logo-mark.png">
 <style>
   :root {
@@ -80,6 +80,8 @@
   .tokens { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
   .tok { background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px;
     padding: 2px 8px; font-size: .82rem; }
+  .steps { margin: 4px 0 0; padding-inline-start: 22px; }
+  .steps li { margin: 10px 0; }
   footer { color: var(--ink-soft); font-size: .82rem; text-align: center; padding-top: 4px; }
   footer a { color: var(--accent); text-decoration: none; font-weight: 600; }
 </style>
@@ -93,13 +95,9 @@
   </div>
 
   <header>
-    <h1 class="title">📄 כלי הגהת דוחות כספיים</h1>
-    <p class="subtitle">סקיל של Claude שעובר על דוח כספי עמוד אחר עמוד לפני שליחתו ללקוח, ומפיק דוח ממצאים באקסל.</p>
+    <h1 class="title">📄 סקיל להגהת דוחות כספיים</h1>
+    <p class="subtitle">סקיל של Claude שעובר על דוח כספי לפני שליחתו ללקוח ומפיק דוח ממצאים באקסל.</p>
   </header>
-
-  <div class="ok" style="display:flex;align-items:center;gap:10px;">
-    🤖 <span>זהו <b>סקיל של Claude</b>, לא כלי דפדפן. מורידים את החבילה, מטעינים ל-Claude, ומצביעים על ה-PDF של הדוח.</span>
-  </div>
 
   <div class="card">
     <h2>הורדה</h2>
@@ -107,47 +105,36 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
       </svg>
-      הורדת החבילה (ZIP)
+      הורדת הסקיל (ZIP)
     </a>
     <div class="tokens">
       <span class="tok">כתיב ודקדוק</span><span class="tok">טרמינולוגיה חשבונאית</span><span class="tok">מבנה וסדר ביאורים</span>
       <span class="tok">גילויים נדרשים</span><span class="tok">אימות מספרי</span><span class="tok">עסק חי</span>
     </div>
     <p class="meta">
-      הכלי קורא את העמודים <b>ויזואלית</b>, כתמונות, משום שחילוץ טקסט מ-PDF עברי אינו אמין ומשמיט אותיות בשקט. לצד בדיקת הניסוח הוא מאמת עצמאית כל סכום וסיכום ביניים.
-      הפלט: <span class="path he">הגהה_[לקוח]_[שנה].xlsx</span> בשלושה גיליונות. זו טיוטה לבדיקת אדם לפני שליחה ללקוח.
+      עובד גם על דוח סרוק. הפלט: <span class="path he">הגהה_[לקוח]_[שנה].xlsx</span>, טיוטה לבדיקת אדם לפני שליחה ללקוח.<br>
+      גרסה 1.1.1 · אוקטובר 2026
     </p>
   </div>
 
   <div class="card">
     <h2>התקנה והפעלה</h2>
-
-    <h3>1. הטענת הסקיל</h3>
-    <p class="meta" style="margin-top:2px;">בתפריט ההגדרות: <b>Customize &gt; Skills &gt; Add &gt; Upload skill</b>, ומעלים את קובץ ה-ZIP <b>כמו שהוא</b>, בלי לחלץ ובלי לארוז מחדש. הסקיל נשמר בחשבון ומופיע בכל הסביבות, כולל Claude Code.</p>
-    <p class="meta" style="margin-top:6px;">שים לב: הסקילים יושבים תחת <span class="path">Customize</span>, ולא תחת <span class="path">Capabilities</span>, אף ששם דומה מופיע גם הוא בתפריט.</p>
-
-    <h3>2. Python</h3>
-    <p class="meta" style="margin-top:2px;">נדרש <b>Python 3</b> בסביבה שבה Claude מריץ קוד (ראה ההסבר למטה). אם אין, מתקינים מהמקור הרשמי ומסמנים בהתקנה <span class="path">Add python.exe to PATH</span>:</p>
-    <p style="margin:8px 0;">
-      <a class="download secondary" href="https://www.python.org/downloads/" target="_blank" rel="noopener noreferrer">הורדת Python (python.org)</a>
+    <ol class="steps">
+      <li>מורידים את קובץ ה-ZIP.</li>
+      <li>בהגדרות של Claude נכנסים אל <span class="path">Customize &gt; Skills &gt; Add &gt; Upload skill</span> ומעלים את ה-ZIP <b>כמו שהוא</b>, בלי לחלץ. הסקיל נשמר בחשבון וזמין בכל הסביבות.</li>
+      <li>מצרפים לשיחה את ה-PDF של הדוח, או פותחים את התיקייה שבה הוא נמצא, וכותבים <span class="path he">תעבור הגהה על הדוח</span>.</li>
+    </ol>
+    <p class="meta">
+      ב-claude.ai וב-Cowork אין צורך להתקין דבר נוסף. רק ב-Claude Code על המחשב נדרש פעם אחת Python, ואחריו <code>pip install pymupdf openpyxl</code>.
     </p>
-    <p class="meta" style="margin-top:2px;">ואז פעם אחת בשורת הפקודה:</p>
-    <span class="install">pip install pymupdf openpyxl</span>
-
-    <h3>3. הפעלה</h3>
-    <p class="meta" style="margin-top:2px;">פותחים שיחה בתיקייה שבה נמצא ה-PDF ומבקשים <span class="path he">תעבור הגהה על הדוח</span>. קובץ האקסל נכתב לצד הדוח.</p>
-
-    <div class="warn" style="margin-top:16px;">
-      ⚠ <b>מה רץ ולמה צריך Python.</b> החבילה איננה הנחיות בלבד. בתוכה שני סקריפטים שמורצים בפועל: אחד ממיר כל עמוד ב-PDF לתמונה, והשני בונה את קובץ האקסל המעוצב. הקריאה של העמודים והשיפוט המקצועי הם של Claude, אבל שני השלבים המכניים הם קוד, והוא רץ בסביבה שבה Claude מריץ קוד. ב-Claude Desktop וב-Claude Code זה המחשב שלכם, ולכן Python צריך להיות מותקן שם. בסביבת הרצה בענן אין רשת ו-PyMuPDF אינו מותקן, ולכן שלב המרת העמודים לתמונות ייכשל שם.
-    </div>
   </div>
 
   <div class="warn">
-    🔒 <b>סודיות:</b> החבילה עצמה גנרית וללא נתוני לקוח. תוצרי הריצה (קובץ ההגהה ותמונות העמודים) הם מידע לקוח ונשארים על המחשב שלכם בלבד. אין להעלותם לרשת או לשירות חיצוני. שימוש פנימי בלבד, כפוף לסודיות מקצועית.
+    🔒 <b>סודיות:</b> הסקיל גנרי וללא נתוני לקוח. קובץ ההגהה שהוא מפיק הוא מידע לקוח, ואין להעלותו לאתר ציבורי או לשירות חיצוני. שימוש פנימי בלבד, כפוף לסודיות מקצועית.
   </div>
 
   <footer>
-    הכלי רץ במחשב המקומי דרך Claude · אין לשתף דוחות לקוח או תוצרי הגהה מחוץ למשרד<br>
+    אין לשתף דוחות לקוח או תוצרי הגהה מחוץ למשרד<br>
     <a href="../policy/">הצהרת נגישות, פרטיות ותנאי שימוש</a> ·
     <a href="../">כל הכלים</a>
   </footer>
