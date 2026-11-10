@@ -276,6 +276,13 @@
     .group-head::after { display: none; }
     .search kbd { display: none; }
   }
+  /* כפתור הנגישות בטלפון: קטן יותר, ומוסתר בזמן הקלדה בחיפוש */
+  @media (max-width: 640px) {
+    html #hgj-a11y-btn { width: 44px; height: 44px; left: 10px; }
+    html #hgj-a11y-btn svg { width: 24px; height: 24px; }
+    html.hgj-typing #hgj-a11y-btn { opacity: 0; pointer-events: none; }
+    .search input { padding-inline-end: 20px; }
+  }
 </style>
 </head>
 <body>

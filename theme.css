@@ -116,25 +116,27 @@ html:has(.actionbar) { --hgj-a11y-bottom: 96px; }
   animation: hgj-ledger 12s linear infinite;
 }
 @keyframes hgj-ledger { to { background-position: 0 260px, 0 0; } }
-/* גיליון זכוכית עם גרף עמודות */
+/* תמונת הכדור מדף הבית, קטנה ונמסה ברקע, כך שכל דף כלי ממשיך את דף הבית */
 .page > header:has(.title)::after, .app > header:has(.title)::after {
   content: ""; position: absolute; z-index: -1;
-  inset-inline-end: clamp(14px, 5%, 44px); top: 50%;
-  width: 168px; height: 124px; border-radius: 16px;
-  border: 1px solid rgba(255,255,255,.38);
-  background:
-    linear-gradient(to top, #008EDF, #B9E8FA) left 20px bottom 16px / 16px 26% no-repeat,
-    linear-gradient(to top, #008EDF, #B9E8FA) left 46px bottom 16px / 16px 44% no-repeat,
-    linear-gradient(to top, #008EDF, #B9E8FA) left 72px bottom 16px / 16px 34% no-repeat,
-    linear-gradient(to top, #008EDF, #B9E8FA) left 98px bottom 16px / 16px 58% no-repeat,
-    linear-gradient(to top, #008EDF, #B9E8FA) left 124px bottom 16px / 16px 76% no-repeat,
-    linear-gradient(rgba(255,255,255,.55), rgba(255,255,255,.55)) left 16px bottom 12px / 136px 2px no-repeat,
-    linear-gradient(140deg, rgba(255,255,255,.26), rgba(255,255,255,.06));
-  box-shadow: 0 34px 50px rgba(0,0,0,.42), 0 0 0 1px rgba(123,208,241,.10) inset;
-  transform: translateY(-50%) perspective(800px) rotateX(50deg) rotateZ(-30deg);
-  animation: hgj-float 6s ease-in-out infinite;
+  inset-inline-end: clamp(4px, 3%, 30px); top: 50%;
+  width: clamp(150px, 26%, 230px); aspect-ratio: 840 / 720;
+  background: url("media/hero-poster.jpg") center / cover no-repeat;
+  -webkit-mask-image: radial-gradient(closest-side, #000 62%, transparent 100%);
+          mask-image: radial-gradient(closest-side, #000 62%, transparent 100%);
+  opacity: .9;
+  transform: translateY(-50%);
+  animation: hgj-float 7s ease-in-out infinite;
 }
-@keyframes hgj-float { 50% { transform: translateY(calc(-50% - 10px)) perspective(800px) rotateX(50deg) rotateZ(-30deg); } }
+@keyframes hgj-float { 50% { transform: translateY(calc(-50% - 8px)); } }
+/* אריח האייקון בכותרת הכלי (נוסף ב-tool-page.js) */
+.page > header:has(.title) .title, .app > header:has(.title) .title { display: flex; align-items: center; gap: 14px; }
+.hgj-title-ico {
+  flex: none; display: grid; place-items: center; width: 54px; height: 54px; border-radius: 16px; color: #fff;
+  background: linear-gradient(145deg, #2BB0F0 0%, #008EDF 45%, #014F6C 100%);
+  box-shadow: 0 0 0 1px rgba(185,232,250,.35) inset, 0 10px 26px rgba(0,142,223,.45);
+}
+.hgj-title-ico svg { width: 27px; height: 27px; filter: drop-shadow(0 2px 4px rgba(0,0,0,.35)); }
 
 .page > header:has(.title) .title, .app > header:has(.title) .title { color: #fff; font-size: clamp(1.7rem, 1.2rem + 2.2vw, 2.5rem); letter-spacing: normal; line-height: 1.2; margin-bottom: 10px; }
 .page > header:has(.title) .subtitle, .app > header:has(.title) .subtitle { color: rgba(255,255,255,.86); line-height: 1.7; max-inline-size: 62ch; }
@@ -229,4 +231,11 @@ details.hgj-acc[open] > summary { border-bottom: 1px solid var(--border); }
 @media (prefers-reduced-motion: reduce) {
   .page > header:has(.title)::before, .app > header:has(.title)::before, .page > header:has(.title)::after, .app > header:has(.title)::after { animation: none; }
   .page .card, .download, .logo-wrap .back { transition: none; }
+}
+
+/* כפתור הנגישות בטלפון: קטן יותר, ומוסתר בזמן הקלדה בשדה */
+@media (max-width: 640px) {
+  html #hgj-a11y-btn { width: 44px; height: 44px; left: 10px; }
+  html #hgj-a11y-btn svg { width: 24px; height: 24px; }
+  html.hgj-typing #hgj-a11y-btn { opacity: 0; pointer-events: none; }
 }

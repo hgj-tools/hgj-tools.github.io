@@ -118,5 +118,10 @@
     document.body.appendChild(panel);
     refresh();
   }
+  // בזמן הקלדה בשדה הכפתור מוסתר בטלפון (theme.css / index.html), כדי שלא יכסה את מה שמקלידים
+  function isField(t) { return !!t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)); }
+  document.addEventListener("focusin", function (e) { root.classList.toggle("hgj-typing", isField(e.target)); });
+  document.addEventListener("focusout", function () { root.classList.remove("hgj-typing"); });
+
   if (document.body) build(); else document.addEventListener("DOMContentLoaded", build);
 })();

@@ -6,23 +6,24 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' blob:; worker-src blob:; style-src 'unsafe-inline'; img-src blob: data:; font-src data:; frame-src blob:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <title>איחוד ופיצול PDF</title>
 <style>
+/* ברירת המחדל כהה, בגווני הלוגו של המשרד כמו שאר אתר הכלים. data-theme="light" מחזיר לבהיר */
 :root{
-  --bg:#f1f5f9;--card:#fff;--text:#0f172a;--muted:#64748b;--border:#e2e8f0;
-  --accent:#1e3a5f;--blue:#2563eb;--violet:#7c3aed;--ok:#16a34a;--no:#dc2626;--wait:#d97706;
-  --sel:#2563eb;--selbg:#dbeafe;--shadow:0 1px 3px rgba(15,23,42,.08),0 4px 14px rgba(15,23,42,.06);
-  --thumb:150px;
+  --bg:#03111D;--card:#071C2B;--text:#EAF6FB;--muted:#A3C2D1;--border:#17394D;
+  --accent:#7BD0F1;--blue:#008EDF;--violet:#1E9DE6;--ok:#16a34a;--no:#dc2626;--wait:#d97706;
+  --sel:#7BD0F1;--selbg:#0E3550;--shadow:0 1px 3px rgba(0,0,0,.4),0 4px 14px rgba(0,0,0,.3);
+  --thumb:150px;color-scheme:dark;
 }
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#0b1220;--card:#151f30;--text:#e8edf5;--muted:#93a3b8;--border:#243349;--accent:#60a5fa;--selbg:#1e3a5f;--sel:#60a5fa;
-  --shadow:0 1px 3px rgba(0,0,0,.4),0 4px 14px rgba(0,0,0,.3);
-}}
-:root[data-theme="dark"]{--bg:#0b1220;--card:#151f30;--text:#e8edf5;--muted:#93a3b8;--border:#243349;--accent:#60a5fa;--selbg:#1e3a5f;--sel:#60a5fa}
+:root[data-theme="light"]{
+  --bg:#f1f5f9;--card:#fff;--text:#0f172a;--muted:#64748b;--border:#e2e8f0;
+  --accent:#014F6C;--blue:#0077C2;--violet:#008EDF;--sel:#0077C2;--selbg:#D3EEF9;
+  --shadow:0 1px 3px rgba(15,23,42,.08),0 4px 14px rgba(15,23,42,.06);color-scheme:light;
+}
 *{box-sizing:border-box}
 html,body{direction:rtl;text-align:right;margin:0;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif;font-size:14px}
 button,select,input{font-family:inherit;font-size:inherit;color:inherit}
 svg{width:18px;height:18px;flex:none}
 
-.top{background:linear-gradient(120deg,#1e3a5f 0%,#2563eb 55%,#7c3aed 100%);color:#fff;padding:16px 24px}
+.top{background:radial-gradient(600px 200px at 0% 0%,rgba(0,142,223,.45),transparent 70%),linear-gradient(120deg,#011A24 0%,#01354A 55%,#014F6C 100%);border-bottom:1px solid rgba(123,208,241,.18);color:#fff;padding:16px 24px}
 .top .in{max-width:1400px;margin:0 auto;display:flex;align-items:center;gap:14px}
 .logo{width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,.18);display:grid;place-items:center}
 .logo svg{width:26px;height:26px}
@@ -81,7 +82,7 @@ select.sel{border:1px solid var(--border);background:var(--card);border-radius:9
 .card .box .ph{display:grid;place-items:center;color:#94a3b8;font-size:12px}
 .card .box .ph.blank{color:#cbd5e1}
 .card .num{position:absolute;top:10px;right:10px;z-index:2;background:var(--accent);color:#fff;font-weight:bold;font-size:12px;border-radius:7px;padding:2px 7px;min-width:24px;text-align:center}
-:root[data-theme="dark"] .card .num{color:#0b1220}
+:root:not([data-theme="light"]) .card .num{color:#021521}
 .card .chk{position:absolute;top:8px;left:8px;z-index:3;width:24px;height:24px;border-radius:50%;border:2px solid #cbd5e1;background:rgba(255,255,255,.9);display:grid;place-items:center;opacity:0;transition:opacity .1s}
 .card .chk svg{width:14px;height:14px;color:#fff;display:none}
 .card:hover .chk{opacity:1}
@@ -113,7 +114,7 @@ body.filedrag.overgrid .dropveil div{position:fixed;bottom:24px;font-size:15px;p
 .busy .bx{background:var(--card);border-radius:16px;padding:22px 26px;min-width:320px;box-shadow:var(--shadow);text-align:center}
 .busy .t{font-weight:bold;margin-bottom:12px}
 .busy .pb{height:10px;background:var(--bg);border-radius:6px;overflow:hidden}
-.busy .pb i{display:block;height:100%;width:0;background:linear-gradient(90deg,#2563eb,#7c3aed);transition:width .15s}
+.busy .pb i{display:block;height:100%;width:0;background:linear-gradient(90deg,#008EDF,#7BD0F1);transition:width .15s}
 .busy .d{color:var(--muted);font-size:12.5px;margin-top:8px}
 
 .toasts{position:fixed;bottom:18px;left:18px;z-index:70;display:flex;flex-direction:column;gap:8px;max-width:440px}
@@ -138,7 +139,7 @@ dialog .note{color:var(--muted);font-size:12.5px}
 #dlgPreview{max-width:96vw;width:96vw;height:94vh}
 #dlgPreview[open]{display:flex;flex-direction:column}
 #dlgPreview .pv{flex:1;position:relative;background:#e2e8f0;overflow:hidden}
-:root[data-theme="dark"] #dlgPreview .pv{background:#0b1220}
+:root:not([data-theme="light"]) #dlgPreview .pv{background:#03111D}
 #dlgPreview .pv canvas,#dlgPreview .pv img{position:absolute;top:50%;left:50%;background:#fff;box-shadow:0 4px 20px rgba(0,0,0,.25)}
 #dlgPreview .hd{justify-content:space-between}
 #dlgPreview .hd .grp{font-weight:normal}
