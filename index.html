@@ -141,68 +141,38 @@
   .cta svg { width: 18px; height: 18px; }
   @keyframes rise { from { opacity: 0; transform: translateY(26px); } }
 
-  /* ---------- סצנה תלת ממדית ---------- */
-  .scene { position: relative; width: min(100%, 520px); aspect-ratio: 1 / .92; margin-inline: auto; perspective: 1500px; animation: rise 1s .3s both; }
-  .iso {
-    position: absolute; inset: 0; transform-style: preserve-3d;
-    transform: rotateX(calc(57deg + var(--py, 0deg))) rotateZ(calc(-36deg + var(--px, 0deg)));
-    transition: transform .35s cubic-bezier(.2,.7,.2,1);
+  /* ---------- סרטון הכדור ---------- */
+  .scene {
+    position: relative; width: min(100%, 560px); aspect-ratio: 840 / 720; margin-inline: auto;
+    perspective: 1400px; animation: rise 1s .25s both;
   }
-  .iso > * { position: absolute; transform-style: preserve-3d; }
-  .glass {
-    border-radius: 20px;
-    background: linear-gradient(140deg, rgba(255,255,255,.22), rgba(255,255,255,.06));
-    border: 1px solid rgba(255,255,255,.34);
-    box-shadow: 0 0 0 1px rgba(123,208,241,.08) inset, 0 30px 60px rgba(0,0,0,.35);
+  .scene-in {
+    position: absolute; inset: 0;
+    transform: rotateY(var(--px, 0deg)) rotateX(var(--py, 0deg));
+    transition: transform .4s cubic-bezier(.2,.7,.2,1);
   }
-  .floor { inset: 6% 2% 0 6%; border-radius: 30px; background: radial-gradient(closest-side, rgba(0,142,223,.45), transparent 75%); filter: blur(22px); transform: translateZ(-40px); }
-
-  /* גיליון מאזן */
-  .sheet { left: 4%; top: 22%; width: 68%; height: 72%; padding: 7% 7% 6%; --z: 0px; transform: translateZ(var(--z)); animation: bob 7s ease-in-out infinite; direction: ltr; }
-  .sheet b { display: block; height: 9px; width: 46%; border-radius: 5px; background: rgba(255,255,255,.85); margin-bottom: 9%; }
-  .row { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 4.2% 0; border-bottom: 1px solid rgba(255,255,255,.18); }
-  .row span { height: 6px; border-radius: 4px; background: rgba(255,255,255,.4); }
-  .row em { font-style: normal; font-size: clamp(.6rem, 1.5vw, .82rem); font-weight: 700; font-variant-numeric: tabular-nums; color: #fff; letter-spacing: .03em; }
-  .row.neg em { color: #FFB4B4; }
-  .row.total { border-bottom: 3px double rgba(255,255,255,.75); }
-  .row.total span { background: var(--sky); height: 7px; }
-  .row.total em { color: var(--sky); font-size: clamp(.68rem, 1.7vw, .95rem); }
-
-  /* גרף עמודות */
-  .chart { left: 40%; top: 2%; width: 56%; height: 50%; --z: 95px; transform: translateZ(var(--z)); animation: bob 6s -2s ease-in-out infinite; }
-  .cub { position: absolute; transform-style: preserve-3d; bottom: 14%; width: 12%; aspect-ratio: 1; animation: grow 1.6s cubic-bezier(.2,.8,.2,1) both; }
-  .cub i { position: absolute; display: block; }
-  .cub .t { inset: 0; transform: translateZ(var(--h)); background: linear-gradient(135deg, #D6F1FF, #7BD0F1); border-radius: 3px; }
-  .cub .f { left: 0; bottom: 0; width: 100%; height: var(--h); transform-origin: 50% 100%; transform: rotateX(-90deg); background: linear-gradient(to top, #008EDF, #7BD0F1); }
-  .cub .k { left: 0; top: 0; width: 100%; height: var(--h); transform-origin: 50% 0; transform: rotateX(90deg); background: #014F6C; }
-  .cub .r { right: 0; top: 0; height: 100%; width: var(--h); transform-origin: 100% 50%; transform: rotateY(90deg); background: linear-gradient(to left, #014F6C, #0A76A8); }
-  .cub .l { left: 0; top: 0; height: 100%; width: var(--h); transform-origin: 0 50%; transform: rotateY(-90deg); background: linear-gradient(to right, #014F6C, #0A76A8); }
-  .cub:nth-child(1) { left: 10%; --h: 34px; animation-delay: .7s; }
-  .cub:nth-child(2) { left: 27%; --h: 58px; animation-delay: .85s; }
-  .cub:nth-child(3) { left: 44%; --h: 46px; animation-delay: 1s; }
-  .cub:nth-child(4) { left: 61%; --h: 84px; animation-delay: 1.15s; }
-  .cub:nth-child(5) { left: 78%; --h: 112px; animation-delay: 1.3s; }
-  @keyframes grow { from { --h: 0px; } }
-  @keyframes bob { 50% { transform: translateZ(calc(var(--z) + 16px)); } }
-  @keyframes bobf { 50% { transform: translateZ(calc(var(--z) + 18px)) rotateZ(36deg) rotateX(-57deg); } }
-
-  /* תג מאוזן */
-  .badge {
-    left: 52%; top: 66%; --z: 170px; transform: translateZ(var(--z)) rotateZ(36deg) rotateX(-57deg); animation: bobf 5s -1s ease-in-out infinite;
-    display: flex; align-items: center; gap: 10px; padding: 12px 18px; border-radius: 16px; white-space: nowrap;
-    font-weight: 700; font-size: clamp(.8rem, 1.8vw, 1rem); color: #01303F;
-    background: linear-gradient(135deg, #fff, #D3EEF9); box-shadow: 0 24px 50px rgba(0,0,0,.4);
+  /* הקצוות של הסרטון נמסים לתוך הרקע של ראש הדף */
+  .scene video, .scene img {
+    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block;
+    -webkit-mask-image: radial-gradient(closest-side, #000 72%, transparent 100%);
+            mask-image: radial-gradient(closest-side, #000 72%, transparent 100%);
   }
-  .badge svg { width: 22px; height: 22px; padding: 4px; border-radius: 50%; background: #17B26A; color: #fff; }
-  .coin {
-    width: 13%; aspect-ratio: 1; border-radius: 50%; display: grid; place-items: center;
-    font-weight: 800; font-size: clamp(.9rem, 2.2vw, 1.3rem); color: #01303F;
-    background: radial-gradient(circle at 30% 30%, #fff, #A6DDF5 70%); box-shadow: 0 18px 36px rgba(0,0,0,.35);
-    transform: translateZ(var(--z)) rotateZ(36deg) rotateX(-57deg); animation: bobf 4.6s ease-in-out infinite;
+  .scene::before {
+    content: ""; position: absolute; inset: 12% 10% 0; z-index: -1; border-radius: 50%;
+    background: radial-gradient(closest-side, rgba(0,142,223,.40), transparent 75%); filter: blur(30px);
   }
-  .coin.c1 { left: 6%; top: 4%; --z: 130px; }
-  .coin.c2 { left: 80%; top: 58%; --z: 60px; animation-delay: -2.2s; }
-  .coin.c3 { left: -8%; top: 62%; --z: 40px; animation-delay: -1.1s; }
+  .motion-btn {
+    position: absolute; inset-block-end: 6%; inset-inline-start: 4%; z-index: 2;
+    width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; cursor: pointer;
+    color: #fff; background: rgba(1,26,36,.55); border: 1px solid rgba(255,255,255,.28);
+    -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+    opacity: .7; transition: opacity .2s ease, background .2s ease;
+  }
+  .motion-btn:hover, .motion-btn:focus-visible { opacity: 1; background: rgba(1,26,36,.8); }
+  .motion-btn svg { width: 16px; height: 16px; }
+  .motion-btn .i-play { display: none; }
+  .motion-btn[aria-pressed="true"] .i-play { display: block; }
+  .motion-btn[aria-pressed="true"] .i-pause { display: none; }
 
   /* ================= TOOLS ================= */
   main { position: relative; z-index: 2; max-width: 1180px; margin: -44px auto 0; padding: 0 24px 40px; }
@@ -298,7 +268,7 @@
     .title { margin-inline: auto; }
     .hero-text { display: flex; flex-direction: column; align-items: center; }
     .hero-meta { justify-content: center; }
-    .scene { order: -1; width: min(78%, 340px); margin-top: 34px; }
+    .scene { order: -1; width: min(86%, 380px); margin-top: 24px; }
     .hero-in { padding-bottom: 110px; }
     .brand small { display: none; }
   }
@@ -341,32 +311,16 @@
         </a>
       </div>
 
-      <div class="scene" id="scene" aria-hidden="true">
-        <div class="iso">
-          <div class="floor"></div>
-          <div class="sheet glass">
-            <b></b>
-            <div class="row"><span style="width:38%"></span><em>128,400</em></div>
-            <div class="row"><span style="width:52%"></span><em>64,250</em></div>
-            <div class="row neg"><span style="width:30%"></span><em>(18,900)</em></div>
-            <div class="row"><span style="width:44%"></span><em>37,120</em></div>
-            <div class="row total"><span style="width:34%"></span><em>210,870</em></div>
-          </div>
-          <div class="chart glass">
-            <div class="cub"><i class="k"></i><i class="l"></i><i class="r"></i><i class="f"></i><i class="t"></i></div>
-            <div class="cub"><i class="k"></i><i class="l"></i><i class="r"></i><i class="f"></i><i class="t"></i></div>
-            <div class="cub"><i class="k"></i><i class="l"></i><i class="r"></i><i class="f"></i><i class="t"></i></div>
-            <div class="cub"><i class="k"></i><i class="l"></i><i class="r"></i><i class="f"></i><i class="t"></i></div>
-            <div class="cub"><i class="k"></i><i class="l"></i><i class="r"></i><i class="f"></i><i class="t"></i></div>
-          </div>
-          <div class="coin c1">₪</div>
-          <div class="coin c2">%</div>
-          <div class="coin c3">Σ</div>
-          <div class="badge">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
-            מאוזן
-          </div>
+      <div class="scene" id="scene">
+        <div class="scene-in">
+          <video id="hero-video" muted loop playsinline preload="auto" poster="media/hero-poster.jpg" aria-hidden="true" tabindex="-1">
+            <source src="media/hero.mp4" type="video/mp4">
+          </video>
         </div>
+        <button type="button" class="motion-btn" id="motion-btn" aria-pressed="false" aria-label="עצירת ההנפשה">
+          <svg class="i-pause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
+          <svg class="i-play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>
+        </button>
       </div>
     </div>
   </div>

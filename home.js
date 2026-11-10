@@ -53,6 +53,25 @@
     });
   });
 
+  // סרטון הכדור: מתנגן רק כשאין העדפה להפחתת תנועה, ונעצר בכפתור או ב"עצירת אנימציות" בתפריט הנגישות
+  var video = document.getElementById("hero-video"), mbtn = document.getElementById("motion-btn");
+  if (video && mbtn) {
+    var choice = null; // null = לפי העדפות התנועה; true/false = המשתמש לחץ על הכפתור
+    var sync = function () {
+      var stop = choice !== null ? choice : still();
+      if (stop) video.pause();
+      else { var pr = video.play(); if (pr && pr.catch) pr.catch(function () {}); }
+      mbtn.setAttribute("aria-pressed", String(stop));
+      mbtn.setAttribute("aria-label", stop ? "הפעלת ההנפשה" : "עצירת ההנפשה");
+    };
+    var reset = function () { choice = null; sync(); };
+    mbtn.addEventListener("click", function () { choice = mbtn.getAttribute("aria-pressed") !== "true"; sync(); });
+    if (reduce.addEventListener) reduce.addEventListener("change", reset);
+    new MutationObserver(reset).observe(root, { attributes: true, attributeFilter: ["class"] });
+    document.addEventListener("visibilitychange", function () { if (document.hidden) video.pause(); else sync(); });
+    sync();
+  }
+
   // הסצנה זזה מעט עם העכבר
   var hero = document.querySelector(".hero"), scene = document.getElementById("scene");
   if (hero && scene) {
