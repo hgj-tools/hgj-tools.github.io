@@ -1,4 +1,4 @@
-/* דף הבית של אתר הכלים: ספירת כלים, סינון לפי תחום, הטיית כרטיסים והסצנה התלת ממדית. בלי תלויות. */
+/* דף הבית של אתר הכלים: ספירת כלים, חיפוש וסינון לפי תחום, הטיית כרטיסים וסרטון הכדור. בלי תלויות. */
 (function () {
   "use strict";
   var root = document.documentElement;
@@ -22,17 +22,46 @@
   var all = document.querySelector('[data-count="all"]');
   if (all) all.textContent = total;
 
-  // סינון
+  // סינון לפי תחום וחיפוש חופשי, יחד
   var buttons = Array.prototype.slice.call(document.querySelectorAll(".filters button"));
+  var q = document.getElementById("q"), status = document.getElementById("q-status"), empty = document.getElementById("empty");
+  var filter = "all";
+  function norm(t) { return (t || "").toLowerCase().replace(/[֑-ׇ"'׳״.,:\-()]/g, " ").replace(/\s+/g, " ").trim(); }
+  Array.prototype.forEach.call(document.querySelectorAll(".card"), function (c) { c.dataset.text = norm(c.textContent); });
+  function apply() {
+    var words = norm(q ? q.value : "").split(" ").filter(Boolean), shown = 0;
+    groups.forEach(function (g) {
+      var inCat = filter === "all" || g.dataset.cat === filter, n = 0;
+      Array.prototype.forEach.call(g.querySelectorAll(".card"), function (c) {
+        var ok = inCat && words.every(function (w) { return c.dataset.text.indexOf(w) > -1; });
+        c.hidden = !ok; if (ok) n++;
+      });
+      g.hidden = n === 0; shown += n;
+    });
+    if (empty) empty.hidden = shown > 0;
+    if (status) status.textContent = words.length || filter !== "all" ? (shown ? "מוצגים " + countLabel(shown) : "לא נמצא כלי מתאים") : "";
+  }
   buttons.forEach(function (b) {
     b.addEventListener("click", function () {
-      var f = b.dataset.filter;
+      filter = b.dataset.filter;
       buttons.forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
-      groups.forEach(function (g) {
-        var show = f === "all" || g.dataset.cat === f;
-        g.hidden = !show;
-      });
+      apply();
     });
+  });
+  if (q) q.addEventListener("input", apply);
+  var resetBtn = document.getElementById("empty-reset");
+  if (resetBtn) resetBtn.addEventListener("click", function () {
+    if (q) q.value = ""; filter = "all";
+    buttons.forEach(function (x) { x.setAttribute("aria-pressed", String(x.dataset.filter === "all")); });
+    apply(); if (q) q.focus();
+  });
+  function focusSearch() { if (!q) return; q.scrollIntoView({ block: "center", behavior: still() ? "auto" : "smooth" }); q.focus({ preventScroll: true }); }
+  var jump = document.getElementById("search-jump");
+  if (jump) jump.addEventListener("click", focusSearch);
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "/" || e.ctrlKey || e.metaKey || e.altKey) return;
+    var t = e.target; if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
+    e.preventDefault(); focusSearch();
   });
 
   // הטיית כרטיס לכיוון העכבר

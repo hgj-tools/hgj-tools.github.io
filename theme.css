@@ -15,27 +15,29 @@
 }
 @view-transition { navigation: auto; }
 
-:root, :root[data-theme="light"] {
+:root {
+  --font-ui: "Heebo", "Segoe UI", "Assistant", "Rubik", system-ui, -apple-system, Arial, sans-serif;
+  --radius: 20px;
+  --brand: #014F6C;
+}
+/* ברירת המחדל כהה, בגווני הלוגו. הערכים דורסים גם את משתני המצב של כל כלי (אזהרה, אישור, סימון) */
+:root:not([data-theme="light"]) {
+  color-scheme: dark;
+  --bg: #03111D; --surface: #071C2B; --surface-2: #0B2738; --border: #17394D;
+  --ink: #EAF6FB; --ink-soft: #A3C2D1; --accent: #7BD0F1; --accent-ink: #021521; --accent-2: #A6DDF5;
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 16px 40px rgba(0,0,0,.45);
+  --hgj-glow: rgba(0,142,223,.16);
+  --warn-bg: #2A1A1E; --warn-border: #6A3540; --warn-ink: #F6C2C8;
+  --ok-bg: #0F2620; --ok-border: #2A5243; --ok-ink: #A9E2C6; --ok: #51CF66; --good: #51CF66; --rec: #FF6B6B;
+  --mark-bg: #2A2412; --mark-border: #57491D; --mark-ink: #E6C65A;
+  --sel-bg: #0E3550; --bar-bg: rgba(3,17,29,.97);
+}
+:root[data-theme="light"] {
+  color-scheme: light;
   --bg: #F2F8FB; --surface: #FFFFFF; --surface-2: #E6F2F8; --border: #D5E5EE;
   --ink: #062230; --ink-soft: #476272; --accent: #0077C2; --accent-ink: #FFFFFF;
   --shadow: 0 1px 2px rgba(1,53,74,.06), 0 14px 34px rgba(1,53,74,.10);
-  --font-ui: "Heebo", "Segoe UI", "Assistant", "Rubik", system-ui, -apple-system, Arial, sans-serif;
-  --radius: 20px;
   --hgj-glow: rgba(0,142,223,.10);
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #021017; --surface: #06202C; --surface-2: #0A2B3A; --border: #164356;
-    --ink: #E8F4F9; --ink-soft: #9DBCCB; --accent: #7BD0F1; --accent-ink: #011A24;
-    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 16px 40px rgba(0,0,0,.45);
-    --hgj-glow: rgba(123,208,241,.08);
-  }
-}
-:root[data-theme="dark"] {
-  --bg: #021017; --surface: #06202C; --surface-2: #0A2B3A; --border: #164356;
-  --ink: #E8F4F9; --ink-soft: #9DBCCB; --accent: #7BD0F1; --accent-ink: #011A24;
-  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 16px 40px rgba(0,0,0,.45);
-  --hgj-glow: rgba(123,208,241,.08);
 }
 
 body {
@@ -59,37 +61,36 @@ html:has(.actionbar) { --hgj-a11y-bottom: 96px; }
 .logo-wrap .back {
   display: inline-flex; align-items: center; gap: 6px;
   padding: 8px 16px; border-radius: 999px;
-  color: #014F6C; background: #E6F2F8; border: 1px solid #C9E0EC;
+  color: var(--ink); background: color-mix(in srgb, var(--surface-2) 70%, transparent); border: 1px solid var(--border);
   font-weight: 700; text-decoration: none;
-  transition: background .2s ease, transform .2s ease;
+  transition: background .2s ease, transform .2s ease, border-color .2s ease;
 }
-.logo-wrap .back:hover { background: #D3EEF9; transform: translateX(3px); text-decoration: none; }
+.logo-wrap .back:hover { border-color: #7BD0F1; transform: translateX(3px); text-decoration: none; }
 
 /* כלי הסיור: אותו טיפול לסרגל הלוגו שלו, וצבע המותג לפס העליון */
-:root { --brand: #014F6C; }
 .logobar { background: transparent; border: 0; box-shadow: none; padding: 0 4px; }
 .logobar img { height: 44px; filter: drop-shadow(0 4px 10px rgba(1,53,74,.25)); }
 .logobar a:not(:has(img)) {
   display: inline-flex; align-items: center; padding: 8px 16px; border-radius: 999px;
-  color: #014F6C; background: #E6F2F8; border: 1px solid #C9E0EC; font-weight: 700;
+  color: var(--ink); background: color-mix(in srgb, var(--surface-2) 70%, transparent); border: 1px solid var(--border); font-weight: 700;
 }
-.logobar a:not(:has(img)):hover { background: #D3EEF9; }
+.logobar a:not(:has(img)):hover { border-color: #7BD0F1; }
 
 /* כשמיד אחרי השורה בא ראש הדף הכהה: השורה נכנסת לתוכו, כמו בדף הבית */
-.logo-wrap:has(+ header) {
+.logo-wrap:has(+ header .title) {
   position: relative; z-index: 2;
   height: 58px; padding: 14px 22px 0;
   margin-bottom: -80px; /* גובה השורה + הרווח בין רכיבי הדף */
 }
-.logo-wrap:has(+ header) img { filter: drop-shadow(0 6px 14px rgba(0,0,0,.4)); }
-.logo-wrap:has(+ header) .back {
+.logo-wrap:has(+ header .title) img { filter: drop-shadow(0 6px 14px rgba(0,0,0,.4)); }
+.logo-wrap:has(+ header .title) .back {
   color: #fff; background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.26);
 }
-.logo-wrap:has(+ header) .back:hover { background: rgba(255,255,255,.22); }
-.logo-wrap:has(+ header) + header { padding-top: 88px; }
+.logo-wrap:has(+ header .title) .back:hover { background: rgba(255,255,255,.22); }
+.logo-wrap:has(+ header .title) + header { padding-top: 88px; }
 
 /* ---------- ראש הדף: לוח כהה עם גיליון תלת ממדי ---------- */
-.page > header, .app > header {
+.page > header:has(.title), .app > header:has(.title) {
   position: relative; isolation: isolate; overflow: hidden;
   color: #fff; border-radius: 24px;
   padding: clamp(22px, 4vw, 38px);
@@ -98,10 +99,11 @@ html:has(.actionbar) { --hgj-a11y-bottom: 96px; }
     radial-gradient(520px 300px at 100% 0%, rgba(0,142,223,.45), transparent 65%),
     radial-gradient(420px 280px at 0% 100%, rgba(123,208,241,.22), transparent 62%),
     linear-gradient(160deg, #011A24 0%, #01354A 48%, #014F6C 100%);
-  box-shadow: 0 22px 50px rgba(1,53,74,.32), inset 0 1px 0 rgba(255,255,255,.12);
+  border: 1px solid rgba(123,208,241,.18);
+  box-shadow: 0 22px 50px rgba(0,0,0,.4), 0 0 60px rgba(0,142,223,.12), inset 0 1px 0 rgba(255,255,255,.12);
 }
 /* נייר חשבונאי בפרספקטיבה */
-.page > header::before, .app > header::before {
+.page > header:has(.title)::before, .app > header:has(.title)::before {
   content: ""; position: absolute; inset: -30% -20% -20%; z-index: -1;
   background-image:
     linear-gradient(rgba(123,208,241,.16) 1px, transparent 1px),
@@ -115,7 +117,7 @@ html:has(.actionbar) { --hgj-a11y-bottom: 96px; }
 }
 @keyframes hgj-ledger { to { background-position: 0 260px, 0 0; } }
 /* גיליון זכוכית עם גרף עמודות */
-.page > header::after, .app > header::after {
+.page > header:has(.title)::after, .app > header:has(.title)::after {
   content: ""; position: absolute; z-index: -1;
   inset-inline-end: clamp(14px, 5%, 44px); top: 50%;
   width: 168px; height: 124px; border-radius: 16px;
@@ -134,14 +136,16 @@ html:has(.actionbar) { --hgj-a11y-bottom: 96px; }
 }
 @keyframes hgj-float { 50% { transform: translateY(calc(-50% - 10px)) perspective(800px) rotateX(50deg) rotateZ(-30deg); } }
 
-.page > header .title, .app > header .title { color: #fff; font-size: clamp(1.7rem, 1.2rem + 2.2vw, 2.5rem); letter-spacing: normal; line-height: 1.2; margin-bottom: 10px; }
-.page > header .subtitle, .app > header .subtitle { color: rgba(255,255,255,.86); line-height: 1.7; max-inline-size: 62ch; }
-.page > header .subtitle b, .page > header .subtitle strong,
-.app > header .subtitle b, .app > header .subtitle strong { color: #fff; }
-.page > header a, .app > header a { color: #B9E8FA; }
+.page > header:has(.title) .title, .app > header:has(.title) .title { color: #fff; font-size: clamp(1.7rem, 1.2rem + 2.2vw, 2.5rem); letter-spacing: normal; line-height: 1.2; margin-bottom: 10px; }
+.page > header:has(.title) .subtitle, .app > header:has(.title) .subtitle { color: rgba(255,255,255,.86); line-height: 1.7; max-inline-size: 62ch; }
+.page > header:has(.title) .subtitle b, .page > header:has(.title) .subtitle strong,
+.app > header:has(.title) .subtitle b, .app > header:has(.title) .subtitle strong { color: #fff; }
+.page > header:has(.title) a, .app > header:has(.title) a { color: #B9E8FA; }
 
 /* ---------- כרטיסים ---------- */
 .card { border-radius: var(--radius); border-color: var(--border); box-shadow: var(--shadow); }
+:root:not([data-theme="light"]) .card { background: linear-gradient(160deg, rgba(14,58,84,.62), rgba(7,28,43,.78)); border-color: rgba(123,208,241,.16); }
+:root:not([data-theme="light"]) .hgj-steps li, :root:not([data-theme="light"]) details.hgj-acc { background: linear-gradient(160deg, rgba(14,58,84,.55), rgba(7,28,43,.75)); border-color: rgba(123,208,241,.16); }
 .page .card { transition: transform .25s cubic-bezier(.2,.7,.2,1), box-shadow .25s ease, border-color .25s ease; }
 .page .card:hover { transform: translateY(-3px); border-color: color-mix(in srgb, #008EDF 45%, var(--border)); box-shadow: 0 2px 4px rgba(1,53,74,.06), 0 26px 50px rgba(0,142,223,.16); }
 .page .card h2 { position: relative; padding-inline-start: 15px; }
@@ -219,10 +223,10 @@ details.hgj-acc[open] > summary { border-bottom: 1px solid var(--border); }
   .hgj-steps { grid-template-columns: 1fr; }
   .hgj-steps li { display: flex; align-items: center; gap: 12px; padding: 12px 14px; }
   .hgj-steps li::before { flex: none; margin-bottom: 0; }
-  .page > header, .app > header { padding-inline-end: clamp(22px, 4vw, 38px); }
-  .page > header::after, .app > header::after { display: none; }
+  .page > header:has(.title), .app > header:has(.title) { padding-inline-end: clamp(22px, 4vw, 38px); }
+  .page > header:has(.title)::after, .app > header:has(.title)::after { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .page > header::before, .app > header::before, .page > header::after, .app > header::after { animation: none; }
+  .page > header:has(.title)::before, .app > header:has(.title)::before, .page > header:has(.title)::after, .app > header:has(.title)::after { animation: none; }
   .page .card, .download, .logo-wrap .back { transition: none; }
 }
