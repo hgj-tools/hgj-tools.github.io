@@ -257,6 +257,7 @@
   }
 
   footer { border-top: 1px solid var(--line); padding: 22px 0 90px; text-align: center; color: var(--ink-soft); font-size: .88rem; }
+  footer .foot-note { margin: 0 auto 6px; max-width: 62ch; }
   footer a { color: var(--sky); font-weight: 600; text-decoration: none; }
   footer a:hover { text-decoration: underline; }
 
@@ -277,6 +278,29 @@
     .search kbd { display: none; }
   }
   /* כפתור הנגישות בטלפון: קטן יותר, ומוסתר בזמן הקלדה בחיפוש */
+  /* טלפון: חיפוש וסינון קומפקטיים, הסינון בשורה אחת שגוללים לצד */
+  @media (max-width: 640px) {
+    .finder { gap: 12px; margin-bottom: 26px; }
+    .search input { font-size: 1rem; padding: 11px 46px 11px 16px; }
+    .search svg { inset-inline-start: 16px; width: 19px; height: 19px; }
+    .filters {
+      flex-wrap: nowrap; justify-content: flex-start; overflow-x: auto; width: calc(100% + 32px);
+      margin-inline: -16px; padding: 2px 16px 8px; scrollbar-width: none; scroll-snap-type: x proximity;
+      -webkit-mask-image: linear-gradient(to left, #000 88%, transparent); mask-image: linear-gradient(to left, #000 88%, transparent);
+    }
+    .filters::-webkit-scrollbar { display: none; }
+    .filters button { flex: none; padding: 7px 13px; font-size: .875rem; gap: 6px; scroll-snap-align: start; }
+    .filters button svg { width: 15px; height: 15px; }
+    .group { margin-bottom: 30px; }
+    .group-head { gap: 10px; margin-bottom: 12px; }
+    .group-ico { width: 30px; height: 30px; border-radius: 9px; }
+    .group-ico svg { width: 16px; height: 16px; }
+    .group-title { font-size: 1.02rem; line-height: 1.35; }
+    .card { padding: 18px 16px 14px; column-gap: 14px; row-gap: 12px; }
+    .icon { width: 50px; height: 50px; border-radius: 14px; }
+    .icon svg { width: 24px; height: 24px; }
+    footer { font-size: .8125rem; line-height: 1.6; padding: 18px 0 84px; }
+  }
   @media (max-width: 640px) {
     html #hgj-a11y-btn { width: 44px; height: 44px; left: 10px; }
     html #hgj-a11y-btn svg { width: 24px; height: 24px; }
@@ -475,7 +499,7 @@
 
 <footer>
   <div class="wrap">
-    ככלל, אין להזין בכלים פרטי לקוחות או מידע רגיש. בכלים המיועדים לעבודה על נתוני לקוח, ר' ההנחיות בדף הכלי.<br>
+    <p class="foot-note">אין להזין בכלים פרטי לקוחות או מידע רגיש. בכלים שעובדים על נתוני לקוח, ההנחיות מופיעות בדף הכלי.</p>
     <a href="policy/">הצהרת נגישות, פרטיות ותנאי שימוש</a> | <a href="https://www.hgj.co.il" target="_blank" rel="noopener">www.hgj.co.il</a>
   </div>
 </footer>
