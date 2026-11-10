@@ -7,6 +7,25 @@
    בלי JavaScript הדף מוצג כמו שנכתב. */
 (function () {
   "use strict";
+
+  // 0. הסרגל העליון, בכל דפי הכלים: הלוגו מוביל לדף הבית, והחץ של "כל הכלים" פונה ימינה (חזרה, בעברית)
+  var bar = document.querySelector(".logo-wrap, .logobar");
+  if (bar) {
+    var back = bar.querySelector("a");
+    var home = back ? back.getAttribute("href") : "../";
+    if (back) back.textContent = back.textContent.replace(/^\s*[←→]\s*/, "→ ");
+    var img = bar.querySelector("img");
+    if (img && !img.closest("a")) {
+      var link = document.createElement("a");
+      link.href = home;
+      link.setAttribute("aria-label", "לדף הבית של אתר הכלים");
+      link.style.display = "inline-flex";
+      img.parentNode.insertBefore(link, img);
+      link.appendChild(img);
+      img.alt = "";
+    }
+  }
+
   var page = document.querySelector(".page");
   if (!page) return;
 

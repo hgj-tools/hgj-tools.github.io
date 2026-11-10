@@ -69,11 +69,11 @@ html:has(.actionbar) { --hgj-a11y-bottom: 96px; }
 :root { --brand: #014F6C; }
 .logobar { background: transparent; border: 0; box-shadow: none; padding: 0 4px; }
 .logobar img { height: 44px; filter: drop-shadow(0 4px 10px rgba(1,53,74,.25)); }
-.logobar a {
+.logobar a:not(:has(img)) {
   display: inline-flex; align-items: center; padding: 8px 16px; border-radius: 999px;
   color: #014F6C; background: #E6F2F8; border: 1px solid #C9E0EC; font-weight: 700;
 }
-.logobar a:hover { background: #D3EEF9; }
+.logobar a:not(:has(img)):hover { background: #D3EEF9; }
 
 /* כשמיד אחרי השורה בא ראש הדף הכהה: השורה נכנסת לתוכו, כמו בדף הבית */
 .logo-wrap:has(+ header) {
