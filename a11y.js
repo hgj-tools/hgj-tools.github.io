@@ -7,7 +7,7 @@
 
   var KEY = "hgj-a11y", root = document.documentElement;
   var SIZES = [100, 112, 125, 140];
-  var state = { size: 0, contrast: false, links: false, font: false, nomotion: false };
+  var state = { size: 0, contrast: false, links: false, font: false, nomotion: false, focus: false, headings: false };
   try { var s = JSON.parse(localStorage.getItem(KEY) || "{}"); for (var k in state) if (k in s) state[k] = s[k]; } catch (e) {}
   function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
 
@@ -15,6 +15,11 @@
     "html.a11y-contrast body,html.a11y-contrast body *:not(img):not(svg):not(svg *){background:#000!important;background-image:none!important;color:#fff!important;border-color:#fff!important;box-shadow:none!important;text-shadow:none!important;-webkit-text-fill-color:currentColor!important}",
     "html.a11y-contrast a,html.a11y-contrast a *,html.a11y-contrast button{color:#ffe600!important}",
     "html.a11y-contrast body *::before,html.a11y-contrast body *::after{background:none!important}",
+    "html.a11y-contrast input,html.a11y-contrast textarea,html.a11y-contrast select,html.a11y-contrast button{border:1px solid #fff!important}",
+    "html.a11y-contrast ::placeholder{color:#d9d9d9!important;opacity:1}",
+    "html.a11y-focus *:focus,html.a11y-focus *:focus-visible{outline:3px solid #c00000!important;outline-offset:3px!important}",
+    "html.a11y-contrast.a11y-focus *:focus,html.a11y-contrast.a11y-focus *:focus-visible{outline-color:#ff5252!important}",
+    "html.a11y-headings h1,html.a11y-headings h2,html.a11y-headings h3,html.a11y-headings h4{outline:2px dashed #c00000!important;outline-offset:6px!important}",
     "html.a11y-links a{text-decoration:underline!important;text-decoration-thickness:2px!important;outline:2px solid currentColor!important;outline-offset:3px!important}",
     "html.a11y-font body,html.a11y-font body *{font-family:Arial,Helvetica,sans-serif!important;letter-spacing:.02em!important;line-height:1.75!important}",
     "html.a11y-nomotion *,html.a11y-nomotion *::before,html.a11y-nomotion *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}",
@@ -42,6 +47,8 @@
     root.classList.toggle("a11y-links", !!state.links);
     root.classList.toggle("a11y-font", !!state.font);
     root.classList.toggle("a11y-nomotion", !!state.nomotion);
+    root.classList.toggle("a11y-focus", !!state.focus);
+    root.classList.toggle("a11y-headings", !!state.headings);
   }
   apply();
 
@@ -70,7 +77,8 @@
     var bigger = mk("הגדלת טקסט"), smaller = mk("הקטנת טקסט");
     var toggles = [
       ["contrast", "ניגודיות גבוהה"], ["links", "הדגשת קישורים"],
-      ["font", "גופן קריא"], ["nomotion", "עצירת אנימציות"]
+      ["font", "גופן קריא"], ["nomotion", "עצירת אנימציות"],
+      ["focus", "הדגשת מיקוד מקלדת"], ["headings", "סימון כותרות"]
     ].map(function (t) {
       var b = mk(t[1]);
       b.addEventListener("click", function () { state[t[0]] = !state[t[0]]; refresh(); });
@@ -96,7 +104,7 @@
     }
     bigger.addEventListener("click", function () { if (state.size < SIZES.length - 1) { state.size++; refresh(); } });
     smaller.addEventListener("click", function () { if (state.size > 0) { state.size--; refresh(); } });
-    reset.addEventListener("click", function () { state = { size: 0, contrast: false, links: false, font: false, nomotion: false }; refresh(); });
+    reset.addEventListener("click", function () { state = { size: 0, contrast: false, links: false, font: false, nomotion: false, focus: false, headings: false }; refresh(); });
 
     function open(v) {
       panel.hidden = !v; btn.setAttribute("aria-expanded", String(v));

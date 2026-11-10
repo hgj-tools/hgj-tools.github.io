@@ -31,13 +31,6 @@
       groups.forEach(function (g) {
         var show = f === "all" || g.dataset.cat === f;
         g.hidden = !show;
-        if (show && !still()) {
-          Array.prototype.forEach.call(g.querySelectorAll(".card"), function (card) {
-            card.style.animation = "none";
-            void card.offsetWidth;
-            card.style.animation = "";
-          });
-        }
       });
     });
   });
