@@ -56,6 +56,11 @@
   var page = document.querySelector(".page");
   if (!page) return;
 
+  // אפקט כניסה בגלילה (reveal.js). נטען אחרי שהסקריפט הזה סיים לסדר את הדף.
+  var rv = document.createElement("script");
+  rv.src = "../reveal.js";
+  document.head.appendChild(rv);
+
   // 🔴 כשמשנים עובדה בדף של כלי (דרישות, פורמטים, אופן ההפעלה) לעדכן גם כאן.
   var PAGES = {
     "data-masking": {
