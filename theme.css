@@ -50,11 +50,12 @@ body {
 html:has(.actionbar) { --hgj-a11y-bottom: 96px; }
 
 /* ---------- סרגל עליון ---------- */
+/* בלי קופסה לבנה: שורה שקופה עם הלוגו וכפתור החזרה */
 .logo-wrap {
-  border-radius: 18px;
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow);
+  background: transparent; border: 0; box-shadow: none; border-radius: 0;
+  padding: 0 4px;
 }
+.logo-wrap img { height: 44px; width: auto; filter: drop-shadow(0 4px 10px rgba(1,53,74,.25)); }
 .logo-wrap .back {
   display: inline-flex; align-items: center; gap: 6px;
   padding: 8px 16px; border-radius: 999px;
@@ -63,6 +64,29 @@ html:has(.actionbar) { --hgj-a11y-bottom: 96px; }
   transition: background .2s ease, transform .2s ease;
 }
 .logo-wrap .back:hover { background: #D3EEF9; transform: translateX(3px); text-decoration: none; }
+
+/* כלי הסיור: אותו טיפול לסרגל הלוגו שלו, וצבע המותג לפס העליון */
+:root { --brand: #014F6C; }
+.logobar { background: transparent; border: 0; box-shadow: none; padding: 0 4px; }
+.logobar img { height: 44px; filter: drop-shadow(0 4px 10px rgba(1,53,74,.25)); }
+.logobar a {
+  display: inline-flex; align-items: center; padding: 8px 16px; border-radius: 999px;
+  color: #014F6C; background: #E6F2F8; border: 1px solid #C9E0EC; font-weight: 700;
+}
+.logobar a:hover { background: #D3EEF9; }
+
+/* כשמיד אחרי השורה בא ראש הדף הכהה: השורה נכנסת לתוכו, כמו בדף הבית */
+.logo-wrap:has(+ header) {
+  position: relative; z-index: 2;
+  height: 58px; padding: 14px 22px 0;
+  margin-bottom: -80px; /* גובה השורה + הרווח בין רכיבי הדף */
+}
+.logo-wrap:has(+ header) img { filter: drop-shadow(0 6px 14px rgba(0,0,0,.4)); }
+.logo-wrap:has(+ header) .back {
+  color: #fff; background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.26);
+}
+.logo-wrap:has(+ header) .back:hover { background: rgba(255,255,255,.22); }
+.logo-wrap:has(+ header) + header { padding-top: 88px; }
 
 /* ---------- ראש הדף: לוח כהה עם גיליון תלת ממדי ---------- */
 .page > header, .app > header {
