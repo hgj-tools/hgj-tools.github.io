@@ -256,9 +256,11 @@
   .card-body { grid-row: 1; grid-column: 2; transform: translateZ(20px); }
   .card h3 { margin: 2px 0 6px; font-size: 1.15rem; font-weight: 800; line-height: 1.35; }
   .card p { margin: 0; color: var(--ink-soft); font-size: .93rem; line-height: 1.6; }
-  .card-foot { grid-row: 2; grid-column: 1 / -1; display: flex; align-items: center; gap: 8px; transform: translateZ(14px); }
+  .card-foot { grid-row: 2; grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; transform: translateZ(14px); }
   .tag { font-size: .8125rem; font-weight: 600; color: var(--sky); padding: 3px 11px; border-radius: 999px; border: 1px solid rgba(123,208,241,.3); background: rgba(123,208,241,.07); }
   .tag.caution { color: #FFD98A; border-color: rgba(255,200,80,.35); background: rgba(255,200,80,.08); }
+  .tag.local { color: #9BE7C2; border-color: rgba(110,210,160,.38); background: rgba(110,210,160,.08); }
+  .tag.local::before, .tag.caution::before { content: ""; display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: currentColor; margin-inline-end: 6px; vertical-align: 1px; }
   .go {
     margin-inline-start: auto; flex: none;
     width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; color: var(--ink);
@@ -275,7 +277,9 @@
   }
 
   footer { border-top: 1px solid var(--line); padding: 22px 0 90px; text-align: center; color: var(--ink-soft); font-size: .88rem; }
-  footer .foot-note { margin: 0 auto 6px; max-width: 62ch; }
+  footer .foot-note { margin: 0 auto 6px; max-width: 72ch; }
+  footer .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-inline-end: 6px; vertical-align: 1px; }
+  footer .dot.local { background: #9BE7C2; } footer .dot.caution { background: #FFD98A; margin-inline-start: 4px; }
   footer a { color: var(--sky); font-weight: 600; text-decoration: none; }
   footer a:hover { text-decoration: underline; }
 
@@ -434,7 +438,7 @@
             <h3>כלי סיור - הגנת הפרטיות</h3>
             <p>סיור ביקורת לפי חוק הגנת הפרטיות ותקנות אבטחת מידע: 72 סעיפים, צילום ראיות וייצוא דוח.</p>
           </span>
-          <span class="card-foot"><span class="tag">דפדפן</span><span class="tag">עובד בלי אינטרנט</span><span class="go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg></span></span>
+          <span class="card-foot"><span class="tag">דפדפן</span><span class="tag local">נשאר במכשיר</span><span class="go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg></span></span>
         </a>
         <a class="card" href="data-masking/">
           <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg></span>
@@ -442,7 +446,7 @@
             <h3>כלי מיסוך מזהים</h3>
             <p>מיסוך הפיך של מזהים בקובצי Excel לפני שיתוף לניתוח, עם שחזור מלא בסוף התהליך.</p>
           </span>
-          <span class="card-foot"><span class="tag">הורדה</span><span class="tag">Windows + Python</span><span class="go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg></span></span>
+          <span class="card-foot"><span class="tag">הורדה</span><span class="tag local">נשאר במחשב</span><span class="go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg></span></span>
         </a>
         <a class="card" href="pii-redactor/">
           <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20C5 20 1 12 1 12a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg></span>
@@ -450,7 +454,7 @@
             <h3>מנקה נתונים אישיים</h3>
             <p>מסתיר שמות, ת.ז, ח.פ, טלפון, אימייל ו-IBAN בקובצי PDF, Word, Excel ותמונות לפני העלאה ל-AI.</p>
           </span>
-          <span class="card-foot"><span class="tag">הורדה</span><span class="tag">בלי התקנה</span><span class="go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg></span></span>
+          <span class="card-foot"><span class="tag">הורדה</span><span class="tag local">נשאר במחשב</span><span class="go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg></span></span>
         </a>
       </div>
     </section>
@@ -471,7 +475,7 @@
             <h3>הגהת דוחות כספיים</h3>
             <p>בודק דוח כספי לפני שליחה ללקוח: כתיב, מינוח, מבנה, גילויים ואימות מספרי, ומפיק דוח ממצאים באקסל.</p>
           </span>
-          <span class="card-foot"><span class="tag">סקיל של Claude</span><span class="go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg></span></span>
+          <span class="card-foot"><span class="tag">סקיל של Claude</span><span class="tag caution">עובר ל-Claude</span><span class="go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg></span></span>
         </a>
         <a class="card" href="audit-standards-toolkit/">
           <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M5 7h14"/><path d="M8 7l-3 6h6z"/><path d="M16 7l3 6h-6z"/><path d="M8 21h8"/></svg></span>
@@ -479,7 +483,7 @@
             <h3>מתכנן הביקורת</h3>
             <p>תיעוד שלב התכנון לפי תקני ביקורת (ישראל): סקירה אנליטית, דגלי סיכון, ספי מהותיות וניירות עבודה ל-7 תקנים.</p>
           </span>
-          <span class="card-foot"><span class="tag">סקיל של Claude</span><span class="tag caution">עובד על נתוני לקוח</span><span class="go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg></span></span>
+          <span class="card-foot"><span class="tag">סקיל של Claude</span><span class="tag caution">עובר ל-Claude</span><span class="go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg></span></span>
         </a>
       </div>
     </section>
@@ -500,7 +504,7 @@
             <h3>איחוד ופיצול PDF</h3>
             <p>מאחדים קובצי PDF ותמונות, מסדרים, מסובבים ומוחקים עמודים, מפצלים ומדפיסים. הקבצים לא יוצאים מהמחשב.</p>
           </span>
-          <span class="card-foot"><span class="tag">דפדפן</span><span class="tag">Chrome / Edge</span><span class="go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg></span></span>
+          <span class="card-foot"><span class="tag">דפדפן</span><span class="tag local">נשאר במחשב</span><span class="go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg></span></span>
         </a>
         <a class="card" href="dictation/">
           <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg></span>
@@ -508,7 +512,7 @@
             <h3>הכתבה קולית בעברית</h3>
             <p>תמלול דיבור לטקסט בזמן אמת: מדברים, מעתיקים, מדביקים. אפשר להתקין כאפליקציה בשורת המשימות.</p>
           </span>
-          <span class="card-foot"><span class="tag">דפדפן</span><span class="tag">Chrome / Edge</span><span class="go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg></span></span>
+          <span class="card-foot"><span class="tag">דפדפן</span><span class="tag caution">הקול נשלח לענן</span><span class="go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg></span></span>
         </a>
         <a class="card" href="dictation-desktop/">
           <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/><path d="M12 6.5a1.6 1.6 0 0 0-1.6 1.6v3a1.6 1.6 0 0 0 3.2 0v-3A1.6 1.6 0 0 0 12 6.5z"/><path d="M15.5 11.2a3.5 3.5 0 0 1-7 0"/></svg></span>
@@ -516,7 +520,7 @@
             <h3>הכתבה קולית למחשב</h3>
             <p>כפתור מיקרופון מרחף שמכתיב בעברית ישר לשדה הטקסט: Claude, Word, Outlook. האודיו לא יוצא מהמחשב.</p>
           </span>
-          <span class="card-foot"><span class="tag">הורדה</span><span class="tag">מתקין Windows</span><span class="go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg></span></span>
+          <span class="card-foot"><span class="tag">הורדה</span><span class="tag local">נשאר במחשב</span><span class="go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg></span></span>
         </a>
       </div>
     </section>
@@ -531,7 +535,7 @@
 
 <footer>
   <div class="wrap">
-    <p class="foot-note">אין להזין בכלים פרטי לקוחות או מידע רגיש. בכלים שעובדים על נתוני לקוח, ההנחיות מופיעות בדף הכלי.</p>
+    <p class="foot-note"><span class="dot local"></span>נשאר במחשב: הקבצים מעובדים על המחשב שלכם בלבד, ושום נתון לא יוצא ממנו. <span class="dot caution"></span>כלים שמעבירים מידע לשירות חיצוני מסומנים בצהוב. בהם אין להזין פרטי לקוחות או מידע רגיש, אלא לפי נוהלי המשרד שלכם.</p>
     <a href="policy/">הצהרת נגישות, פרטיות ותנאי שימוש</a> | <a href="https://www.hgj.co.il" target="_blank" rel="noopener">www.hgj.co.il</a>
   </div>
 </footer>
