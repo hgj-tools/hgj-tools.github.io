@@ -20,33 +20,60 @@
   --radius: 20px;
   --brand: #014F6C;
 }
-/* ברירת המחדל כהה, בגווני הלוגו. הערכים דורסים גם את משתני המצב של כל כלי (אזהרה, אישור, סימון) */
-:root:not([data-theme="light"]) {
-  color-scheme: dark;
-  --bg: #03111D; --surface: #071C2B; --surface-2: #0B2738; --border: #17394D;
-  --ink: #EAF6FB; --ink-soft: #A3C2D1; --accent: #7BD0F1; --accent-ink: #021521; --accent-2: #A6DDF5;
-  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 16px 40px rgba(0,0,0,.45);
-  --hgj-glow: rgba(0,142,223,.16);
-  --warn-bg: #2A1A1E; --warn-border: #6A3540; --warn-ink: #F6C2C8;
-  --ok-bg: #0F2620; --ok-border: #2A5243; --ok-ink: #A9E2C6; --ok: #51CF66; --good: #51CF66; --rec: #FF6B6B;
-  --mark-bg: #2A2412; --mark-border: #57491D; --mark-ink: #E6C65A;
-  --sel-bg: #0E3550; --bar-bg: rgba(3,17,29,.97);
-}
-:root[data-theme="light"] {
+/* ברירת המחדל בהירה, בגווני הלוגו. data-theme="dark" (המתג בדף הבית או בתפריט הנגישות) עובר לכהה.
+   הערכים דורסים גם את משתני המצב של כל כלי (אזהרה, אישור, סימון), כולל הגדרות "מצב כהה של המחשב" שבתוך הדף */
+:root:not([data-theme="dark"]) {
   color-scheme: light;
-  --bg: #F2F8FB; --surface: #FFFFFF; --surface-2: #E6F2F8; --border: #D5E5EE;
-  --ink: #062230; --ink-soft: #476272; --accent: #0077C2; --accent-ink: #FFFFFF;
+  --bg-top: #F4F9FC; --bg: #EAF4FA; --bg-deep: #DDEDF7;
+  --surface: #FFFFFF; --surface-2: #E6F2F8; --border: #D2E3EE;
+  --ink: #062230; --ink-soft: #43606F; --accent: #0072BB; --accent-ink: #FFFFFF; --accent-2: #014F6C;
   --shadow: 0 1px 2px rgba(1,53,74,.06), 0 14px 34px rgba(1,53,74,.10);
   --hgj-glow: rgba(0,142,223,.10);
+  --aurora-1: rgba(0,142,223,.18); --aurora-2: rgba(123,208,241,.32); --aurora-3: rgba(1,79,108,.10); --grid-line: rgba(1,79,108,.05);
+  --warn-bg: #FDF0F0; --warn-border: #E7B9B9; --warn-ink: #7A0000;
+  --ok-bg: #EEF8F1; --ok-border: #BFE2CA; --ok-ink: #145232; --ok: #2F9E44; --good: #2F9E44; --rec: #E03131;
+  --mark-bg: #FFF6DA; --mark-border: #E9CF7A; --mark-ink: #6E5100;
+  --sel-bg: #DCEEFB; --bar-bg: rgba(255,255,255,.96);
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg-top: #0E2C45; --bg: #0A2236; --bg-deep: #071A2A;
+  --surface: #0E2B42; --surface-2: #133652; --border: #22506F;
+  --ink: #F1F8FC; --ink-soft: #B5D0DD; --accent: #7BD0F1; --accent-ink: #062230; --accent-2: #A6DDF5;
+  --shadow: 0 1px 2px rgba(0,0,0,.35), 0 16px 40px rgba(0,0,0,.35);
+  --hgj-glow: rgba(0,142,223,.16);
+  --aurora-1: rgba(0,142,223,.40); --aurora-2: rgba(123,208,241,.20); --aurora-3: rgba(1,79,108,.50); --grid-line: rgba(123,208,241,.06);
+  --warn-bg: #3A1F27; --warn-border: #7A3D4A; --warn-ink: #F8CBD1;
+  --ok-bg: #12312A; --ok-border: #2E5E4D; --ok-ink: #B2E8CC; --ok: #51CF66; --good: #51CF66; --rec: #FF6B6B;
+  --mark-bg: #3A3216; --mark-border: #6B5A22; --mark-ink: #F0D274;
+  --sel-bg: #164466; --bar-bg: rgba(10,34,54,.97);
 }
 
-body {
+/* רקע: מעבר צבע עדין, שכבות אור שזזות לאט ורשת דקה, במקום צבע אחיד */
+html { background: linear-gradient(180deg, var(--bg-top) 0, var(--bg) 700px, var(--bg-deep) 100%) !important; background-color: var(--bg) !important; }
+body { background: transparent !important; }
+body::before {
+  content: ""; position: fixed; inset: -25%; z-index: -2; pointer-events: none;
   background:
-    radial-gradient(900px 480px at 88% -6%, var(--hgj-glow), transparent 60%),
-    radial-gradient(760px 420px at 4% 2%, var(--hgj-glow), transparent 58%),
-    var(--bg);
-  background-attachment: fixed;
+    radial-gradient(38% 30% at 78% 14%, var(--aurora-1), transparent 70%),
+    radial-gradient(34% 28% at 16% 40%, var(--aurora-2), transparent 70%),
+    radial-gradient(40% 34% at 60% 84%, var(--aurora-3), transparent 72%);
+  animation: hgj-aurora 38s ease-in-out infinite alternate;
 }
+@keyframes hgj-aurora {
+  0% { transform: translate3d(0,0,0) rotate(0deg) scale(1); }
+  50% { transform: translate3d(-4%,3%,0) rotate(8deg) scale(1.06); }
+  100% { transform: translate3d(3%,-2%,0) rotate(-6deg) scale(1.02); }
+}
+body::after {
+  content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background-image: linear-gradient(var(--grid-line) 1px, transparent 1px), linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 56px 56px;
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 25%, #000 30%, transparent 85%);
+          mask-image: radial-gradient(ellipse 70% 60% at 50% 25%, #000 30%, transparent 85%);
+}
+@media (prefers-reduced-motion: reduce) { body::before { animation: none; } }
+html.a11y-nomotion body::before { animation: none; }
 :focus-visible { outline: 3px solid #008EDF; outline-offset: 3px; }
 /* דף עם סרגל פעולות קבוע בתחתית: כפתור הנגישות עולה מעליו */
 html:has(.actionbar) { --hgj-a11y-bottom: 96px; }
@@ -102,6 +129,12 @@ html:has(.actionbar) { --hgj-a11y-bottom: 96px; }
   border: 1px solid rgba(123,208,241,.18);
   box-shadow: 0 22px 50px rgba(0,0,0,.4), 0 0 60px rgba(0,142,223,.12), inset 0 1px 0 rgba(255,255,255,.12);
 }
+:root:not([data-theme="dark"]) .page > header:has(.title), :root:not([data-theme="dark"]) .app > header:has(.title) {
+  background:
+    radial-gradient(520px 300px at 100% 0%, rgba(0,142,223,.45), transparent 65%),
+    linear-gradient(160deg, #0B2E4B 0%, #0B4A72 55%, #0A63A0 100%);
+  box-shadow: 0 20px 44px rgba(1,53,74,.22), inset 0 1px 0 rgba(255,255,255,.16);
+}
 /* נייר חשבונאי בפרספקטיבה */
 .page > header:has(.title)::before, .app > header:has(.title)::before {
   content: ""; position: absolute; inset: -30% -20% -20%; z-index: -1;
@@ -146,8 +179,8 @@ html:has(.actionbar) { --hgj-a11y-bottom: 96px; }
 
 /* ---------- כרטיסים ---------- */
 .card { border-radius: var(--radius); border-color: var(--border); box-shadow: var(--shadow); }
-:root:not([data-theme="light"]) .card { background: linear-gradient(160deg, rgba(14,58,84,.62), rgba(7,28,43,.78)); border-color: rgba(123,208,241,.16); }
-:root:not([data-theme="light"]) .hgj-steps li, :root:not([data-theme="light"]) details.hgj-acc { background: linear-gradient(160deg, rgba(14,58,84,.55), rgba(7,28,43,.75)); border-color: rgba(123,208,241,.16); }
+:root[data-theme="dark"] .card { background: linear-gradient(160deg, rgba(14,58,84,.62), rgba(7,28,43,.78)); border-color: rgba(123,208,241,.16); }
+:root[data-theme="dark"] .hgj-steps li, :root[data-theme="dark"] details.hgj-acc { background: linear-gradient(160deg, rgba(14,58,84,.55), rgba(7,28,43,.75)); border-color: rgba(123,208,241,.16); }
 .page .card { transition: transform .25s cubic-bezier(.2,.7,.2,1), box-shadow .25s ease, border-color .25s ease; }
 .page .card:hover { transform: translateY(-3px); border-color: color-mix(in srgb, #008EDF 45%, var(--border)); box-shadow: 0 2px 4px rgba(1,53,74,.06), 0 26px 50px rgba(0,142,223,.16); }
 .page .card h2 { position: relative; padding-inline-start: 15px; }

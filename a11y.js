@@ -10,6 +10,11 @@
   var state = { size: 0, contrast: false, links: false, font: false, nomotion: false, focus: false, headings: false };
   try { var s = JSON.parse(localStorage.getItem(KEY) || "{}"); for (var k in state) if (k in s) state[k] = s[k]; } catch (e) {}
   function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+  // מצב בהיר/כהה של כל האתר (hgj-theme). דף שכבר קבע לעצמו מצב (למשל כלי הסיור) לא נדרס.
+  try {
+    var th = localStorage.getItem("hgj-theme");
+    if ((th === "light" || th === "dark") && !root.hasAttribute("data-theme")) root.setAttribute("data-theme", th);
+  } catch (e) {}
 
   var css = [
     "html.a11y-contrast body,html.a11y-contrast body *:not(img):not(svg):not(svg *){background:#000!important;background-image:none!important;color:#fff!important;border-color:#fff!important;box-shadow:none!important;text-shadow:none!important;-webkit-text-fill-color:currentColor!important}",
@@ -84,6 +89,13 @@
       b.addEventListener("click", function () { state[t[0]] = !state[t[0]]; refresh(); });
       return [t[0], b];
     });
+    var themeBtn = mk("מצב כהה", "a11y-wide");
+    themeBtn.addEventListener("click", function () {
+      var next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      root.setAttribute("data-theme", next);
+      try { localStorage.setItem("hgj-theme", next); } catch (e) {}
+      refresh();
+    });
     var reset = mk("איפוס ההגדרות", "a11y-wide a11y-reset");
     var live = document.createElement("div");
     live.setAttribute("role", "status"); live.setAttribute("aria-live", "polite");
@@ -98,6 +110,7 @@
     function refresh() {
       apply(); save();
       toggles.forEach(function (t) { t[1].setAttribute("aria-pressed", String(!!state[t[0]])); });
+      themeBtn.setAttribute("aria-pressed", String(root.getAttribute("data-theme") === "dark"));
       bigger.disabled = state.size >= SIZES.length - 1;
       smaller.disabled = state.size <= 0;
       live.textContent = "גודל טקסט " + SIZES[state.size] + " אחוז";

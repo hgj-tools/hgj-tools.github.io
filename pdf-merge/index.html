@@ -5,17 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' blob:; worker-src blob:; style-src 'unsafe-inline'; img-src blob: data:; font-src data:; frame-src blob:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <title>איחוד ופיצול PDF</title>
+<script>try{var t=localStorage.getItem("hgj-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <style>
-/* ברירת המחדל כהה, בגווני הלוגו של המשרד כמו שאר אתר הכלים. data-theme="light" מחזיר לבהיר */
-:root{
+/* ברירת המחדל בהירה, בגווני הלוגו של המשרד כמו שאר אתר הכלים. data-theme="dark" (המתג באתר) עובר לכהה */
+:root[data-theme="dark"]{
   --bg:#03111D;--card:#071C2B;--text:#EAF6FB;--muted:#A3C2D1;--border:#17394D;
   --accent:#7BD0F1;--blue:#008EDF;--violet:#1E9DE6;--ok:#16a34a;--no:#dc2626;--wait:#d97706;
   --sel:#7BD0F1;--selbg:#0E3550;--shadow:0 1px 3px rgba(0,0,0,.4),0 4px 14px rgba(0,0,0,.3);
   --thumb:150px;color-scheme:dark;
 }
-:root[data-theme="light"]{
-  --bg:#f1f5f9;--card:#fff;--text:#0f172a;--muted:#64748b;--border:#e2e8f0;
-  --accent:#014F6C;--blue:#0077C2;--violet:#008EDF;--sel:#0077C2;--selbg:#D3EEF9;
+
+:root{
+  --bg:#EAF4FA;--card:#fff;--text:#062230;--muted:#43606F;--border:#D2E3EE;
+  --accent:#014F6C;--blue:#0077C2;--violet:#008EDF;--ok:#16a34a;--no:#dc2626;--wait:#d97706;--sel:#0077C2;--selbg:#D3EEF9;--thumb:150px;
   --shadow:0 1px 3px rgba(15,23,42,.08),0 4px 14px rgba(15,23,42,.06);color-scheme:light;
 }
 *{box-sizing:border-box}
@@ -82,7 +84,7 @@ select.sel{border:1px solid var(--border);background:var(--card);border-radius:9
 .card .box .ph{display:grid;place-items:center;color:#94a3b8;font-size:12px}
 .card .box .ph.blank{color:#cbd5e1}
 .card .num{position:absolute;top:10px;right:10px;z-index:2;background:var(--accent);color:#fff;font-weight:bold;font-size:12px;border-radius:7px;padding:2px 7px;min-width:24px;text-align:center}
-:root:not([data-theme="light"]) .card .num{color:#021521}
+:root[data-theme="dark"] .card .num{color:#021521}
 .card .chk{position:absolute;top:8px;left:8px;z-index:3;width:24px;height:24px;border-radius:50%;border:2px solid #cbd5e1;background:rgba(255,255,255,.9);display:grid;place-items:center;opacity:0;transition:opacity .1s}
 .card .chk svg{width:14px;height:14px;color:#fff;display:none}
 .card:hover .chk{opacity:1}
@@ -139,7 +141,7 @@ dialog .note{color:var(--muted);font-size:12.5px}
 #dlgPreview{max-width:96vw;width:96vw;height:94vh}
 #dlgPreview[open]{display:flex;flex-direction:column}
 #dlgPreview .pv{flex:1;position:relative;background:#e2e8f0;overflow:hidden}
-:root:not([data-theme="light"]) #dlgPreview .pv{background:#03111D}
+:root[data-theme="dark"] #dlgPreview .pv{background:#03111D}
 #dlgPreview .pv canvas,#dlgPreview .pv img{position:absolute;top:50%;left:50%;background:#fff;box-shadow:0 4px 20px rgba(0,0,0,.25)}
 #dlgPreview .hd{justify-content:space-between}
 #dlgPreview .hd .grp{font-weight:normal}

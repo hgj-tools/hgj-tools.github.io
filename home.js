@@ -82,6 +82,24 @@
     });
   });
 
+  // מתג בהיר/כהה: נשמר במכשיר (hgj-theme) וחל על כל דפי האתר
+  var tb = document.getElementById("theme-btn"), tc = document.querySelector('meta[name="theme-color"]');
+  if (tb) {
+    var paintTheme = function () {
+      var dark = root.getAttribute("data-theme") === "dark";
+      tb.setAttribute("aria-pressed", String(dark));
+      tb.setAttribute("aria-label", dark ? "מעבר למצב בהיר" : "מעבר למצב כהה");
+      if (tc) tc.setAttribute("content", dark ? "#0A2236" : "#EAF4FA");
+    };
+    tb.addEventListener("click", function () {
+      var next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      root.setAttribute("data-theme", next);
+      try { localStorage.setItem("hgj-theme", next); } catch (e) {}
+    });
+    new MutationObserver(paintTheme).observe(root, { attributes: true, attributeFilter: ["data-theme"] });
+    paintTheme();
+  }
+
   // סרטון הכדור: מתנגן רק כשאין העדפה להפחתת תנועה, ונעצר בכפתור או ב"עצירת אנימציות" בתפריט הנגישות
   var video = document.getElementById("hero-video"), mbtn = document.getElementById("motion-btn");
   if (video && mbtn) {
