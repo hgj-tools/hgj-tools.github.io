@@ -1,8 +1,8 @@
 /* Service Worker - כלי סיור הגנת הפרטיות
    אסטרטגיה: cache-first עם רענון ברקע (stale-while-revalidate).
    הכלי נטען מיידית גם ללא אינטרנט; כשיש רשת, הגרסה בענן מתעדכנת ברקע לביקור הבא. */
-const CACHE = 'privacy-survey-v2.7.0';
-const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', '../logo-mark.png', '../theme.css', '../theme-init.js', '../a11y.js', '../tool-page.js'];
+const CACHE = 'privacy-survey-v3.0.0';
+const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', '../logo-mark.png', '../theme.css', '../theme-init.js', '../a11y.js', '../tool-page.js', '../fonts/heebo-hebrew.woff2', '../fonts/heebo-latin.woff2'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));

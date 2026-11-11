@@ -2,7 +2,7 @@
 <html lang="he" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>כלי סיור - הגנת הפרטיות ואבטחת מידע</title>
 <meta name="theme-color" content="#1F4E79">
 <link rel="manifest" href="manifest.webmanifest">
@@ -132,8 +132,43 @@
   .src a:active{text-decoration:underline}
   .src .srcnote{font-size:11.5px;color:var(--ink-soft)}
   footer{max-width:760px;margin:0 auto;padding:0 14px 24px;font-size:11.5px;color:var(--ink-soft);line-height:1.6}
+
+  /* ---------- v3.0: ממשק טלפון ---------- */
+  .tabs{display:flex;gap:6px;margin-bottom:12px}
+  .tabs button{flex:1;min-height:44px;padding:8px 4px;border-radius:999px;border:1px solid var(--border);background:var(--surface);color:var(--ink);font-size:14px;font-weight:700;font-family:inherit;cursor:pointer}
+  .tabs button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+  .ihead{display:flex;align-items:center;gap:8px;margin:12px 0 8px}
+  .iid{background:var(--brand);color:#fff;border-radius:8px;padding:3px 9px;font-size:13px;font-weight:700;flex:none}
+  .icat{font-size:13px;color:var(--ink-soft);flex:1}
+  .ipos{font-size:13px;color:var(--ink-soft);flex:none}
+  .what{font-size:18px;background:none;padding:0;margin-top:0;line-height:1.45}
+  .hintline{margin-top:8px;font-size:14px;line-height:1.6;color:var(--ink);background:var(--surface-2);border-radius:10px;padding:9px 11px}
+  .basis{font-size:13px;line-height:1.6}
+  .chips{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin:14px 0 10px}
+  .chips button{grid-column:span 2;min-height:52px;border-radius:12px;border:1.5px solid var(--border);background:var(--surface);color:var(--ink);font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;padding:6px 4px}
+  .chips button.c-na,.chips button.c-chk{grid-column:span 3}
+  .chips button.c-ok[aria-pressed="true"]{background:var(--ok-bg);border-color:var(--ok);color:var(--ok-ink)}
+  .chips button.c-part[aria-pressed="true"]{background:var(--mark-bg);border-color:var(--mark-ink);color:var(--mark-ink)}
+  .chips button.c-no[aria-pressed="true"]{background:var(--warn-bg);border-color:var(--warn-ink);color:var(--warn-ink)}
+  .chips button.c-na[aria-pressed="true"]{background:var(--surface-2);border-color:var(--ink-soft);color:var(--ink)}
+  .chips button.c-chk[aria-pressed="true"]{background:var(--sel-bg);border-color:var(--accent);color:var(--ink)}
+  .noterow{display:flex;gap:8px}
+  .noterow input{flex:1;min-width:0}
+  .noterow .btn{flex:none;min-width:48px;padding:10px 12px;font-size:18px}
+  .list .it{display:block;width:100%;background:none;border:0;border-bottom:1px solid var(--border);color:inherit;font-family:inherit;text-align:start}
+  .mrow{width:100%;background:none;border:0;border-bottom:1px solid var(--border);color:inherit;font-family:inherit;text-align:start;min-height:48px}
+  .mrow.mfind{background:var(--warn-bg)}
+  .mrow.mfind .mmark{color:var(--warn-ink)}
+  .mst{font-size:12.5px;border-radius:999px;padding:2px 8px;background:var(--surface-2);color:var(--ink-soft);flex:none}
+  .mnone{padding:14px 4px;color:var(--ink-soft);font-size:14px}
+  .hidnote{font-size:13px;color:var(--ink-soft);margin:8px 0;line-height:1.6}
+  .linkbtn{background:none;border:0;padding:0;color:var(--accent);font:inherit;font-weight:700;cursor:pointer;text-decoration:underline}
+  .setupsum{font-weight:400;color:var(--ink-soft);font-size:13px}
+  .list .cat{font-size:12.5px}
+  .hint,.src .srcnote,.maplegend,footer,.gitem .fn,.mcat{font-size:13px}
+  .mn{font-size:12px}
+  html #hgj-a11y-btn{bottom:92px}
 </style>
-<script>try{var _t=localStorage.getItem('siyurTheme');if(_t==='dark'||_t==='light')document.documentElement.dataset.theme=_t;}catch(e){}</script>
 <script src="../theme-init.js"></script>
 <link rel="stylesheet" href="../theme.css">
 <script src="../a11y.js" defer></script>
@@ -153,12 +188,116 @@
     <a href="../">← כל הכלים</a>
   </div>
 
+  <details id="setupWrap">
+    <summary>⚙️ הגדרות הסיור <span class="setupsum" id="setupsum"></span></summary>
+    <div class="src">
+      <label for="tourname">כינוי לסיור (ישמש כשם קובץ הייצוא. בלי שם הלקוח)</label>
+      <input type="text" id="tourname" placeholder="למשל: סיור 11.2026 · קומה 2" autocomplete="off">
+      <label for="level" style="margin-top:12px">רמת האבטחה של המאגר</label>
+      <select id="level">
+        <option value="">לא נבחרה (מוצגים כל הסעיפים)</option>
+        <option value="I">מאגר המנוהל בידי יחיד</option>
+        <option value="B">בסיסית</option>
+        <option value="M">בינונית</option>
+        <option value="H">גבוהה</option>
+      </select>
+      <div class="hint">הכלי אינו קובע את רמת האבטחה. היא נקבעת לפי ההגדרות בתקנה 1 ולפי התוספות לתקנות. אחרי הבחירה מוצגים רק הסעיפים שחלים ברמה הזו לפי תקנה 21, לצד סעיפי החוק ובקרות של נוהג מקובל. סעיף שמבוסס על כמה תקנות מוצג כשלפחות אחת מהן חלה ברמה שנבחרה.</div>
+    </div>
+  </details>
+
+  <div class="tabs" role="group" aria-label="מסלול הסיור">
+    <button type="button" data-t="all">הכול</button>
+    <button type="button" data-t="PH">סיור פיזי</button>
+    <button type="button" data-t="DC">מסמכים וראיונות</button>
+  </div>
+
+  <div class="card">
+    <input type="text" id="search" placeholder="🔎 חיפוש סעיף: חדר שרתים · PH-07 · דיוור ישיר" autocomplete="off" aria-label="חיפוש סעיף">
+    <div id="list" class="list" style="display:none"></div>
+    <div class="ihead"><span class="iid" id="iid"></span><span class="icat" id="icat"></span><span class="ipos" id="ipos"></span></div>
+    <div class="what" id="what">-</div>
+    <div class="hintline" id="hintline"></div>
+    <div class="basis" id="basis"></div>
+    <div class="chips" id="chips" role="group" aria-label="סטטוס הסעיף">
+      <button type="button" class="c-ok" data-s="קיים">קיים</button>
+      <button type="button" class="c-part" data-s="חלקי">חלקי</button>
+      <button type="button" class="c-no" data-s="לא קיים">לא קיים</button>
+      <button type="button" class="c-na" data-s="לא רלוונטי">לא רלוונטי</button>
+      <button type="button" class="c-chk" data-s="לבדיקה נוספת">לבדיקה נוספת</button>
+    </div>
+    <input type="hidden" id="status" value="">
+    <div class="noterow">
+      <input type="text" id="note" placeholder="הערה (רשות)" aria-label="הערה לסעיף">
+      <button class="btn" id="dictate" type="button" aria-label="הכתבה קולית של ההערה" title="הכתבה קולית">🎤</button>
+    </div>
+    <span id="dictstat" class="hint" style="display:block;margin-top:4px"></span>
+    <div class="count" id="count"></div>
+  </div>
+
+  <div class="card" id="preview" style="display:none">
+    <h2>התמונה האחרונה <span class="tag" id="pvtag"></span></h2>
+    <img id="pvimg" alt="">
+    <div class="row" style="margin-top:10px">
+      <button class="btn" id="save">💾 שמור בודדת</button>
+      <button class="btn primary" id="again">📷 עוד זווית</button>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <button class="btn" id="memo" type="button">🎙️ הקלט הערה קולית</button>
+      <button class="btn" id="memosave" type="button" style="display:none">💾 שמור הקלטה</button>
+    </div>
+    <audio id="memoaudio" controls style="width:100%;margin-top:8px;display:none"></audio>
+  </div>
+
+  <details id="mapWrap">
+    <summary>📋 מפת הסיור (<span id="mapcount">0</span>)</summary>
+    <div class="tabs" id="mfilt" role="group" aria-label="סינון המפה" style="margin:4px 0 8px">
+      <button type="button" data-f="all">הכול</button>
+      <button type="button" data-f="open">פתוחים</button>
+      <button type="button" data-f="find">ממצאים</button>
+    </div>
+    <div class="maplegend"><span class="lg lg-ok">✓</span> טופל · <span class="lg" style="color:var(--warn-ink)">!</span> ממצא (חלקי, לא קיים, לבדיקה נוספת) · <span class="lg">○</span> פתוח</div>
+    <div class="hidnote" id="hidnote"></div>
+    <div id="map"></div>
+  </details>
+
+  <details>
+    <summary>🗂️ תמונות וייצוא (<span id="galn">0</span> תמונות)</summary>
+    <input type="text" id="zipname" placeholder="שם לקובץ ה-ZIP (ברירת מחדל: כינוי הסיור)" autocomplete="off" style="margin:6px 0 10px" aria-label="שם קובץ הייצוא">
+    <div class="row">
+      <button class="btn primary" id="zip">📦 הורד הכל (ZIP)</button>
+      <button class="btn" id="saveall">💾 שתף תמונות</button>
+      <button class="btn" id="csv">⬇️ CSV</button>
+    </div>
+    <div class="hint">ה-ZIP וה-CSV כוללים גם סעיפים שקיבלו סטטוס או הערה בלי תמונה. שמור לענן המשרדי דרך חלון השיתוף, או תן לענן לסנכרן את תיקיית ההורדות.</div>
+    <div class="gal" id="gal" style="margin-top:12px"></div>
+    <button class="btn warn" id="reset" type="button" style="width:100%;margin-top:12px">🗑️ התחל סיור חדש (מוחק הכל)</button>
+  </details>
+
+  <details>
+    <summary>🎛️ אפשרויות נוספות</summary>
+    <div class="src">
+      <button class="btn" id="clearnote" type="button">🧹 נקה את ההערה של הסעיף הנוכחי</button>
+      <div class="hint">הכתבה קולית (🎤) דורשת אינטרנט ומשתמשת בשירות תמלול בענן. לתוכן רגיש עדיף להקליד, או להקליט הערה קולית אחרי צילום (נשמרת במכשיר).</div>
+      <div style="margin:12px 0 4px">
+        <label for="autolet">כמה תמונות לאותו סעיף?</label>
+        <select id="autolet">
+          <option value="1">הוסף אות · a·b·c</option>
+          <option value="0">בלי אות</option>
+        </select>
+      </div>
+      <label style="display:flex;align-items:center;gap:8px;margin:12px 0;color:var(--ink);font-size:14px">
+        <input type="checkbox" id="autosave" style="width:20px;height:20px;flex:none">
+        שמור / שתף מיד אחרי כל צילום (איטי - לרוב לא צריך)
+      </label>
+    </div>
+  </details>
+
   <details>
     <summary>❓ איך עובדים עם הכלי</summary>
     <div class="steps" style="background:transparent;border:none;margin:0;padding:2px 0 12px">
-      1) בוחרים סעיף → 2) בסרגל התחתון: <b>«📷 צלם»</b> (אפשר כמה זוויות) <b>או</b> <b>«✅ סמן»</b> בלי תמונה → 3) <b>«➡️ הבא»</b> וממשיכים.
-      <br>אין צורך לרענן - <b>הכל נשמר אוטומטית</b> וישרוד גם סגירה בטעות. בסוף: <b>«📦 הורד הכל (ZIP)»</b> עם התמונות ודוח CSV מרוכז.
-      <br>סעיפי <b>PH</b> = סיור פיזי וטכני (מומלץ לצלם) · סעיפי <b>DC</b> = מסמכים, נהלים וראיונות (לרוב מסמנים בלי תמונה).
+      1) בוחרים מסלול: <b>סיור פיזי</b> (מצלמים) או <b>מסמכים וראיונות</b>. 2) לכל סעיף לוחצים על סטטוס, ואם צריך <b>«📷 צלם»</b> ומוסיפים הערה. 3) <b>«הבא»</b> מעביר לסעיף הבא שעוד לא טופל.
+      <br>לחיצה נוספת על אותו סטטוס מבטלת אותו. <b>הכול נשמר מיד במכשיר</b>, גם אם הדפדפן נסגר. בסוף: <b>«📦 הורד הכל (ZIP)»</b> תחת «תמונות וייצוא».
+      <br>כדאי לצלם בלי פנים של אנשים ובלי מסכים או מסמכים שהתוכן שלהם קריא.
     </div>
   </details>
 
@@ -177,87 +316,13 @@
     </div>
   </details>
 
-  <div class="card">
-    <label class="steplbl"><span class="stepnum">1</span>בחר סעיף - הקלד לחיפוש, או פתח את «מפת הסיור» למטה</label>
-    <input type="text" id="search" placeholder="חפש: PH-07 · DC-22 · חדר שרתים · דיוור ישיר…" autocomplete="off">
-    <div id="list" class="list" style="display:none"></div>
-    <div class="what" id="what">-</div>
-    <div class="basis" id="basis"></div>
-    <div class="count" id="count"></div>
-  </div>
-
-  <details id="mapWrap">
-    <summary>📋 מפת הסיור - מה כבר טופל (<span id="mapcount">0</span>)</summary>
-    <div class="maplegend"><span class="lg lg-ok">✓</span> צולם · <span class="lg lg-mark">✔</span> סומן ללא תמונה · <span class="lg">○</span> טרם טופל</div>
-    <div id="map"></div>
-  </details>
-
-  <div class="card">
-    <label class="steplbl"><span class="stepnum">2</span>סטטוס והערה (רשות · יוטבעו על התמונה ויופיעו בדוח)</label>
-    <div class="row">
-      <select id="status">
-        <option value="">סטטוס…</option>
-        <option>קיים</option><option>חלקי</option><option>לא קיים</option>
-        <option>לא רלוונטי</option><option>לבדיקה נוספת</option>
-      </select>
-    </div>
-    <input type="text" id="note" placeholder="הערה, למשל: נעול, קודן תקין / נוהל מאושר מ-2025" style="margin-top:8px">
-    <details class="subopts">
-      <summary>🎛️ אפשרויות נוספות (הכתבה קולית · ריבוי תמונות · שמירה מיידית)</summary>
-      <div class="row" style="margin:4px 0 8px">
-        <button class="btn" id="dictate" type="button" style="flex:none;min-width:150px">🎤 הכתבה קולית</button>
-        <button class="btn" id="clearnote" type="button" style="flex:none">🧹 נקה</button>
-        <span id="dictstat" class="hint" style="align-self:center;flex:1;margin:0"></span>
-      </div>
-      <div class="hint" style="margin-top:0">הכתבה דורשת אינטרנט ומשתמשת בשירות תמלול בענן - לתוכן רגיש עדיף להקליד או להשתמש בהקלטה קולית (נשמרת במכשיר).</div>
-      <div style="margin:10px 0 4px">
-        <label>כמה תמונות לאותו סעיף?</label>
-        <select id="autolet">
-          <option value="1">הוסף אות · a·b·c</option>
-          <option value="0">בלי אות</option>
-        </select>
-      </div>
-      <label style="display:flex;align-items:center;gap:8px;margin:12px 0;color:var(--ink);font-size:14px">
-        <input type="checkbox" id="autosave" style="width:20px;height:20px;flex:none">
-        שמור / שתף מיד אחרי כל צילום (איטי - לרוב לא צריך)
-      </label>
-    </details>
-  </div>
-
-  <div class="card" id="preview" style="display:none">
-    <h2>התמונה האחרונה <span class="tag" id="pvtag"></span></h2>
-    <img id="pvimg" alt="">
-    <div class="row" style="margin-top:10px">
-      <button class="btn" id="save">💾 שמור בודדת</button>
-      <button class="btn primary" id="again">📷 עוד זווית</button>
-    </div>
-    <div class="row" style="margin-top:8px">
-      <button class="btn" id="memo" type="button">🎙️ הקלט הערה קולית</button>
-      <button class="btn" id="memosave" type="button" style="display:none">💾 שמור הקלטה</button>
-    </div>
-    <audio id="memoaudio" controls style="width:100%;margin-top:8px;display:none"></audio>
-  </div>
-
-  <details>
-    <summary>🗂️ כל התמונות שצולמו (<span id="galn">0</span>) - לשמירה</summary>
-    <input type="text" id="zipname" placeholder="שם לקובץ ה-ZIP (למשל: קומה 2 · חדר שרתים)" autocomplete="off" style="margin:6px 0 10px">
-    <div class="row">
-      <button class="btn primary" id="zip">📦 הורד הכל (ZIP)</button>
-      <button class="btn" id="saveall">💾 שתף תמונות</button>
-      <button class="btn" id="csv">⬇️ CSV</button>
-    </div>
-    <div class="hint">ה-ZIP וה-CSV כוללים גם את הסעיפים שסומנו ללא תמונה. שמור לענן המשרדי דרך חלון השיתוף, או תן לענן לסנכרן את תיקיית ההורדות.</div>
-    <div class="gal" id="gal" style="margin-top:12px"></div>
-    <button class="btn warn" id="reset" type="button" style="width:100%;margin-top:12px">🗑️ התחל סיור חדש (מוחק הכל)</button>
-  </details>
-
   <details id="sources">
     <summary>📚 מקורות: החוק, התקנות והרשות להגנת הפרטיות</summary>
     <div class="src">
       <div>📖 <a href="https://he.wikisource.org/wiki/%D7%97%D7%95%D7%A7_%D7%94%D7%92%D7%A0%D7%AA_%D7%94%D7%A4%D7%A8%D7%98%D7%99%D7%95%D7%AA" target="_blank" rel="noopener">חוק הגנת הפרטיות, התשמ"א-1981</a> - נוסח מלא ומעודכן (ויקיטקסט)<br>
       <span class="srcnote">רלוונטי במיוחד: ס' 8א (חובת רישום או הודעה) · ס' 11 (חובת יידוע) · ס' 13-14 (עיון, תיקון ומחיקה) · ס' 17-17ב1 (אבטחת מידע, ממונה אבטחה, ממונה הגנת הפרטיות לפי תיקון 13) · ס' 17ד-17ו (דיוור ישיר)</span></div>
       <div style="margin-top:10px">📖 <a href="https://he.wikisource.org/wiki/%D7%AA%D7%A7%D7%A0%D7%95%D7%AA_%D7%94%D7%92%D7%A0%D7%AA_%D7%94%D7%A4%D7%A8%D7%98%D7%99%D7%95%D7%AA_(%D7%90%D7%91%D7%98%D7%97%D7%AA_%D7%9E%D7%99%D7%93%D7%A2)" target="_blank" rel="noopener">תקנות הגנת הפרטיות (אבטחת מידע), התשע"ז-2017</a> - נוסח מלא (ויקיטקסט)<br>
-      <span class="srcnote">תקנה 2 (מסמך הגדרות המאגר) · 3 (ממונה אבטחה) · 4 (נוהל אבטחה) · 5 (מיפוי וסקר סיכונים) · 6 (אבטחה פיזית) · 7 (כוח אדם) · 8 (הרשאות) · 9 (זיהוי ואימות) · 10 (בקרה ותיעוד) · 11 (אירועי אבטחה) · 12 (התקנים ניידים) · 13 (ניהול מאובטח ומעודכן) · 14 (תקשורת וגישה מרחוק) · 15 (מיקור חוץ) · 16 (ביקורת תקופתית) · 17 (שמירת נתוני אבטחה) · 18 (גיבוי ושחזור של נתוני אבטחה) · 19 (תיעוד ביצוע פעולות)</span></div>
+      <span class="srcnote">תקנה 2 (מסמך הגדרות המאגר) · 3 (ממונה אבטחה) · 4 (נוהל אבטחה) · 5 (מיפוי וסקר סיכונים) · 6 (אבטחה פיזית) · 7 (כוח אדם) · 8 (הרשאות) · 9 (זיהוי ואימות) · 10 (בקרה ותיעוד) · 11 (אירועי אבטחה) · 12 (התקנים ניידים) · 13 (ניהול מאובטח ומעודכן) · 14 (תקשורת וגישה מרחוק) · 15 (מיקור חוץ) · 16 (ביקורת תקופתית) · 17 (שמירת נתוני אבטחה) · 18 (גיבוי ושחזור של נתוני אבטחה) · 19 (תיעוד ביצוע פעולות) · 21 (תחולה לפי רמת אבטחה)</span></div>
       <div style="margin-top:10px">🏛️ <a href="https://www.gov.il/he/pages/data_security_regulation" target="_blank" rel="noopener">תקנות אבטחת מידע - עמוד הרשות להגנת הפרטיות (gov.il)</a></div>
       <div style="margin-top:6px">🏛️ <a href="https://www.gov.il/he/departments/the_privacy_protection_authority/govil-landing-page" target="_blank" rel="noopener">הרשות להגנת הפרטיות - הנחיות, מדריכים ותיקון 13 (gov.il)</a></div>
       <div style="margin-top:6px">📖 <a href="https://www.nevo.co.il/law_html/law00/71631.htm" target="_blank" rel="noopener">חוק הגנת הפרטיות בנבו</a> · <a href="https://www.nevo.co.il/law_html/law00/144811.htm" target="_blank" rel="noopener">התקנות בנבו</a></div>
@@ -270,8 +335,8 @@
   <label class="shot">📷 צלם
     <input type="file" id="cam" accept="image/*" capture="environment">
   </label>
-  <button class="btn mark" id="markbtn" type="button" title="סימון סעיף ללא תמונה (מסמך / ראיון / לא נדרש צילום)">✅ סמן</button>
-  <button class="btn primary" id="next" type="button" title="מעבר לסעיף הבא שטרם טופל">➡️ הבא</button>
+  <button class="btn" id="prev" type="button" title="הסעיף הקודם במסלול">הקודם</button>
+  <button class="btn primary" id="next" type="button" title="הסעיף הבא שעוד לא טופל">הבא</button>
 </div>
 
 <footer>
@@ -281,81 +346,81 @@
 <canvas id="cv" style="display:none"></canvas>
 <script>
 const ITEMS = [
- ["PH-01","מעגלי אבטחה וכניסה","כניסה ראשית לבניין - בקרת כניסה / מאבטח","תקנה 6(א)"],
- ["PH-02","מעגלי אבטחה וכניסה","דלת כניסה למשרדים - נעולה, פתיחה בקודן","תקנה 6(א)"],
- ["PH-03","מעגלי אבטחה וכניסה","עמדת קבלה / פקידת קבלה בכניסה","תקנה 6(א); נוהג מקובל"],
- ["PH-04","מעגלי אבטחה וכניסה","שילוט המזהה אזורים מוגבלים","נוהג מקובל"],
- ["PH-05","מעגלי אבטחה וכניסה","הפרדה פיזית בין אזור ציבורי לאזור מאובטח","תקנה 6(א)"],
- ["PH-06","מעגלי אבטחה וכניסה","כספות / משרדי הנהלה כאזור מאובטח","תקנה 6(א); נוהג מקובל"],
- ["PH-07","חדר שרתים ותקשורת","חדר שרתים - נעול, בקרת כניסה בקודן","תקנה 6(א)"],
- ["PH-08","חדר שרתים ותקשורת","גישה לחדר שרתים למורשים בלבד + רשימה","תקנה 6(א); תקנה 8(ב)"],
- ["PH-09","חדר שרתים ותקשורת","מצלמה בתוך חדר השרתים","נוהג מקובל"],
- ["PH-10","חדר שרתים ותקשורת","מיזוג אוויר / בקרת טמפרטורה בחדר","תקנה 13(א); נוהג מקובל"],
- ["PH-11","חדר שרתים ותקשורת","ארון תקשורת - נעול ומאובטח","תקנה 6(א)"],
- ["PH-12","חדר שרתים ותקשורת","סדר וניהול כבילה","תקנה 13(א); נוהג מקובל"],
- ["PH-13","חדר שרתים ותקשורת","הגנה מפני הצפה/רטיבות","תקנה 6; נוהג מקובל"],
- ["PH-14","הגנה סביבתית","מערכת גילוי אש/עשן","תקנה 6; נוהג מקובל"],
- ["PH-15","הגנה סביבתית","אמצעי כיבוי אש (מטפים/מערכת)","תקנה 6; נוהג מקובל"],
- ["PH-16","הגנה סביבתית","אזעקת אבטחה - פעילה","תקנה 6(א); נוהג מקובל"],
- ["PH-17","הגנה סביבתית","אל-פסק (UPS) לשרתים / ציוד קריטי","תקנה 13(א); נוהג מקובל"],
- ["PH-18","הגנה סביבתית","הגנת חשמל / גנרטור","תקנה 13(א); נוהג מקובל"],
- ["PH-19","הגנה סביבתית","ניקיון/סדר - אין חומרים דליקים בחדר שרתים","נוהג מקובל"],
- ["PH-20","בקרה ותיעוד כניסה","תיעוד כניסה/יציאה מאתרי המערכות","תקנה 6(ב) (בינונית/גבוהה)"],
- ["PH-21","בקרה ותיעוד כניסה","יומן/רישום מבקרים","תקנה 6(ב) (בינונית/גבוהה)"],
- ["PH-22","בקרה ותיעוד כניסה","ליווי מבקרים בפועל","תקנה 6(א); נוהג מקובל"],
- ["PH-23","בקרה ותיעוד כניסה","תיעוד הכנסה/הוצאת ציוד","תקנה 6(ב) (בינונית/גבוהה)"],
- ["PH-24","מצלמות CCTV","פריסת מצלמות - כיסוי אזורים רגישים","תקנה 6(א); נוהג מקובל"],
- ["PH-25","מצלמות CCTV","הגבלת גישה לצפייה/הקלטות","תקנה 8(א)"],
- ["PH-26","מצלמות CCTV","משך שמירת הקלטות מוגדר","הנחיות הרשות בנושא מצלמות; תקנה 2(ג) (פרשנות)"],
- ["PH-27","מצלמות CCTV","שילוט המודיע על קיום מצלמות","ס' 11 לחוק; הנחיות הרשות בנושא מצלמות"],
- ["PH-28","מצלמות CCTV","מצלמות לא מכוונות לאזורים פרטיים","הנחיות הרשות בנושא מצלמות"],
- ["PH-29","אבטחת עמדות קצה","נעילת מסך אוטומטית לאחר אי-פעילות","תקנה 9(ב)(2)(ב) (בינונית/גבוהה)"],
- ["PH-30","אבטחת עמדות קצה","מדיניות סיסמאות נאכפת (חוזק, ניסיונות שגויים, החלפה עד 6 חודשים)","תקנה 9(ב)(2)(א) (בינונית/גבוהה)"],
- ["PH-31","אבטחת עמדות קצה","אימות דו-שלבי / אמצעי פיזי לגישה מרחוק","תקנה 14(ג); תקנה 9(ב)(1) (בינונית/גבוהה)"],
- ["PH-32","אבטחת עמדות קצה","אנטי-וירוס/הגנת קצה מעודכנת","תקנה 14(א)"],
- ["PH-33","אבטחת עמדות קצה","חסימת התקנים ניידים / USB","תקנה 12"],
- ["PH-34","אבטחת עמדות קצה","הצפנת דיסק (BitLocker) בניידים","תקנה 12"],
- ["PH-35","אבטחת עמדות קצה","עדכוני מערכת/טלאים, אין מערכות ללא תמיכת יצרן","תקנה 13(ג)"],
- ["PH-36","אבטחת עמדות קצה","הרשאות מנהל (Admin) מוגבלות","תקנה 8(א)"],
- ["PH-37","שולחן נקי ומסך נקי","מסמכים רגישים לא חשופים","תקנה 4(ג)(4); נוהג מקובל"],
- ["PH-38","שולחן נקי ומסך נקי","מסכים ננעלים בעזיבה","תקנה 4(ג)(4); נוהג מקובל"],
- ["PH-39","שולחן נקי ומסך נקי","פלט רגיש לא נותר במדפסות","תקנה 4(ג)(4); נוהג מקובל"],
- ["PH-40","שולחן נקי ומסך נקי","חומר רגיש נעול בכספת/ארון","תקנה 4(ג)(4); נוהג מקובל"],
- ["PH-41","מדיה ציוד וסילוק","נוהל סילוק/השמדת מדיה + תיעוד","נוהג מקובל"],
- ["PH-42","מדיה ציוד וסילוק","ציוד נייד מחוץ לשטח - הגנה","תקנה 12"],
- ["PH-43","מדיה ציוד וסילוק","רשימת מצאי מעודכנת של מערכות המאגר","תקנה 5(א)"],
- ["DC-01","מסמכים ונהלים","מסמך הגדרות המאגר - קיים ומעודכן (מטרות, סוגי מידע, סיכונים, העברות)","תקנה 2(א)-(ב)"],
- ["DC-02","מסמכים ונהלים","בחינה שנתית שהמידע במאגר אינו רב מן הנדרש (צמצום מידע)","תקנה 2(ג)"],
- ["DC-03","מסמכים ונהלים","נוהל אבטחת מידע - כתוב, מאושר ונבחן אחת לשנה","תקנה 4"],
- ["DC-04","מסמכים ונהלים","מסמך מבנה המאגר ורשימת מצאי של המערכות, כולל תרשים רשת","תקנה 5(א)"],
- ["DC-05","מסמכים ונהלים","סקר סיכונים ומבדקי חדירות אחת ל-18 חודשים","תקנה 5(ג)-(ד) (רמה גבוהה)"],
- ["DC-31","מסמכים ונהלים","ממונה אבטחה: כפיפות ישירה, תוכנית בקרה שוטפת, היעדר ניגוד עניינים","תקנה 3"],
- ["DC-32","מסמכים ונהלים","תיעוד סביר של ביצוע פעולות שהתקנות מחייבות","תקנה 19(ב)"],
- ["DC-06","כוח אדם והדרכה","מיון ובדיקת התאמה לפני מתן גישה למידע","תקנה 7(א)"],
- ["DC-07","כוח אדם והדרכה","הדרכה לפני מתן גישה, והדרכה תקופתית אחת לשנתיים + תיעוד","תקנה 7(ב); תקנה 7(ג) (בינונית/גבוהה)"],
- ["DC-08","כוח אדם והדרכה","התחייבות לסודיות - עובדים וגורמי חוץ","תקנה 15(א)(2)(ו) (גורמי חוץ); נוהג מקובל (עובדים); ס' 16 לחוק (חובת סודיות)"],
- ["DC-09","הרשאות בקרה ואירועים","רשימת הרשאות תקפות, מעודכנת לפי תפקיד","תקנה 8"],
- ["DC-10","הרשאות בקרה ואירועים","ביטול הרשאות מיד עם סיום תפקיד","תקנה 9(ג)"],
- ["DC-11","הרשאות בקרה ואירועים","שמירת נתוני תיעוד הגישה ונתוני האבטחה 24 חודשים","תקנה 10(ד) (בינונית/גבוהה); תקנה 17(א)"],
- ["DC-12","הרשאות בקרה ואירועים","תיעוד אירועי אבטחה והוראות טיפול באירועים בנוהל","תקנה 11(א)-(ב)"],
- ["DC-13","הרשאות בקרה ואירועים","הודעה מיידית לרשם על אירוע אבטחה חמור","תקנה 11(ד)(1) (בינונית/גבוהה)"],
- ["DC-30","הרשאות בקרה ואירועים","מנגנון תיעוד גישה אוטומטי ובדיקה שגרתית של נתוניו","תקנה 10(א)-(ג) (בינונית/גבוהה)"],
- ["DC-14","מיקור חוץ","רשימת גורמים חיצוניים בעלי גישה למאגר","תקנה 15(א); תקנה 2(א)(5)"],
- ["DC-15","מיקור חוץ","הסכם עם גורם חיצוני הכולל את הנושאים שבתקנה","תקנה 15(א)(2)"],
- ["DC-16","מיקור חוץ","בקרה ופיקוח על גורמים חיצוניים, כולל דיווח שנתי מהם","תקנה 15(א)(4); תקנה 15(א)(2)(ח)"],
- ["DC-17","גיבוי שחזור וביקורת","נהלי גיבוי ושחזור של נתוני האבטחה, במסמך","תקנה 18(א) (בינונית/גבוהה)"],
- ["DC-18","גיבוי שחזור וביקורת","יכולת שחזור של נתוני האבטחה ותיעוד הליכי שחזור","תקנה 17(ב); תקנה 18(א)(3) (בינונית/גבוהה)"],
- ["DC-19","גיבוי שחזור וביקורת","עותק גיבוי שמור כך שיובטחו שלמות המידע ואפשרות השחזור","תקנה 18(ב) (רמה גבוהה)"],
- ["DC-20","גיבוי שחזור וביקורת","ביקורת תקופתית אחת ל-24 חודשים בידי גורם שאינו ממונה האבטחה","תקנה 16(א) (בינונית/גבוהה)"],
- ["DC-21","החוק ותיקון 13","רישום המאגר או הודעה לרשות, ככל שנדרש","ס' 8א לחוק"],
- ["DC-22","החוק ותיקון 13","מינוי ממונה על הגנת הפרטיות, ככל שנדרש","ס' 17ב1 לחוק (תיקון 13)"],
- ["DC-23","החוק ותיקון 13","מינוי ממונה על אבטחת מידע, ככל שנדרש","ס' 17ב לחוק"],
- ["DC-24","החוק ותיקון 13","הודעת יידוע בעת איסוף מידע (חובה/רשות, מטרה, זהות בעל השליטה, נמענים, זכויות עיון ותיקון)","ס' 11 לחוק"],
- ["DC-25","החוק ותיקון 13","מענה לבקשות עיון במידע","ס' 13 לחוק"],
- ["DC-26","החוק ותיקון 13","מענה לבקשות תיקון או מחיקת מידע","ס' 14 לחוק"],
- ["DC-27","החוק ותיקון 13","דיוור ישיר - רישום המאגר, ציון מקור המידע, סימון הפנייה וזכות מחיקה","ס' 17ד-17ו לחוק"],
- ["DC-28","החוק ותיקון 13","מדיניות פרטיות מפורסמת ונגישה","ס' 11 לחוק; נוהג מקובל"],
- ["DC-29","החוק ותיקון 13","דיון תקופתי של בעל המאגר באירועי אבטחה ובדוחות הביקורת","תקנה 11(ג); תקנה 16(ג) (בינונית/גבוהה)"]
+ ["PH-01","מעגלי אבטחה וכניסה","כניסה ראשית לבניין - בקרת כניסה / מאבטח","תקנה 6(א)","IBMH","מי שולט בכניסה, והאם אפשר להיכנס בלי זיהוי. צלם את עמדת הכניסה."],
+ ["PH-02","מעגלי אבטחה וכניסה","דלת כניסה למשרדים - נעולה, פתיחה בקודן","תקנה 6(א)","IBMH","האם הדלת נעולה בפועל. צלם את הקודן או את קורא הכרטיסים."],
+ ["PH-03","מעגלי אבטחה וכניסה","עמדת קבלה / פקידת קבלה בכניסה","תקנה 6(א); נוהג מקובל","IBMH","האם יש מי שמקבל מבקרים ורואה את הכניסה. צלם את העמדה."],
+ ["PH-04","מעגלי אבטחה וכניסה","שילוט המזהה אזורים מוגבלים","נוהג מקובל","IBMH","שילוט על דלתות חדר השרתים, הארכיון ואזורים מוגבלים אחרים."],
+ ["PH-05","מעגלי אבטחה וכניסה","הפרדה פיזית בין אזור ציבורי לאזור מאובטח","תקנה 6(א)","IBMH","האם מבקר יכול להגיע לאזור העבודה בלי לעבור דלת נעולה."],
+ ["PH-06","מעגלי אבטחה וכניסה","כספות / משרדי הנהלה כאזור מאובטח","תקנה 6(א); נוהג מקובל","IBMH","איפה נשמר חומר רגיש של ההנהלה, והאם המקום ננעל."],
+ ["PH-07","חדר שרתים ותקשורת","חדר שרתים - נעול, בקרת כניסה בקודן","תקנה 6(א)","IBMH","האם הדלת נעולה כשאין איש בחדר. צלם את הדלת ואת אמצעי הנעילה."],
+ ["PH-08","חדר שרתים ותקשורת","גישה לחדר שרתים למורשים בלבד + רשימה","תקנה 6(א); תקנה 8(ב)","IBMH","בקש את רשימת המורשים לחדר ובדוק שהיא מעודכנת."],
+ ["PH-09","חדר שרתים ותקשורת","מצלמה בתוך חדר השרתים","נוהג מקובל","IBMH","האם יש מצלמה שמכסה את הכניסה לחדר ואת הארונות."],
+ ["PH-10","חדר שרתים ותקשורת","מיזוג אוויר / בקרת טמפרטורה בחדר","תקנה 13(א); נוהג מקובל","IBMH","מזגן פועל ומד טמפרטורה. שאל מי מקבל התראה על תקלה."],
+ ["PH-11","חדר שרתים ותקשורת","ארון תקשורת - נעול ומאובטח","תקנה 6(א)","IBMH","הארון נעול והמפתח אצל מורשה. צלם את הארון."],
+ ["PH-12","חדר שרתים ותקשורת","סדר וניהול כבילה","תקנה 13(א); נוהג מקובל","IBMH","כבלים מסומנים ומסודרים, בלי חיבורים לא מזוהים."],
+ ["PH-13","חדר שרתים ותקשורת","הגנה מפני הצפה/רטיבות","תקנה 6; נוהג מקובל","IBMH","צנרת מים מעל הציוד, ציוד מוגבה מהרצפה, גלאי הצפה."],
+ ["PH-14","הגנה סביבתית","מערכת גילוי אש/עשן","תקנה 6; נוהג מקובל","IBMH","גלאים בחדר השרתים ובמשרדים, ומועד הבדיקה האחרונה שלהם."],
+ ["PH-15","הגנה סביבתית","אמצעי כיבוי אש (מטפים/מערכת)","תקנה 6; נוהג מקובל","IBMH","מטף שמתאים לציוד חשמלי, ותווית בדיקה בתוקף."],
+ ["PH-16","הגנה סביבתית","אזעקת אבטחה - פעילה","תקנה 6(א); נוהג מקובל","IBMH","מי מקבל את הקריאה, ומתי נבדקה האזעקה לאחרונה."],
+ ["PH-17","הגנה סביבתית","אל-פסק (UPS) לשרתים / ציוד קריטי","תקנה 13(א); נוהג מקובל","IBMH","האל-פסק מחובר לשרתים, ומצב הסוללות על הצג."],
+ ["PH-18","הגנה סביבתית","הגנת חשמל / גנרטור","תקנה 13(א); נוהג מקובל","IBMH","הגנה מפני נחשולי מתח, וגנרטור אם קיים."],
+ ["PH-19","הגנה סביבתית","ניקיון/סדר - אין חומרים דליקים בחדר שרתים","נוהג מקובל","IBMH","קרטונים, נייר וחומרי ניקוי בתוך חדר השרתים."],
+ ["PH-20","בקרה ותיעוד כניסה","תיעוד כניסה/יציאה מאתרי המערכות","תקנה 6(ב) (בינונית/גבוהה)","MH","בקש יומן כניסות או דוח ממערכת בקרת הכניסה לתקופה האחרונה."],
+ ["PH-21","בקרה ותיעוד כניסה","יומן/רישום מבקרים","תקנה 6(ב) (בינונית/גבוהה)","MH","צלם עמוד מיומן המבקרים בלי שפרטי המבקרים קריאים."],
+ ["PH-22","בקרה ותיעוד כניסה","ליווי מבקרים בפועל","תקנה 6(א); נוהג מקובל","IBMH","שאל איך מלווים טכנאים ומבקרים באזורים רגישים."],
+ ["PH-23","בקרה ותיעוד כניסה","תיעוד הכנסה/הוצאת ציוד","תקנה 6(ב) (בינונית/גבוהה)","MH","טופס או רישום של הוצאת מחשבים, דיסקים וציוד לתיקון."],
+ ["PH-24","מצלמות CCTV","פריסת מצלמות - כיסוי אזורים רגישים","תקנה 6(א); נוהג מקובל","IBMH","אילו אזורים מכוסים, והאם יש אזור רגיש בלי כיסוי."],
+ ["PH-25","מצלמות CCTV","הגבלת גישה לצפייה/הקלטות","תקנה 8(א)","BMH","מי רשאי לצפות בהקלטות, ואיך מוגנת הגישה למערכת."],
+ ["PH-26","מצלמות CCTV","משך שמירת הקלטות מוגדר","הנחיות הרשות בנושא מצלמות; תקנה 2(ג) (פרשנות)","IBMH","כמה זמן נשמרות ההקלטות, והאם זה כתוב בנוהל."],
+ ["PH-27","מצלמות CCTV","שילוט המודיע על קיום מצלמות","ס' 11 לחוק; הנחיות הרשות בנושא מצלמות","IBMH","שלט בכניסה לאזור המצולם. צלם את השלט."],
+ ["PH-28","מצלמות CCTV","מצלמות לא מכוונות לאזורים פרטיים","הנחיות הרשות בנושא מצלמות","IBMH","מצלמות שמכוונות לשירותים, לחדרי הלבשה או למסכי עובדים."],
+ ["PH-29","אבטחת עמדות קצה","נעילת מסך אוטומטית לאחר אי-פעילות","תקנה 9(ב)(2)(ב) (בינונית/גבוהה)","MH","בדוק בעמדה אחת אחרי כמה זמן המסך ננעל, ומה כתוב בנוהל."],
+ ["PH-30","אבטחת עמדות קצה","זיהוי ואימות: גישה למורשים בלבד, ומדיניות סיסמאות (חוזק, ניסיונות שגויים, החלפה עד 6 חודשים)","תקנה 9(א); תקנה 9(ב)(2)(א) (בינונית/גבוהה)","IBMH","איך מזדהים למערכות המאגר. ברמה בינונית וגבוהה: צלם את הגדרות מדיניות הסיסמאות, בלי סיסמאות."],
+ ["PH-31","אבטחת עמדות קצה","אימות דו-שלבי / אמצעי פיזי לגישה מרחוק","תקנה 14(ג); תקנה 9(ב)(1) (בינונית/גבוהה)","IBMH","איך מתחברים מרחוק, ומהו אמצעי הזיהוי הנוסף."],
+ ["PH-32","אבטחת עמדות קצה","אנטי-וירוס/הגנת קצה מעודכנת","תקנה 14(א)","IBMH","גרסה ותאריך עדכון אחרון של ההגנה, בעמדה אחת לפחות."],
+ ["PH-33","אבטחת עמדות קצה","חסימת התקנים ניידים / USB","תקנה 12","IBMH","בקש לראות את הגדרת החסימה, או בדוק בעמדה אחת."],
+ ["PH-34","אבטחת עמדות קצה","הצפנת דיסק (BitLocker) בניידים","תקנה 12","IBMH","סטטוס ההצפנה במחשב נייד אחד לפחות."],
+ ["PH-35","אבטחת עמדות קצה","עדכוני מערכת/טלאים, אין מערכות ללא תמיכת יצרן","תקנה 13(ג)","IBMH","תאריך העדכון האחרון, ומערכות שהיצרן כבר לא תומך בהן."],
+ ["PH-36","אבטחת עמדות קצה","הרשאות מנהל (Admin) מוגבלות","תקנה 8(א)","BMH","מי מוגדר מנהל מקומי בעמדה, ורשימת בעלי הרשאות הניהול."],
+ ["PH-37","שולחן נקי ומסך נקי","מסמכים רגישים לא חשופים","תקנה 4(ג)(4); נוהג מקובל","IBMH","שולחנות ועמדות לא מאוישות. צלם כך שהתוכן לא יהיה קריא."],
+ ["PH-38","שולחן נקי ומסך נקי","מסכים ננעלים בעזיבה","תקנה 4(ג)(4); נוהג מקובל","IBMH","עמדות שהעובד עזב בזמן הסיור."],
+ ["PH-39","שולחן נקי ומסך נקי","פלט רגיש לא נותר במדפסות","תקנה 4(ג)(4); נוהג מקובל","IBMH","מגש המדפסת והפקס, ופח הנייר שלידם."],
+ ["PH-40","שולחן נקי ומסך נקי","חומר רגיש נעול בכספת/ארון","תקנה 4(ג)(4); נוהג מקובל","IBMH","ארונות וכספות נעולים, ומי מחזיק במפתח."],
+ ["PH-41","מדיה ציוד וסילוק","נוהל סילוק/השמדת מדיה + תיעוד","נוהג מקובל","IBMH","איך מושמדים דיסקים ונייר, ותעודות השמדה אם יש."],
+ ["PH-42","מדיה ציוד וסילוק","ציוד נייד מחוץ לשטח - הגנה","תקנה 12","IBMH","הנחיות לעובדים שיוצאים עם מחשב נייד, והצפנה."],
+ ["PH-43","מדיה ציוד וסילוק","רשימת מצאי מעודכנת של מערכות המאגר","תקנה 5(א)","BMH","בקש את רשימת המצאי ובדוק את תאריך העדכון האחרון."],
+ ["DC-01","מסמכים ונהלים","מסמך הגדרות המאגר - קיים ומעודכן (מטרות, סוגי מידע, סיכונים, העברות)","תקנה 2(א)-(ב)","IBMH","בקש את המסמך. בדוק תאריך עדכון, ושכל הנושאים שבתקנה מופיעים בו."],
+ ["DC-02","מסמכים ונהלים","בחינה שנתית שהמידע במאגר אינו רב מן הנדרש (צמצום מידע)","תקנה 2(ג)","IBMH","תיעוד של הבחינה השנתית האחרונה, ומה הוחלט בה."],
+ ["DC-03","מסמכים ונהלים","נוהל אבטחת מידע - כתוב, מאושר ונבחן אחת לשנה","תקנה 4","BMH","הנוהל עצמו, אישור בעל המאגר, ותיעוד הבחינה השנתית."],
+ ["DC-04","מסמכים ונהלים","מסמך מבנה המאגר ורשימת מצאי של המערכות, כולל תרשים רשת","תקנה 5(א)","BMH","מסמך מבנה המאגר, רשימת מצאי ותרשים רשת, עם תאריך עדכון."],
+ ["DC-05","מסמכים ונהלים","סקר סיכונים ומבדקי חדירות אחת ל-18 חודשים","תקנה 5(ג)-(ד) (רמה גבוהה)","H","דוח הסקר ודוח המבדק האחרונים, ומעקב אחר תיקון הליקויים."],
+ ["DC-31","מסמכים ונהלים","ממונה אבטחה: כפיפות ישירה, תוכנית בקרה שוטפת, היעדר ניגוד עניינים","תקנה 3","BMH","כתב מינוי, למי הממונה כפוף, ותוכנית הבקרה השוטפת שלו."],
+ ["DC-32","מסמכים ונהלים","תיעוד סביר של ביצוע פעולות שהתקנות מחייבות","תקנה 19(ב)","BMH","דוגמאות לתיעוד: סקירת הרשאות, בדיקת יומנים, הדרכה."],
+ ["DC-06","כוח אדם והדרכה","מיון ובדיקת התאמה לפני מתן גישה למידע","תקנה 7(א)","BMH","איך נבדקת התאמת עובד לפני מתן גישה. בלי לצלם מסמכי עובדים."],
+ ["DC-07","כוח אדם והדרכה","הדרכה לפני מתן גישה, והדרכה תקופתית אחת לשנתיים + תיעוד","תקנה 7(ב); תקנה 7(ג) (בינונית/גבוהה)","BMH","רשימות נוכחות, חומרי ההדרכה ותאריך ההדרכה האחרונה."],
+ ["DC-08","כוח אדם והדרכה","התחייבות לסודיות - עובדים וגורמי חוץ","תקנה 15(א)(2)(ו) (גורמי חוץ); נוהג מקובל (עובדים); ס' 16 לחוק (חובת סודיות)","IBMH","נוסח ההתחייבות, ודוגמה חתומה אחת בלי פרטים מזהים."],
+ ["DC-09","הרשאות בקרה ואירועים","רשימת הרשאות תקפות, מעודכנת לפי תפקיד","תקנה 8","BMH","רשימת ההרשאות התקפות, ודגימה של עובד אחד מול תפקידו."],
+ ["DC-10","הרשאות בקרה ואירועים","ביטול הרשאות מיד עם סיום תפקיד","תקנה 9(ג)","BMH","דגום עובד שעזב לאחרונה ובדוק מתי בוטלה הגישה שלו."],
+ ["DC-11","הרשאות בקרה ואירועים","שמירת נתוני תיעוד הגישה ונתוני האבטחה 24 חודשים","תקנה 10(ד) (בינונית/גבוהה); תקנה 17(א)","BMH","מהו התאריך של הרשומה הישנה ביותר ביומני הגישה."],
+ ["DC-12","הרשאות בקרה ואירועים","תיעוד אירועי אבטחה והוראות טיפול באירועים בנוהל","תקנה 11(א)-(ב)","IBMH","רישום אירועי האבטחה, ופרק האירועים בנוהל."],
+ ["DC-13","הרשאות בקרה ואירועים","הודעה מיידית לרשם על אירוע אבטחה חמור","תקנה 11(ד)(1) (בינונית/גבוהה)","MH","האם היה אירוע חמור, ואם כן העתק ההודעה לרשם."],
+ ["DC-30","הרשאות בקרה ואירועים","מנגנון תיעוד גישה אוטומטי ובדיקה שגרתית של נתוניו","תקנה 10(א)-(ג) (בינונית/גבוהה)","MH","אילו נתונים נרשמים ביומן, ודוח הבדיקה השגרתית האחרון."],
+ ["DC-14","מיקור חוץ","רשימת גורמים חיצוניים בעלי גישה למאגר","תקנה 15(א); תקנה 2(א)(5)","IBMH","רשימת הספקים שיש להם גישה למאגר, ומה כל אחד מהם מקבל."],
+ ["DC-15","מיקור חוץ","הסכם עם גורם חיצוני הכולל את הנושאים שבתקנה","תקנה 15(א)(2)","BMH","דגום הסכם אחד ובדוק אותו מול רשימת הנושאים שבתקנה."],
+ ["DC-16","מיקור חוץ","בקרה ופיקוח על גורמים חיצוניים, כולל דיווח שנתי מהם","תקנה 15(א)(4); תקנה 15(א)(2)(ח)","BMH","הדיווח השנתי מהספק, והבקרה שבוצעה עליו."],
+ ["DC-17","גיבוי שחזור וביקורת","נהלי גיבוי ושחזור של נתוני האבטחה, במסמך","תקנה 18(א) (בינונית/גבוהה)","MH","מסמך נהלי הגיבוי והשחזור."],
+ ["DC-18","גיבוי שחזור וביקורת","יכולת שחזור של נתוני האבטחה ותיעוד הליכי שחזור","תקנה 17(ב); תקנה 18(א)(3) (בינונית/גבוהה)","MH","תיעוד השחזור האחרון: מי ביצע ומה שוחזר."],
+ ["DC-19","גיבוי שחזור וביקורת","עותק גיבוי שמור כך שיובטחו שלמות המידע ואפשרות השחזור","תקנה 18(ב) (רמה גבוהה)","H","איפה נשמר עותק הגיבוי, ואיך מובטחת השלמות שלו."],
+ ["DC-20","גיבוי שחזור וביקורת","ביקורת תקופתית אחת ל-24 חודשים בידי גורם שאינו ממונה האבטחה","תקנה 16(א) (בינונית/גבוהה)","MH","דוח הביקורת האחרון, מי ערך אותו ומתי נדון."],
+ ["DC-21","החוק ותיקון 13","רישום המאגר או הודעה לרשות, ככל שנדרש","ס' 8א לחוק","IBMH","אישור רישום או העתק ההודעה לרשות, אם המאגר חייב בכך."],
+ ["DC-22","החוק ותיקון 13","מינוי ממונה על הגנת הפרטיות, ככל שנדרש","ס' 17ב1 לחוק (תיקון 13)","IBMH","כתב מינוי, ודרכי ההתקשרות עם הממונה שפורסמו לציבור."],
+ ["DC-23","החוק ותיקון 13","מינוי ממונה על אבטחת מידע, ככל שנדרש","ס' 17ב לחוק","IBMH","כתב מינוי, ובדיקה אם הגוף חייב במינוי."],
+ ["DC-24","החוק ותיקון 13","הודעת יידוע בעת איסוף מידע (חובה/רשות, מטרה, זהות בעל השליטה, נמענים, זכויות עיון ותיקון)","ס' 11 לחוק","IBMH","הטופס או המסך שבו נאסף המידע. צלם את נוסח ההודעה."],
+ ["DC-25","החוק ותיקון 13","מענה לבקשות עיון במידע","ס' 13 לחוק","IBMH","איך מטפלים בבקשת עיון, ודוגמה לטיפול אחרון."],
+ ["DC-26","החוק ותיקון 13","מענה לבקשות תיקון או מחיקת מידע","ס' 14 לחוק","IBMH","איך מטפלים בבקשת תיקון או מחיקה, ודוגמה אחרונה."],
+ ["DC-27","החוק ותיקון 13","דיוור ישיר - רישום המאגר, ציון מקור המידע, סימון הפנייה וזכות מחיקה","ס' 17ד-17ו לחוק","IBMH","דוגמה לפנייה שנשלחה, ורישום מקורות המידע."],
+ ["DC-28","החוק ותיקון 13","מדיניות פרטיות מפורסמת ונגישה","ס' 11 לחוק; נוהג מקובל","IBMH","איפה מפורסמת המדיניות, ומתי עודכנה לאחרונה."],
+ ["DC-29","החוק ותיקון 13","דיון תקופתי של בעל המאגר באירועי אבטחה ובדוחות הביקורת","תקנה 11(ג); תקנה 16(ג) (בינונית/גבוהה)","MH","פרוטוקול הדיון האחרון באירועי האבטחה ובדוח הביקורת."]
 ];
 
 const $ = id => document.getElementById(id);
@@ -363,6 +428,20 @@ const searchEl=$('search'), listEl=$('list'), whatEl=$('what'), basisEl=$('basis
 const perId = {}; const marks = {}; const drafts = {}; const gallery = []; const log = [];
 let shotCounter = 0; let lastGalItem = null;
 let selectedId = ITEMS[0][0];
+const REGS_URL='https://he.wikisource.org/wiki/%D7%AA%D7%A7%D7%A0%D7%95%D7%AA_%D7%94%D7%92%D7%A0%D7%AA_%D7%94%D7%A4%D7%A8%D7%98%D7%99%D7%95%D7%AA_(%D7%90%D7%91%D7%98%D7%97%D7%AA_%D7%9E%D7%99%D7%93%D7%A2)';
+const LAW_URL='https://he.wikisource.org/wiki/%D7%97%D7%95%D7%A7_%D7%94%D7%92%D7%A0%D7%AA_%D7%94%D7%A4%D7%A8%D7%98%D7%99%D7%95%D7%AA';
+const FINDINGS=['חלקי','לא קיים','לבדיקה נוספת'];
+
+/* ---------- הגדרות הסיור (נשמרות במכשיר) ---------- */
+const LEVELS={ '':'לא נבחרה', I:'מאגר המנוהל בידי יחיד', B:'בסיסית', M:'בינונית', H:'גבוהה' };
+const settings={ name:'', level:'', track:'all', mapf:'all', showAll:false };
+let firstRun=true;
+try{ const s=localStorage.getItem('siyurSettings'); if(s){ firstRun=false; Object.assign(settings, JSON.parse(s)); } }catch(e){}
+function saveSettings(){ try{ localStorage.setItem('siyurSettings', JSON.stringify(settings)); }catch(e){} }
+function applies(it){ return !settings.level || settings.showAll || it[4].includes(settings.level); }
+function scopeItems(){ return ITEMS.filter(applies); }
+function activeItems(){ return scopeItems().filter(it=> settings.track==='all' || it[0].startsWith(settings.track)); }
+function hiddenCount(){ return settings.level ? ITEMS.filter(it=> !it[4].includes(settings.level)).length : 0; }
 
 /* ---------- persistence (IndexedDB) ---------- */
 let db = null;
@@ -376,97 +455,130 @@ function idbDel(key){ if(!db) return; try{ db.transaction('shots','readwrite').o
 function idbAll(){ return new Promise((res)=>{ if(!db) return res([]); try{ const t=db.transaction('shots','readonly'); const q=t.objectStore('shots').getAll(); q.onsuccess=()=>res(q.result||[]); q.onerror=()=>res([]);}catch(e){res([]);} }); }
 function idbClear(){ if(!db) return; try{ db.transaction('shots','readwrite').objectStore('shots').clear(); }catch(e){} }
 
-/* ---------- item selection ---------- */
+/* ---------- מצב הסעיף ---------- */
 function cur(){ return ITEMS.find(x=>x[0]===selectedId); }
-function isDone(id){ return (perId[id]||0)>0 || !!marks[id]; }
-function doneCount(){ return ITEMS.filter(it=> isDone(it[0])).length; }
-function photoCount(){ return ITEMS.filter(it=>(perId[it[0]]||0)>0).length; }
-function markCount(){ return ITEMS.filter(it=> !!marks[it[0]] && !(perId[it[0]]>0)).length; }
-function onSel(){ const c=cur(); whatEl.textContent=c[2]; basisEl.innerHTML='תחום: '+c[1]+'  ·  בסיס: '+c[3]+'  ·  <a href="#sources" onclick="document.getElementById(\'sources\').open=true">📚 למקור</a>';
-  const n=perId[c[0]]||0;
-  let t = n? ('✓ צולמו '+n+' תמונות לסעיף זה') : '';
-  if(marks[c[0]]) t += (t?' · ':'')+'✔ סומן ללא תמונה';
-  countEl.textContent = t || 'טרם טופל סעיף זה';
-  const mb=$('markbtn');
-  if(marks[c[0]]){ mb.textContent='↩️ בטל סימון'; mb.classList.add('on'); }
-  else { mb.textContent='✅ סמן'; mb.classList.remove('on'); }
-  renderProgress(); renderMap(); }
-function renderProgress(){ const d=doneCount(); $('bar').style.width=Math.round(d/ITEMS.length*100)+'%';
-  $('pnum').textContent=d+'/'+ITEMS.length;
-  $('mapcount').textContent=d+'/'+ITEMS.length+' · צולמו '+photoCount()+' · סומנו '+markCount(); }
+function shotsOf(id){ return gallery.filter(g=> g.id.replace(/[a-z]$/,'')===id); }   // החדשה ראשונה
+function statusOf(id){ const d=drafts[id]; if(d) return d.status||''; const m=marks[id]; if(m&&m.status) return m.status;
+  const s=shotsOf(id).find(g=>g.status); return s? s.status : ''; }
+function isDone(id){ return (perId[id]||0)>0 || !!statusOf(id) || !!marks[id]; }
+function isFinding(id){ return FINDINGS.includes(statusOf(id)); }
+function esc(s){ return String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function srcLink(basis){
+  let m=/תקנה (\d+)/.exec(basis); if(m) return REGS_URL+'#סעיף_'+m[1];
+  m=/ס' (\d+[א-ת]?\d?)/.exec(basis); if(m) return LAW_URL+'#סעיף_'+m[1];
+  return ''; }
+function renderChips(){ const v=$('status').value;
+  $('chips').querySelectorAll('button').forEach(b=> b.setAttribute('aria-pressed', b.dataset.s===v ? 'true':'false')); }
+function onSel(){ const c=cur(); const id=c[0];
+  $('iid').textContent=id; $('icat').textContent=c[1]; whatEl.textContent=c[2]; $('hintline').textContent=c[5];
+  const act=activeItems(); const pos=act.findIndex(x=>x[0]===id);
+  $('ipos').textContent = pos>=0 ? (pos+1)+' מתוך '+act.length : '';
+  const url=srcLink(c[3]);
+  basisEl.innerHTML='בסיס: '+esc(c[3])+' · '+(url? '<a href="'+url+'" target="_blank" rel="noopener">📚 לנוסח</a> · ':'')+'<a href="#sources" id="tosrc">מקורות</a>';
+  const n=perId[id]||0; const st=statusOf(id);
+  let t = n? (n===1 ? '📷 צולמה תמונה אחת לסעיף זה' : '📷 צולמו '+n+' תמונות לסעיף זה') : '';
+  if(marks[id] && !st) t += (t?' · ':'')+'✔ סומן בגרסה קודמת של הכלי <button type="button" class="linkbtn" id="clrmark">נקה סימון</button>';
+  countEl.innerHTML = t || (st? 'נשמר סטטוס: '+esc(st) : 'הסעיף עוד לא טופל');
+  renderChips(); renderProgress(); renderMap(); }
+basisEl.addEventListener('click', e=>{ if(e.target.id==='tosrc') $('sources').open=true; });
+countEl.addEventListener('click', e=>{ if(e.target.id==='clrmark'){ const id=selectedId; if(marks[id]){ idbDel(marks[id].aName); delete marks[id]; } onSel(); } });
+function renderProgress(){ const sc=scopeItems(); const d=sc.filter(it=>isDone(it[0])).length;
+  $('bar').style.width=(sc.length? Math.round(d/sc.length*100):0)+'%';
+  $('pnum').textContent=d+'/'+sc.length;
+  $('mapcount').textContent=d+'/'+sc.length+' טופלו · '+sc.filter(it=>isFinding(it[0])).length+' ממצאים'; }
 
 function resetPreview(){ $('preview').style.display='none'; $('pvimg').removeAttribute('src'); memoBlob=null; lastGalItem=null;
   $('memoaudio').style.display='none'; $('memoaudio').removeAttribute('src'); $('memosave').style.display='none'; }
 function pickItem(it){
   const changed = it[0]!==selectedId;
-  selectedId=it[0]; searchEl.value=it[0]+' · '+it[2]; listEl.style.display='none';
+  if(settings.track!=='all' && !it[0].startsWith(settings.track)){ settings.track='all'; saveSettings(); renderTabs(); }
+  selectedId=it[0]; searchEl.value=''; listEl.style.display='none';
   if(changed){ loadFields(it[0]); $('dictstat').textContent=''; resetPreview(); }
   onSel();
 }
-/* ---------- טיוטה לכל סעיף: הערה וסטטוס נשמרים מיד, גם בלי צילום או סימון ---------- */
-function loadFields(id){ const d=drafts[id]||marks[id]||{}; $('note').value=d.note||''; $('status').value=d.status||''; }
+function ensureSelection(){ const act=activeItems(); if(act.length && !act.some(x=>x[0]===selectedId)){ selectedId=act[0][0]; loadFields(selectedId); resetPreview(); } }
+
+/* ---------- טיוטה לכל סעיף: הערה וסטטוס נשמרים מיד ---------- */
+function loadFields(id){ const d=drafts[id]||marks[id]||{}; const last=shotsOf(id)[0]||{};
+  $('note').value = d.note || (drafts[id]? '' : (last.note||''));
+  $('status').value = d.status || (drafts[id]? '' : statusOf(id)); }
 function saveDraft(){
   const c=cur(); const id=c[0]; const note=$('note').value.trim(); const status=$('status').value;
-  if(!note && !status){ if(drafts[id]){ idbDel(drafts[id].aName); delete drafts[id]; } }
+  // טיוטה ריקה נמחקת, אלא אם יש לסעיף תמונה עם סטטוס או הערה: אז היא נשארת כדי שהביטול יישמר
+  if(!note && !status && !shotsOf(id).some(g=> g.status || g.note)){ if(drafts[id]){ idbDel(drafts[id].aName); delete drafts[id]; } }
   else { drafts[id]={ aName:id+'_DRAFT', kind:'draft', id:id, cat:c[1], note:note, status:status, time:nowStr() }; idbPut(drafts[id]); }
   if(marks[id]){ marks[id].note=note; marks[id].status=status; idbPut(marks[id]); }
 }
 $('note').addEventListener('input', saveDraft);
-$('status').addEventListener('change', saveDraft);
+$('chips').addEventListener('click', e=>{ const b=e.target.closest('button'); if(!b) return;
+  const id=selectedId; const v = $('status').value===b.dataset.s ? '' : b.dataset.s;
+  $('status').value=v;
+  if(!v && marks[id]){ idbDel(marks[id].aName); delete marks[id]; }
+  saveDraft(); onSel(); });
+
+/* ---------- חיפוש ---------- */
 function renderList(q){
   q=(q||'').trim().toLowerCase();
-  const m=ITEMS.filter(it=> !q || (it[0]+' '+it[1]+' '+it[2]).toLowerCase().includes(q));
+  const m=scopeItems().filter(it=> !q || (it[0]+' '+it[1]+' '+it[2]).toLowerCase().includes(q));
   listEl.innerHTML='';
   if(!m.length){ listEl.innerHTML='<div class="none">לא נמצא סעיף מתאים</div>'; listEl.style.display='block'; return; }
   m.forEach(it=>{
-    const n=perId[it[0]]||0; const mk=!!marks[it[0]];
-    const d=document.createElement('div'); d.className='it'+(n?' done':(mk?' marked':''));
-    let chk='';
-    if(n) chk='<span class="chk">✓'+(n>1?(' '+n):'')+'</span> ';
-    else if(mk) chk='<span class="mrk">✔</span> ';
-    d.innerHTML=chk+'<b>'+it[0]+'</b> · '+it[2]+'<span class="cat">'+it[1]+'</span>';
+    const d=document.createElement('button'); d.type='button'; d.className='it'+(isFinding(it[0])?' marked':(isDone(it[0])?' done':''));
+    d.innerHTML=(isDone(it[0])? '<span class="chk">✓</span> ':'')+'<b>'+it[0]+'</b> · '+esc(it[2])+'<span class="cat">'+esc(it[1])+'</span>';
     d.addEventListener('click', ()=> pickItem(it));
     listEl.appendChild(d);
   });
   listEl.style.display='block';
 }
-searchEl.addEventListener('focus', ()=>{ searchEl.select(); renderList(''); });
+searchEl.addEventListener('focus', ()=> renderList(searchEl.value));
 searchEl.addEventListener('input', ()=> renderList(searchEl.value));
 searchEl.addEventListener('keydown', e=>{ if(e.key==='Enter'){ const f=listEl.querySelector('.it'); if(f){ e.preventDefault(); f.click(); } } });
 document.addEventListener('click', e=>{ if(!listEl.contains(e.target) && e.target!==searchEl) listEl.style.display='none'; });
 
-/* ---------- section map ---------- */
+/* ---------- מסלול, מפה וסינון ---------- */
+function renderTabs(){
+  document.querySelectorAll('.tabs [data-t]').forEach(b=> b.setAttribute('aria-pressed', b.dataset.t===settings.track ? 'true':'false'));
+  document.querySelectorAll('#mfilt [data-f]').forEach(b=> b.setAttribute('aria-pressed', b.dataset.f===settings.mapf ? 'true':'false')); }
+document.querySelectorAll('.tabs [data-t]').forEach(b=> b.addEventListener('click', ()=>{ settings.track=b.dataset.t; saveSettings(); renderTabs(); ensureSelection(); onSel(); }));
+document.querySelectorAll('#mfilt [data-f]').forEach(b=> b.addEventListener('click', ()=>{ settings.mapf=b.dataset.f; saveSettings(); renderTabs(); renderMap(); }));
 function renderMap(){
   const box=$('map'); box.innerHTML=''; let cc=null;
-  ITEMS.forEach(it=>{
-    if(it[1]!==cc){ cc=it[1]; const h=document.createElement('div'); h.className='mcat'; h.textContent=cc; box.appendChild(h); }
-    const n=perId[it[0]]||0; const mk=!!marks[it[0]];
-    const r=document.createElement('div'); r.className='mrow'+(n?' mdone':(mk?' mmarked':''))+(it[0]===selectedId?' msel':'');
-    r.innerHTML='<span class="mmark">'+(n?'✓':(mk?'✔':'○'))+'</span><span class="mid">'+it[0]+'</span><span class="mtxt">'+it[2]+'</span>'+(n>1?'<span class="mn">'+n+'</span>':'');
+  const hc=hiddenCount();
+  $('hidnote').innerHTML = hc ? (settings.showAll ? 'מוצגים גם '+hc+' סעיפים שאינם חלים ברמה שנבחרה. ' : 'הוסתרו '+hc+' סעיפים שאינם חלים ברמה שנבחרה (תקנה 21). ')
+      +'<button type="button" class="linkbtn" id="togall">'+(settings.showAll?'הסתר אותם':'הצג הכול')+'</button>' : '';
+  const items=activeItems().filter(it=> settings.mapf==='all' || (settings.mapf==='open' ? !isDone(it[0]) : isFinding(it[0])));
+  if(!items.length){ box.innerHTML='<div class="mnone">אין סעיפים בסינון הזה.</div>'; return; }
+  items.forEach(it=>{
+    if(it[1]!==cc){ cc=it[1]; const hd=document.createElement('div'); hd.className='mcat'; hd.textContent=cc; box.appendChild(hd); }
+    const id=it[0]; const n=perId[id]||0; const st=statusOf(id); const done=isDone(id); const fin=isFinding(id);
+    const r=document.createElement('button'); r.type='button';
+    r.className='mrow'+(fin?' mfind':(done?' mdone':''))+(id===selectedId?' msel':'');
+    r.innerHTML='<span class="mmark">'+(fin?'!':(done?'✓':'○'))+'</span><span class="mid">'+id+'</span><span class="mtxt">'+esc(it[2])+'</span>'
+      +(st?'<span class="mst">'+esc(st)+'</span>':'')+(n?'<span class="mn">📷'+n+'</span>':'');
     r.addEventListener('click', ()=>{ pickItem(it); $('search').scrollIntoView({behavior:'smooth',block:'start'}); });
     box.appendChild(r);
   });
 }
+$('hidnote').addEventListener('click', e=>{ if(e.target.id==='togall'){ settings.showAll=!settings.showAll; saveSettings(); ensureSelection(); onSel(); } });
 $('next').addEventListener('click', ()=>{
-  const i=ITEMS.findIndex(x=>x[0]===selectedId);
-  for(let k=1;k<=ITEMS.length;k++){ const it=ITEMS[(i+k)%ITEMS.length]; if(!isDone(it[0])){ pickItem(it); $('search').scrollIntoView({behavior:'smooth',block:'start'}); return; } }
-  alert('כל '+ITEMS.length+' הסעיפים טופלו! 🎉  אפשר להוריד ZIP.');
+  const act=activeItems(); if(!act.length) return;
+  const i=Math.max(0, act.findIndex(x=>x[0]===selectedId));
+  for(let k=1;k<=act.length;k++){ const it=act[(i+k)%act.length]; if(!isDone(it[0])){ pickItem(it); $('search').scrollIntoView({behavior:'smooth',block:'start'}); return; } }
+  alert('כל '+act.length+' הסעיפים במסלול טופלו. אפשר להוריד ZIP תחת «תמונות וייצוא».');
+});
+$('prev').addEventListener('click', ()=>{
+  const act=activeItems(); if(!act.length) return;
+  const i=act.findIndex(x=>x[0]===selectedId);
+  pickItem(act[(i<=0? act.length : i)-1]); $('search').scrollIntoView({behavior:'smooth',block:'start'});
 });
 
-/* ---------- mark without photo ---------- */
-$('markbtn').addEventListener('click', ()=>{
-  const c=cur(); const id=c[0];
-  if(marks[id]){
-    idbDel(marks[id].aName);
-    delete marks[id];
-    for(let i=log.length-1;i>=0;i--) if(log[i].kind==='mark' && log[i].id===id) log.splice(i,1);
-    onSel(); return;
-  }
-  const rec={ aName:id+'_MARK', kind:'mark', id:id, cat:c[1], note:$('note').value.trim(), status:$('status').value, time:nowStr() };
-  marks[id]=rec; idbPut(rec);
-  log.push({kind:'mark', id:id, cat:c[1], file:'', status:rec.status, note:rec.note, time:rec.time});
-  onSel();
-});
+/* ---------- הגדרות הסיור: טופס ---------- */
+function renderSetup(){
+  $('tourname').value=settings.name; $('level').value=settings.level;
+  $('setupsum').textContent='· '+(settings.name||'ללא כינוי')+' · רמת אבטחה: '+LEVELS[settings.level]; }
+$('tourname').addEventListener('input', ()=>{ settings.name=$('tourname').value.trim(); saveSettings(); renderSetup0(); });
+$('level').addEventListener('change', ()=>{ settings.level=$('level').value; settings.showAll=false; saveSettings(); renderSetup0(); ensureSelection(); onSel(); });
+function renderSetup0(){ $('setupsum').textContent='· '+(settings.name||'ללא כינוי')+' · רמת אבטחה: '+LEVELS[settings.level]; }
 
 /* ---------- helpers ---------- */
 function sanitize(s){ return s.replace(/[\\/:*?"<>|()]/g,'').replace(/\s+/g,'-'); }
@@ -588,15 +700,15 @@ function renderGal(){
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 let rec=null, recActive=false;
 const dictBtn=$('dictate'), dictStat=$('dictstat');
-if(!SR){ dictBtn.disabled=true; dictBtn.textContent='🎤 לא נתמך'; dictStat.textContent='הכתבה לא נתמכת - הקלד ידנית'; }
+if(!SR){ dictBtn.disabled=true; dictBtn.textContent='🎤'; dictStat.textContent='הכתבה לא נתמכת - הקלד ידנית'; }
 else {
   dictBtn.addEventListener('click', ()=>{
     if(recActive){ try{rec.stop();}catch(_){} return; }
     rec=new SR(); rec.lang='he-IL'; rec.interimResults=true; rec.continuous=true;
     const dictBase = $('note').value ? $('note').value.trim()+' ' : '';
-    rec.onstart=()=>{ recActive=true; dictBtn.textContent='⏹️ עצור'; dictBtn.classList.add('primary'); dictStat.textContent='מקשיב…'; };
+    rec.onstart=()=>{ recActive=true; dictBtn.textContent='⏹️'; dictBtn.classList.add('primary'); dictStat.textContent='מקשיב…'; };
     rec.onerror=e=>{ dictStat.textContent='שגיאה: '+(e.error||'')+' - נדרש אינטרנט והרשאת מיקרופון'; };
-    rec.onend=()=>{ recActive=false; dictBtn.textContent='🎤 הכתבה קולית'; dictBtn.classList.remove('primary'); if(dictStat.textContent==='מקשיב…') dictStat.textContent=''; };
+    rec.onend=()=>{ recActive=false; dictBtn.textContent='🎤'; dictBtn.classList.remove('primary'); if(dictStat.textContent==='מקשיב…') dictStat.textContent=''; };
     rec.onresult=e=>{ let fin='',int='';
       for(let i=0;i<e.results.length;i++){ const t=e.results[i][0].transcript; if(e.results[i].isFinal) fin+=t+' '; else int+=t; }
       $('note').value=(dictBase+fin).replace(/\s+/g,' ').trim(); saveDraft(); dictStat.textContent=int?('… '+int.trim()):''; };
@@ -655,21 +767,22 @@ function csvRows(){
   ITEMS.forEach(it=>{ const d=drafts[it[0]]; if(!d || marks[it[0]]) return;
     const shots=gallery.filter(g=> g.id.replace(/[a-z]$/,'')===it[0]);
     if(shots.some(g=> (g.note||'')===(d.note||'') && (g.status||'')===(d.status||''))) return;
-    rows.push([d.id,d.cat, shots.length? 'הערה שעודכנה אחרי הצילום' : 'הערה בלבד (לא סומן)','',d.status||'',d.note||'',d.time]); });
+    rows.push([d.id,d.cat, shots.length? 'עודכן אחרי הצילום' : (d.status? 'סטטוס ללא תמונה' : 'הערה בלבד'),'',d.status||'',d.note||'',d.time]); });
+  rows.push(['','','מידע על הסיור','','רמת אבטחה שנבחרה: '+LEVELS[settings.level],'כינוי: '+(settings.name||''),nowStr()]);
   return rows;
 }
 function rowsToCsv(rows){ return '﻿'+rows.map(r=> r.map(c=>'"'+String(c||'').replace(/"/g,'""')+'"').join(',')).join('\r\n'); }
 $('zip').addEventListener('click', async ()=>{
-  if(!gallery.length && !Object.keys(marks).length && !Object.keys(drafts).length){ alert('אין עדיין צילומים, סימונים או הערות'); return; }
+  if(!gallery.length && !Object.keys(marks).length && !Object.keys(drafts).length){ alert('אין עדיין צילומים, סטטוסים או הערות'); return; }
   const items=[...gallery].reverse(); const files=[];
   for(const it of items){ files.push({name: it.aName+'.jpg', data: await b2u8(it.blob)});
     if(it.audio){ const ext=(/mp4|m4a/.test(it.audio.type))?'m4a':'webm'; files.push({name: it.aName+'.'+ext, data: await b2u8(it.audio)}); } }
   files.push({name:'notes.csv', data:new TextEncoder().encode(rowsToCsv(csvRows()))});
-  const label=($('zipname').value.trim()||'סיור').replace(/[\\/:*?"<>|]+/g,'-');
+  const label=($('zipname').value.trim()||settings.name||'סיור').replace(/[\\/:*?"<>|]+/g,'-');
   saveBlob(zipStore(files), label+'_'+nowStr()+'_'+items.length+'ph.zip');
 });
 $('csv').addEventListener('click', ()=>{
-  if(!gallery.length && !Object.keys(marks).length && !Object.keys(drafts).length){ alert('אין עדיין צילומים, סימונים או הערות'); return; }
+  if(!gallery.length && !Object.keys(marks).length && !Object.keys(drafts).length){ alert('אין עדיין צילומים, סטטוסים או הערות'); return; }
   const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([rowsToCsv(csvRows())],{type:'text/csv;charset=utf-8'})); a.download='רשימת_צילומי_סיור.csv';
   document.body.appendChild(a); a.click(); a.remove();
 });
@@ -677,8 +790,8 @@ $('csv').addEventListener('click', ()=>{
 /* ---------- reset ---------- */
 $('reset').addEventListener('click', ()=>{
   if(!confirm('להתחיל סיור חדש ולמחוק את כל התמונות, הסימונים וההערות שנשמרו במכשיר? פעולה זו אינה הפיכה.')) return;
-  idbClear(); gallery.length=0; log.length=0; for(const k in perId) delete perId[k]; for(const k in marks) delete marks[k]; for(const k in drafts) delete drafts[k]; shotCounter=0; $('note').value=''; $('status').value='';
-  resetPreview(); selectedId=ITEMS[0][0]; searchEl.value=ITEMS[0][0]+' · '+ITEMS[0][2];
+  idbClear(); gallery.length=0; log.length=0; for(const k in perId) delete perId[k]; for(const k in marks) delete marks[k]; for(const k in drafts) delete drafts[k]; shotCounter=0; $('note').value=''; $('status').value=''; settings.name=''; settings.level=''; settings.showAll=false; settings.track='all'; settings.mapf='all'; saveSettings(); renderSetup(); renderTabs(); $('setupWrap').open=true;
+  resetPreview(); selectedId=ITEMS[0][0];
   renderGal(); onSel();
 });
 
@@ -702,8 +815,8 @@ $('reset').addEventListener('click', ()=>{
     const m=/_(\d+)$/.exec(r.aName); if(m) maxN=Math.max(maxN, +m[1]);
   });
   shotCounter=maxN;
-  searchEl.value=ITEMS[0][0]+' · '+ITEMS[0][2];
-  loadFields(selectedId); renderGal(); onSel();
+  renderSetup(); renderTabs(); if(firstRun) $('setupWrap').open=true;
+  ensureSelection(); loadFields(selectedId); renderGal(); onSel();
   if(recs.length) countEl.insertAdjacentHTML('beforeend', '<div style="color:var(--ok-ink)">↩️ שוחזרו '+recs.length+' רשומות מהסיור הקודם</div>');
 })();
 
@@ -712,14 +825,16 @@ if('serviceWorker' in navigator && location.protocol==='https:'){
   navigator.serviceWorker.register('sw.js').catch(()=>{});
 }
 
-/* ---------- theme toggle (בהיר/כהה, נשמר במכשיר) ---------- */
+/* ---------- בהיר/כהה: אותו מפתח כמו בכל האתר (hgj-theme) ---------- */
 const themeBtn=$('themebtn');
-function effTheme(){ return document.documentElement.dataset.theme || (matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'); }
+try{ const old=localStorage.getItem('siyurTheme'); if(old && !localStorage.getItem('hgj-theme')) localStorage.setItem('hgj-theme', old);
+  const th=localStorage.getItem('hgj-theme'); if((th==='dark'||th==='light') && !document.documentElement.dataset.theme) document.documentElement.dataset.theme=th; }catch(e){}
+function effTheme(){ return document.documentElement.dataset.theme==='dark' ? 'dark' : 'light'; }
 function themeIcon(){ themeBtn.textContent = effTheme()==='dark' ? '☀️' : '🌙'; }
 themeBtn.addEventListener('click', ()=>{
   const next = effTheme()==='dark' ? 'light' : 'dark';
   document.documentElement.dataset.theme = next;
-  try{ localStorage.setItem('siyurTheme', next); }catch(e){}
+  try{ localStorage.setItem('hgj-theme', next); }catch(e){}
   themeIcon();
 });
 themeIcon();
