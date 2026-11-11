@@ -19,6 +19,8 @@
     if (n) n.textContent = cards.length;
     Array.prototype.forEach.call(cards, function (card, i) { card.style.setProperty("--i", i); });
   });
+  var tc0 = document.querySelector("[data-count-tools]");
+  if (tc0) tc0.textContent = document.querySelectorAll(".card").length;
   var all = document.querySelector('[data-count="all"]');
   if (all) all.textContent = total;
 
@@ -89,7 +91,7 @@
       var dark = root.getAttribute("data-theme") === "dark";
       tb.setAttribute("aria-pressed", String(dark));
       tb.setAttribute("aria-label", dark ? "מעבר למצב בהיר" : "מעבר למצב כהה");
-      if (tc) tc.setAttribute("content", dark ? "#0A2236" : "#EAF4FA");
+      if (tc) tc.setAttribute("content", dark ? "#0A2236" : "#F8FBFE");
     };
     tb.addEventListener("click", function () {
       var next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
