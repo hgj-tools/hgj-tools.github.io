@@ -16,8 +16,6 @@
  */
 
 var SECRET = 'hgj-ai-2026';           // חייב להיות זהה למה שבדף השאלון
-// מזהה הגיליון, לסקריפט עצמאי (script.google.com). בסקריפט שנפתח מתוך הגיליון אפשר להשאיר ריק.
-var SHEET_ID = '1bGnKwcIcPCb3xXAbGK9r0qW9pWBKOb4HDPpiKN-fh08';
 var RAW    = 'תשובות גולמיות';
 var SUM    = 'סיכום';
 
@@ -28,7 +26,7 @@ function doPost(e) {
     var d = JSON.parse(e.postData.contents);
     if (d.secret !== SECRET) return out({ ok: false, err: 'bad secret' });
 
-    var ss = SHEET_ID ? SpreadsheetApp.openById(SHEET_ID) : SpreadsheetApp.getActiveSpreadsheet();
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
     var sessions = d.sessions || [];
 
     // 1. הגיליון הגולמי
