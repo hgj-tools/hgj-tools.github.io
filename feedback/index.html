@@ -36,43 +36,8 @@
      ══════════════════════════════════════════════════════════════════ -->
 <script id="cfg" type="application/json">
 {
-  "default": "ai1211",
+  "default": "ai2026",
   "events": {
-    "ai1211": {
-      "name": "יום עיון AI לרואי חשבון",
-      "date": "12.11.2026",
-      "endpoint": "",
-      "secret": "hgj-ai-2026",
-      "deckUrl": "",
-      "sessions": [
-        { "id": "alon",  "name": "אלון נחמיאס", "sheet": "אלון נחמיאס",
-          "topic": "הבינה המלאכותית משנה את כללי המשחק", "time": "09:00" },
-        { "id": "oleg",  "name": "אולג זנין", "sheet": "אולג זנין",
-          "topic": "Claude כסביבת עבודה לרואה החשבון", "time": "10:00" },
-        { "id": "lior1", "name": "ליאור אגאי", "sheet": "ליאור אגאי, מפגש 1",
-          "topic": "בינה מלאכותית בעולם הכספים: אקסל \"על סטרואידים\"", "time": "12:00" },
-        { "id": "lior2", "name": "ליאור אגאי", "sheet": "ליאור אגאי, מפגש 2",
-          "topic": "ציות, אתיקה, מידע לקוח ואבטחת מידע", "time": "14:00" },
-        { "id": "ariel", "name": "אריאל פטל", "sheet": "אריאל פטל",
-          "topic": "כלי עבודה בסיסיים במשרד רואה חשבון", "time": "16:00" }
-      ],
-      "addTopics": [
-        "סדנה מעשית מול מחשב",
-        "Excel מתקדם עם AI",
-        "ביקורת ובקרות פנימיות",
-        "מיסוי ורגולציה",
-        "אוטומציה של עבודה חוזרת",
-        "אבטחת מידע וסודיות לקוחות",
-        "בניית כלים למשרד",
-        "כתיבה וניסוח מקצועי"
-      ],
-      "formats": [
-        "עוד יום עיון בהרצאות",
-        "סדנה מעשית מול מחשב",
-        "ליווי אישי או קבוצה קטנה",
-        "חומרים כתובים והדרכות מוקלטות"
-      ]
-    },
     "ai2026": {
       "name": "יום עיון רואי חשבון AI",
       "date": "27.8.2026",
@@ -247,8 +212,8 @@ footer{ margin-top:26px; padding-top:16px; border-top:1px solid var(--line);
   <header class="top">
     <div class="kicker" id="evName">משוב משתתפים</div>
     <h1>שתי דקות, וזה יקבע איך ייראה היום הבא</h1>
-    <p class="sub">השאלון אנונימי, ושם הוא רשות בלבד. אין שאלות חובה, וכל שאלה שתדלגו עליה פשוט לא תיספר.
-       <b>שלוש שאלות קצרות על כל הרצאה</b>, ועוד כמה על היום כולו.</p>
+    <p class="sub">השאלון אנונימי. אין שאלות חובה, וכל שאלה שתדלגו עליה פשוט לא תיספר.
+       מה שחשוב לנו הוא לא הציון, אלא <b>איפה הזמן הלך לאיבוד ומה היה חסר</b>.</p>
   </header>
 
   <div id="steps"></div>
@@ -364,15 +329,15 @@ CFG.sessions.forEach(function (s, i) {
   step(function (d) {
     var c = card('שלב ' + (i + 2), s.name,
       s.topic + (s.time ? '  ·  ' + s.time : ''));
-    var E5 = ['1', '2', '3', '4', '5'];
-    c.appendChild(choice('q_' + s.id, 'איכות ההרצאה והתוכן',
-      E5, { scale: true, ends: ['חלשה', 'מצוינת'] }));
-    c.appendChild(choice('r_' + s.id, 'עד כמה הנושאים רלוונטיים לעבודה שלכם?',
-      E5, { scale: true, ends: ['בכלל לא', 'מאוד'] }));
-    c.appendChild(choice('m_' + s.id, 'המרצה: בהירות, העברה ועניין',
-      E5, { scale: true, ends: ['חלש', 'מצוין'] }));
+    c.appendChild(choice('u_' + s.id, 'עד כמה זה היה שימושי לעבודה היומיומית שלכם?',
+      ['1', '2', '3', '4', '5'], { scale: true, ends: ['בכלל לא', 'מאוד'] }));
     c.appendChild(choice('l_' + s.id, 'הרמה הייתה',
       ['בסיסית מדי בשבילי', 'מתאימה', 'גבוהה מדי'], { col: true }));
+    c.appendChild(choice('p_' + s.id, 'חלוקת הזמן במושב הזה',
+      ['יותר מדי זמן על מבוא ויסודות, לא הגיע מספיק לתכלס',
+       'האיזון היה טוב',
+       'רץ מהר מדי, היה חסר בסיס'],
+      { col: true, hint: 'זו השאלה שהכי תעזור לנו לתקן את היום הבא.' }));
     c.appendChild(text('n_' + s.id, 'הערה למרצה, לא חובה',
       'מה עבד, ומה הייתם משנים'));
     d.appendChild(c);
@@ -464,10 +429,9 @@ function payload() {
     addTopics: (A.addTopics || []).concat(A.addOther ? [A.addOther] : []),
     format: A.format || '', name: A.name || '', free: A.free || '',
     sessions: CFG.sessions.map(function (s) {
-      return { id: s.id, name: s.name, sheet: s.sheet || s.name, topic: s.topic || '',
-               quality: A['q_' + s.id] || '', relevance: A['r_' + s.id] || '',
-               speaker: A['m_' + s.id] || '', level: A['l_' + s.id] || '',
-               note: A['n_' + s.id] || '' };
+      return { id: s.id, name: s.name,
+               useful: A['u_' + s.id] || '', level: A['l_' + s.id] || '',
+               pace: A['p_' + s.id] || '', note: A['n_' + s.id] || '' };
     })
   };
 }
