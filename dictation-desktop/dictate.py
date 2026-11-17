@@ -22,7 +22,7 @@ import hashlib
 
 import numpy as np
 
-APP_VERSION = "1.3.0"
+APP_VERSION = "1.6.2"
 if getattr(sys, "frozen", False):
     HERE = os.path.dirname(sys.executable)          # (אריזת PyInstaller ישנה) config.json ליד קובץ ההרצה
 else:
@@ -84,7 +84,7 @@ APP_ID = "HGJ.Dictation"        # זהות בשורת המשימות: בלי ז�
 ICON_PATH = os.path.join(HERE, "dictate.ico")
 # --- עדכונים ---
 UPDATE_URL = "https://hgj-tools.github.io/dictation-desktop/version.json"   # קובץ סטטי באתר הכלים, קריאה בלבד
-UPDATE_URL = os.environ.get("HGJ_UPDATE_URL", UPDATE_URL)                    # לבדיקות בלבד: שרת מקומי
+UPDATE_BASE = "https://hgj-tools.github.io/dictation-desktop/"             # קבצי עדכון מורדים רק מכאן
 UPDATE_PAGE = "https://hgj-tools.github.io/dictation-desktop/"
 RUNTIME_ID_PATH = os.path.join(os.path.dirname(sys.executable), "RUNTIME_ID")
 LEGACY_RUNTIME_ID = "4f9bab37"   # ההתקנות 1.1.0 עד 1.2.2 יצאו בלי קובץ RUNTIME_ID, וכולן עם סביבת פייתון זהה
@@ -92,6 +92,334 @@ UPDATABLE_FILES = ("dictate.py", "download_model.py")
 UPDATE_CHECK_INTERVAL = 24 * 3600
 # גליפים מגופן המערכת Segoe MDL2 Assets (קיים ב-Windows 10/11), ללוח הפעולות
 MDL2 = {"mic": "\uE720", "file": "\uE8E5", "dict": "\uE82D", "settings": "\uE713", "exit": "\uE7E8", "stop": "\uE71A", "update": "\uE895"}
+MDL2["history"] = chr(0xE81C)
+
+
+
+# ----------------------------- COM מינימלי (ctypes בלבד) -----------------------------
+# משמש רק לעיגון הטקסט במסמך Word פתוח: Selection.Range בתחילת ההאזנה, InsertAfter בסיום התמלול.
+# בלי pywin32 ובלי comtypes, כדי שהעדכון יהיה קובץ קוד בלבד ולא ידרוש התקנה מחדש.
+from ctypes import wintypes
+from ctypes import (POINTER as _PTR, byref as _byref, pointer as _pointer, c_void_p as _vp, c_long as _long,
+                    c_ulong as _ulong, c_ushort as _ushort, c_short as _short, c_ubyte as _ubyte, c_uint as _uint,
+                    c_longlong as _ll, c_double as _dbl, c_wchar_p as _wstr, HRESULT as _HR)
+
+_ole32 = ctypes.OleDLL("ole32")
+_oleaut_h = ctypes.OleDLL("oleaut32")
+_oleaut = ctypes.windll.oleaut32
+_oleaut.SysAllocString.restype = _vp
+_oleaut.SysAllocString.argtypes = [_wstr]
+_oleaut.SysFreeString.argtypes = [_vp]
+_oleaut.SysStringLen.argtypes = [_vp]
+
+
+class _GUID(ctypes.Structure):
+    _fields_ = [("d1", _ulong), ("d2", _ushort), ("d3", _ushort), ("d4", _ubyte * 8)]
+
+
+def _guid(s):
+    g = _GUID()
+    _ole32.CLSIDFromString(_wstr(s), _byref(g))
+    return g
+
+
+_IID_IDISPATCH = _guid("{00020400-0000-0000-C000-000000000046}")
+_IID_NULL = _GUID()
+
+
+class _VARIANT(ctypes.Structure):
+    class _U(ctypes.Union):
+        _fields_ = [("llVal", _ll), ("lVal", _long), ("iVal", _short), ("dblVal", _dbl), ("ptr", _vp)]
+    _anonymous_ = ("u",)
+    _fields_ = [("vt", _ushort), ("r1", _ushort), ("r2", _ushort), ("r3", _ushort), ("u", _U), ("pad", _vp)]
+
+
+class _DISPPARAMS(ctypes.Structure):
+    _fields_ = [("rgvarg", _PTR(_VARIANT)), ("named", _PTR(_long)), ("cArgs", _uint), ("cNamed", _uint)]
+
+
+def _vcall(this, idx, restype, argtypes, *args):
+    vtbl = ctypes.cast(this, _PTR(_vp))[0]
+    fn = ctypes.cast(vtbl, _PTR(_vp))[idx]
+    return ctypes.WINFUNCTYPE(restype, _vp, *argtypes)(fn)(this, *args)
+
+
+class Disp:
+    """עטיפה לאובייקט IDispatch. get = מאפיין, call = שיטה, put = הצבת מאפיין. כל כשל הוא OSError."""
+
+    def __init__(self, p):
+        self.p = p
+
+    def __del__(self):
+        try:
+            if self.p:
+                _vcall(self.p, 2, _ulong, ())
+                self.p = None
+        except Exception:
+            pass
+
+    def _invoke(self, name, flags, args):
+        n = _wstr(name)
+        did = _long()
+        _vcall(self.p, 5, _HR, (_PTR(_GUID), _PTR(_wstr), _uint, _ulong, _PTR(_long)),
+               _byref(_IID_NULL), _byref(n), 1, 0, _byref(did))
+        cnt = len(args)
+        arr = (_VARIANT * max(cnt, 1))()
+        bstrs = []
+        for i, a in enumerate(reversed(args)):
+            v = arr[i]
+            if isinstance(a, bool):
+                v.vt, v.iVal = 11, (-1 if a else 0)
+            elif isinstance(a, int):
+                v.vt, v.lVal = 3, a
+            elif isinstance(a, str):
+                b = _oleaut.SysAllocString(a)
+                bstrs.append(b)
+                v.vt, v.ptr = 8, b
+            elif isinstance(a, Disp):
+                v.vt, v.ptr = 9, a.p
+            elif isinstance(a, _long):                       # פרמטר פלט (ByRef Long)
+                v.vt, v.ptr = 0x4003, ctypes.addressof(a)
+            else:
+                raise TypeError(type(a))
+        dp = _DISPPARAMS()
+        dp.rgvarg = ctypes.cast(arr, _PTR(_VARIANT)) if cnt else None
+        dp.cArgs = cnt
+        if flags == 4:
+            named = _long(-3)                                # DISPID_PROPERTYPUT
+            dp.named, dp.cNamed = _pointer(named), 1
+        res = _VARIANT()
+        try:
+            _vcall(self.p, 6, _HR, (_long, _PTR(_GUID), _ulong, _ushort, _PTR(_DISPPARAMS), _PTR(_VARIANT), _vp, _vp),
+                   did, _byref(_IID_NULL), 0, flags, _byref(dp), _byref(res), None, None)
+        finally:
+            for b in bstrs:
+                _oleaut.SysFreeString(b)
+        if res.vt == 9:
+            return Disp(res.ptr) if res.ptr else None
+        if res.vt == 3:
+            return res.lVal
+        if res.vt == 2:
+            return res.iVal
+        if res.vt == 11:
+            return bool(res.iVal)
+        if res.vt == 5:
+            return res.dblVal
+        if res.vt == 8:
+            s = ctypes.wstring_at(res.ptr, _oleaut.SysStringLen(res.ptr)) if res.ptr else ""
+            _oleaut.SysFreeString(res.ptr)
+            return s
+        if res.vt not in (0, 1):
+            _oleaut_h.VariantClear(_byref(res))
+        return None
+
+    def get(self, name, *args):
+        return self._invoke(name, 3, args)
+
+    def call(self, name, *args):
+        return self._invoke(name, 1, args)
+
+    def put(self, name, value):
+        return self._invoke(name, 4, (value,))
+
+
+def com_active_object(progid):
+    """האובייקט הרץ של progid (למשל Word.Application), או OSError אם אין."""
+    try:
+        _ole32.CoInitialize(None)
+    except OSError:
+        pass
+    clsid = _GUID()
+    _ole32.CLSIDFromProgID(_wstr(progid), _byref(clsid))
+    punk = _vp()
+    _oleaut_h.GetActiveObject(_byref(clsid), None, _byref(punk))
+    pd = _vp()
+    try:
+        _vcall(punk.value, 0, _HR, (_PTR(_GUID), _PTR(_vp)), _byref(_IID_IDISPATCH), _byref(pd))
+    finally:
+        _vcall(punk.value, 2, _ulong, ())
+    return Disp(pd.value)
+
+
+class Uia:
+    """ממשק הנגישות של Windows (IUIAutomation) דרך ctypes. משמש רק לזכור את הרכיב הממוקד בתחילת ההאזנה
+    ולהחזיר אליו את המיקוד לפני ההדבקה. לא נקרא שם הרכיב ולא התוכן שלו: סוג ומחלקה בלבד."""
+    _inst = None
+
+    @classmethod
+    def get(cls):
+        if cls._inst is None:
+            try:
+                _ole32.CoInitialize(None)
+            except OSError:
+                pass
+            p = _vp()
+            _ole32.CoCreateInstance(_byref(_guid("{ff48dba4-60ef-4201-aa87-54103eef594e}")), None, 1,
+                                    _byref(_guid("{30cbe57d-d9d0-452a-ab13-7ac5ac4825ee}")), _byref(p))
+            cls._inst = cls()
+            cls._inst.p = p.value
+        return cls._inst
+
+    def focused(self):
+        e = _vp()
+        _vcall(self.p, 8, _HR, (_PTR(_vp),), _byref(e))                    # GetFocusedElement
+        return e.value
+
+    def same(self, a, b):
+        r = ctypes.c_int()
+        _vcall(self.p, 3, _HR, (_vp, _vp, _PTR(ctypes.c_int)), a, b, _byref(r))   # CompareElements
+        return bool(r.value)
+
+    @staticmethod
+    def control_type(e):
+        v = ctypes.c_int()
+        _vcall(e, 21, _HR, (_PTR(ctypes.c_int),), _byref(v))
+        return v.value
+
+    @staticmethod
+    def class_name(e):
+        b = _vp()
+        _vcall(e, 30, _HR, (_PTR(_vp),), _byref(b))
+        if not b.value:
+            return ""
+        s = ctypes.wstring_at(b.value, _oleaut.SysStringLen(b.value))
+        _oleaut.SysFreeString(b.value)
+        return s
+
+    @staticmethod
+    def set_focus(e):
+        _vcall(e, 3, _HR, ())
+
+    @staticmethod
+    def release(e):
+        try:
+            if e:
+                _vcall(e, 2, _ulong, ())
+        except Exception:
+            pass
+
+
+class _UiaWorker:
+    """תהליכון אחד קבוע שבו נוצרים, משמשים ומשוחררים כל רכיבי ממשק הנגישות. רכיב COM שייך לתהליכון שיצר אותו:
+    כשהתהליכון מסתיים הרכיב מתנתק, ושימוש בו מתהליכון אחר נכשל."""
+
+    def __init__(self):
+        self.q = queue.Queue()
+        threading.Thread(target=self._run, daemon=True).start()
+
+    def _run(self):
+        try:
+            _ole32.CoInitialize(None)
+        except OSError:
+            pass
+        while True:
+            fn, args, done = self.q.get()
+            try:
+                fn(*args)
+            except Exception as e:
+                logging.info("uia worker: %s", type(e).__name__)
+            done.set()
+
+    def submit(self, fn, *args):
+        done = threading.Event()
+        self.q.put((fn, args, done))
+        return done
+
+
+_uia_worker_inst = None
+
+
+def uia_worker():
+    global _uia_worker_inst
+    if _uia_worker_inst is None:
+        _uia_worker_inst = _UiaWorker()
+    return _uia_worker_inst
+
+
+def uia_release_later(el):
+    if el:
+        uia_worker().submit(Uia.release, el)
+
+
+class _GUITHREADINFO(ctypes.Structure):
+    _fields_ = [("cbSize", wintypes.DWORD), ("flags", wintypes.DWORD), ("hwndActive", wintypes.HWND),
+                ("hwndFocus", wintypes.HWND), ("hwndCapture", wintypes.HWND), ("hwndMenuOwner", wintypes.HWND),
+                ("hwndMoveSize", wintypes.HWND), ("hwndCaret", wintypes.HWND), ("rcCaret", wintypes.RECT)]
+
+
+user32.WindowFromPoint.argtypes = [wintypes.POINT]
+user32.WindowFromPoint.restype = wintypes.HWND
+user32.GetAncestor.argtypes = [wintypes.HWND, wintypes.UINT]
+user32.GetAncestor.restype = wintypes.HWND
+user32.GetForegroundWindow.restype = wintypes.HWND
+
+
+def window_class(hwnd):
+    if not hwnd:
+        return ""
+    buf = ctypes.create_unicode_buffer(128)
+    user32.GetClassNameW(hwnd, buf, 128)
+    return buf.value
+
+
+def focus_and_caret(hwnd):
+    """(חלון המיקוד, (חלון הסמן, x, y במסך)) של התהליכון שמחזיק את hwnd. הסמן None בתוכנות שלא חושפות אותו (Chrome, Electron)."""
+    g = _GUITHREADINFO()
+    g.cbSize = ctypes.sizeof(_GUITHREADINFO)
+    if not hwnd or not user32.GetGUIThreadInfo(user32.GetWindowThreadProcessId(hwnd, None), _byref(g)):
+        return None, None
+    caret = None
+    if g.hwndCaret:
+        pt = wintypes.POINT(g.rcCaret.left, g.rcCaret.top)
+        user32.ClientToScreen(g.hwndCaret, _byref(pt))
+        caret = (g.hwndCaret, pt.x, pt.y)
+    return g.hwndFocus, caret
+
+
+def _clipboard_set_private(text):
+    """שם טקסט בלוח עם שלושת הסימונים ש-Windows מכבד: לא לשמור בהיסטוריית הלוח (Win+V), לא להעלות ללוח בענן,
+    ולא להעביר לתוכנות שמנטרות את הלוח. הטקסט המוכתב עובר בלוח רק כדי להידבק, ולא אמור להישאר בשום מקום אחר."""
+    k32 = ctypes.windll.kernel32
+    k32.GlobalAlloc.restype = _vp
+    k32.GlobalAlloc.argtypes = [_uint, ctypes.c_size_t]
+    k32.GlobalLock.restype = _vp
+    k32.GlobalLock.argtypes = [_vp]
+    k32.GlobalUnlock.argtypes = [_vp]
+    user32.SetClipboardData.restype = _vp
+    user32.SetClipboardData.argtypes = [_uint, _vp]
+    user32.OpenClipboard.argtypes = [wintypes.HWND]
+
+    def put(fmt, data):
+        h = k32.GlobalAlloc(2, len(data))                   # GMEM_MOVEABLE
+        p = k32.GlobalLock(h)
+        ctypes.memmove(p, data, len(data))
+        k32.GlobalUnlock(h)
+        if not user32.SetClipboardData(fmt, h):
+            raise OSError("SetClipboardData failed")
+
+    for _ in range(12):
+        if user32.OpenClipboard(None):
+            break
+        time.sleep(0.03)
+    else:
+        raise OSError("clipboard busy")
+    try:
+        user32.EmptyClipboard()
+        put(13, text.encode("utf-16-le") + b"\0\0")       # CF_UNICODETEXT
+        for name in ("ExcludeClipboardContentFromMonitorProcessing", "CanIncludeInClipboardHistory",
+                     "CanUploadToCloudClipboard"):
+            put(user32.RegisterClipboardFormatW(name), b"\0\0\0\0")
+    finally:
+        user32.CloseClipboard()
+
+
+def clip_copy(text):
+    try:
+        _clipboard_set_private(text)
+    except Exception as e:
+        logging.info("private clipboard not available (%s), using the regular one", type(e).__name__)
+        import pyperclip
+        pyperclip.copy(text)
 
 
 def load_config():
@@ -180,10 +508,39 @@ def save_state(st):
         pass
 
 
+def _scrub_old_log():
+    """גרסאות עד 1.3.0 רשמו ביומן את כותרת חלון היעד ואת נתיב קובץ התמלול, שיכולים לכלול שם מסמך או לקוח.
+    מוחק את השורות האלה מהיומן הקיים. רץ בכל הפעלה, ועושה משהו רק אם נשארו שורות כאלה."""
+    try:
+        if not os.path.exists(LOG_PATH) or os.path.getsize(LOG_PATH) > 30 * 1024 * 1024:
+            return
+        with open(LOG_PATH, "r", encoding="utf-8", errors="replace") as f:
+            lines = f.readlines()
+        keep = [l for l in lines if "target window:" not in l and not ("file transcribed" in l and " -> " in l)]
+        if len(keep) != len(lines):
+            tmp = LOG_PATH + ".tmp"
+            with open(tmp, "w", encoding="utf-8") as f:
+                f.writelines(keep)
+            os.replace(tmp, LOG_PATH)
+    except Exception:
+        pass
+
+
 def setup_logging():
     os.makedirs(APP_DIR, exist_ok=True)
+    _scrub_old_log()
     logging.basicConfig(filename=LOG_PATH, level=logging.INFO, encoding="utf-8",
                         format="%(asctime)s %(levelname)s %(message)s")
+    try:
+        # pythonw רץ בלי stderr: קריסה של קוד מקורי (COM, ספריות) נעלמת בלי עקבות. כאן היא נרשמת.
+        import faulthandler
+        global _crash_file
+        _crash_file = open(os.path.join(APP_DIR, "crash.log"), "a", encoding="utf-8")
+        _crash_file.write(time.strftime("--- %Y-%m-%d %H:%M:%S start ") + APP_VERSION + chr(10))
+        _crash_file.flush()
+        faulthandler.enable(file=_crash_file)
+    except Exception:
+        pass
 
 
 # ----------------------------- הקלטה וזיהוי שקט -----------------------------
@@ -252,6 +609,9 @@ def apply_code_update(info, progress=None):
         raise ValueError("version.json לא מפרט קבצי קוד")
     upd_dir = os.path.join(HERE, "updates")
     os.makedirs(upd_dir, exist_ok=True)
+    for f in files:
+        if not str(f.get("url", "")).startswith(UPDATE_BASE):
+            raise ValueError("כתובת קובץ העדכון אינה בדף הכלי, העדכון בוטל")
     staged = []
     for i, f in enumerate(files):
         if progress:
@@ -428,12 +788,51 @@ class Recorder:
 
 
 # ----------------------------- תמלול -----------------------------
+FAST_DIR = os.path.join(APP_DIR, "trial-fast")     # המודל המהיר והמנוע שלו, אם הותקנו (ניסוי, לא חלק מההפצה)
+
+
+def fast_available():
+    return (os.path.exists(os.path.join(FAST_DIR, "model", "encoder.int8.onnx"))
+            and os.path.isdir(os.path.join(FAST_DIR, "site", "sherpa_onnx")))
+
+
 class Transcriber:
     def __init__(self, cfg):
         self.cfg = cfg
         self.model = None
+        self.fast = None
+
+    def _load_fast(self):
+        """zipformer2 streaming של ivrit.ai דרך sherpa-onnx. נטען לפני Whisper: לשתי הספריות יש onnxruntime.dll משלהן,
+        והסדר הזה הוא שנבדק ועובד (הראשונה שנטענת משמשת את שתיהן)."""
+        site = os.path.join(FAST_DIR, "site")
+        if site not in sys.path:
+            sys.path.append(site)
+        import sherpa_onnx
+        m = os.path.join(FAST_DIR, "model")
+        self.fast = sherpa_onnx.OnlineRecognizer.from_transducer(
+            tokens=os.path.join(m, "tokens.txt"), encoder=os.path.join(m, "encoder.int8.onnx"),
+            decoder=os.path.join(m, "decoder.int8.onnx"), joiner=os.path.join(m, "joiner.int8.onnx"),
+            num_threads=4, sample_rate=SAMPLE_RATE, feature_dim=80, decoding_method="greedy_search", provider="cpu")
+
+    def _transcribe_fast(self, audio):
+        s = self.fast.create_stream()
+        s.accept_waveform(SAMPLE_RATE, np.ascontiguousarray(audio, dtype=np.float32))
+        s.accept_waveform(SAMPLE_RATE, np.zeros(int(0.8 * SAMPLE_RATE), dtype=np.float32))
+        s.input_finished()
+        while self.fast.is_ready(s):
+            self.fast.decode_stream(s)
+        r = self.fast.get_result(s)
+        return (r if isinstance(r, str) else getattr(r, "text", "")).strip()
 
     def load(self):
+        if self.cfg.get("fast_model") and fast_available():
+            try:
+                self._load_fast()
+                logging.info("fast model loaded")
+            except Exception as e:
+                logging.error("fast model not loaded: %s: %s", type(e).__name__, e)
+                self.fast = None
         from faster_whisper import WhisperModel
         if not os.path.exists(os.path.join(self.cfg["model_dir"], "model.bin")):
             raise FileNotFoundError("המודל לא נמצא. הרץ את התקנה.bat פעם אחת.\n" + self.cfg["model_dir"])
@@ -444,12 +843,22 @@ class Transcriber:
 
     def transcribe(self, audio):
         hot, repl = load_dictionary()
+        if self.cfg.get("engine") == "fast" and self.fast is not None:
+            try:
+                text = " ".join(self._transcribe_fast(audio).split())
+                for wrong, right in repl:
+                    text = text.replace(wrong, right)
+                return text
+            except Exception:
+                logging.exception("fast model failed, using the accurate model")
         segments, _info = self.model.transcribe(
             audio,
             language=self.cfg.get("language", "he"),
             beam_size=self.cfg.get("beam_size", 1),
             vad_filter=True,
-            without_timestamps=True,
+            # מקטע ארוך מעובד בכמה חלונות של 30 שניות. בלי חותמות זמן משפט שחוצה גבול חלון נופל והפיסוק נחלש,
+            # לכן במקטע ארוך מפעילים אותן. במקטע קצר (חלון אחד) אין בהן צורך.
+            without_timestamps=len(audio) <= 25 * SAMPLE_RATE,
             condition_on_previous_text=False,
             initial_prompt=self.cfg.get("initial_prompt") or None,
             hotwords=" ".join(hot) if hot else None,     # המילון האישי: המנוע מוטה למילים האלה
@@ -521,30 +930,299 @@ def write_transcript(src_path, lines, total, status=""):
 
 # ----------------------------- הקלדה לשדה הממוקד -----------------------------
 class Typer:
-    """מדביק את הטקסט לחלון שבו המשתמש עובד, דרך הלוח ו-Ctrl+V (הדרך היחידה שאמינה לעברית)."""
+    """מכניס את הטקסט למקום שבו עמד הסמן כשההאזנה התחילה.
+    שלוש דרכים, לפי מה שהתוכנה מאפשרת:
+    1. Word, כשהסמן בגוף המסמך: עיגון לטווח (Range) דרך COM. הטקסט נכנס למקום המקורי גם אם המשתמש
+       המשיך לעבוד במקום אחר במסמך או בחלון אחר, בלי לוח ובלי להחליף חלון.
+    2. כל השאר: הדבקה דרך הלוח ו-Ctrl+V, כמו תמיד, כל עוד הסמן לא הוזז.
+    3. הסמן הוזז (לחיצה בחלון היעד שהזיזה את הסמן, או מעבר לשדה אחר): לא מדביקים בעיוורון. הטקסט נשמר בלוח
+       ומוצגת הודעה, והמשתמש מדביק בעצמו במקום הנכון."""
 
     def __init__(self, cfg):
         self.cfg = cfg
         self.my_hwnd = None
         self.last_fg = None
         self.target = None       # החלון שבו עמד הסמן כשההאזנה התחילה
+        self.session_id = 0
+        self.word = None         # עוגן Word: {"app", "rng", "story", "first"}
+        self.hold = False        # הסמן זז: מכאן ועד סוף ההאזנה הטקסט נצבר בלוח
+        self.held_text = ""
+        self.clicked = False     # לחיצת עכבר בחלון היעד מאז ההדבקה האחרונה
+        self.base_focus = None
+        self.base_caret = None
+        self.uia_el = None       # תיבת ההערה שהחזיקה את המקלדת בתחילת ההאזנה, להחזרת המיקוד
+        self.comment_scan = None # תוצאת הסריקה: True = תיבת הערה ממוקדת, False = אין, None = לא ידוע עדיין
 
     def track(self):
         fg = user32.GetForegroundWindow()
         if fg and fg != self.my_hwnd:
             self.last_fg = fg
 
+    # --- תחילת האזנה וסיומה ---
     def lock_target(self):
-        """נקרא בתחילת ההאזנה: הטקסט יוקלד לחלון הזה גם אם המשתמש עבר חלון בינתיים."""
+        """נקרא בתחילת ההאזנה: זוכר את החלון, את שדה המיקוד ואת מיקום הסמן."""
         fg = user32.GetForegroundWindow()
         self.target = fg if (fg and fg != self.my_hwnd) else self.last_fg
-        logging.info("target window: %s", window_title(self.target))
+        self.session_id += 1
+        self.word = None
+        self.hold = False
+        self.held_text = ""
+        self.clicked = False
+        self.base_focus, self.base_caret = focus_and_caret(self.target)
+        cls = window_class(self.target)
+        uia_release_later(self.uia_el)
+        self.uia_el = None
+        self.comment_scan = None
+        if cls == "OpusApp":
+            # עיגון לגוף המסמך והחזרת מיקוד להערה כבויים כברירת מחדל: הם תלויים בסריקת עץ הנגישות של Word,
+            # שעדיין לא הוכחה מספיק בשימוש אמיתי. עיגון להערה פעיל: שם Word מדווח במפורש שהבחירה בתוך הערה.
+            body = self.cfg.get("word_body_anchor", False)
+            if body or self.cfg.get("uia_refocus", False):
+                uia_worker().submit(self._scan_comment_editor, self.session_id)
+            if self.cfg.get("word_direct_insert", True) and (body or self.cfg.get("word_comment_anchor", True)):
+                self._word_capture()
+        # היומן רושם את סוג החלון בלבד, לא את הכותרת שלו (כותרת יכולה להיות שם של מסמך)
+        logging.info("target: class=%s word_anchor=%s caret=%s", cls, bool(self.word), bool(self.base_caret))
+        if self.cfg.get("safe_paste", True):
+            threading.Thread(target=self._watch_clicks, args=(self.session_id,), daemon=True).start()
+
+    def end_session(self):
+        self.session_id += 1     # עוצר את מעקב הלחיצות
+        self.word = None
+        uia_release_later(self.uia_el)
+        self.uia_el = None
+
+    # --- כרטיסי הערות ב-Word (ובכל מקום ב-Word שאינו גוף המסמך) ---
+    def _uia_capture(self):
+        """מחזיר True אם המיקוד בגוף המסמך, False אם ברכיב אחר (כרטיס הערה וכדומה), None אם לא ידוע.
+        רכיב אחר נזכר, כדי להחזיר אליו את המיקוד לפני ההדבקה."""
+        try:
+            if user32.IsHungAppWindow(self.target):
+                return None
+            uia = Uia.get()
+            e = uia.focused()
+            if not e:
+                return None
+            ct, cn = uia.control_type(e), uia.class_name(e)
+            in_body = (ct == 50030 and cn == "_WwG")           # 50030 = Document, _WwG = משטח העריכה של המסמך
+            logging.info("uia focus: ctype=%d class=%s body=%s", ct, cn[:24], in_body)
+            if not in_body and self.cfg.get("uia_refocus", True):
+                self.uia_el = e
+            else:
+                uia.release(e)
+            return in_body
+        except Exception as ex:
+            logging.info("uia capture not available: %s", type(ex).__name__)
+            return None
+
+    def _scan_comment_editor(self, sid):
+        """רץ ברקע בתחילת האזנה ב-Word. מחפש בעץ הנגישות תיבת הערה (cardEditor_ / postEditor_) שמחזיקה את
+        מיקוד המקלדת. נקראים סוג הרכיב, המזהה שלו ודגל המיקוד בלבד, לא שם ולא תוכן."""
+        t0 = time.time()
+        found, kind, editors, scan_ok = None, "none", 0, False
+        try:
+            try:
+                _ole32.CoInitialize(None)
+            except OSError:
+                pass
+            p = _vp()
+            _ole32.CoCreateInstance(_byref(_guid("{ff48dba4-60ef-4201-aa87-54103eef594e}")), None, 1,
+                                    _byref(_guid("{30cbe57d-d9d0-452a-ab13-7ac5ac4825ee}")), _byref(p))
+            root, cond, arr = _vp(), _vp(), _vp()
+            _vcall(p.value, 6, _HR, (wintypes.HWND, _PTR(_vp)), self.target, _byref(root))       # ElementFromHandle
+            _vcall(p.value, 21, _HR, (_PTR(_vp),), _byref(cond))                                 # CreateTrueCondition
+            _vcall(root.value, 6, _HR, (ctypes.c_int, _vp, _PTR(_vp)), 4, cond.value, _byref(arr))   # FindAll, צאצאים
+            n = ctypes.c_int()
+            _vcall(arr.value, 3, _HR, (_PTR(ctypes.c_int),), _byref(n))
+            for i in range(n.value):
+                e = _vp()
+                _vcall(arr.value, 4, _HR, (ctypes.c_int, _PTR(_vp)), i, _byref(e))
+                keep = False
+                try:
+                    if Uia.control_type(e.value) == 50004:                       # Edit
+                        b = _vp()
+                        _vcall(e.value, 29, _HR, (_PTR(_vp),), _byref(b))         # AutomationId
+                        aid = ""
+                        if b.value:
+                            aid = ctypes.wstring_at(b.value, _oleaut.SysStringLen(b.value))
+                            _oleaut.SysFreeString(b.value)
+                        if aid.startswith(("cardEditor_", "postEditor_")):
+                            editors += 1
+                            kb = ctypes.c_int()
+                            _vcall(e.value, 26, _HR, (_PTR(ctypes.c_int),), _byref(kb))   # HasKeyboardFocus
+                            if kb.value and found is None:
+                                found, kind, keep = e.value, aid.split("_")[0], True
+                except OSError:
+                    pass
+                if not keep:
+                    Uia.release(e.value)
+            for x in (arr.value, cond.value, root.value, p.value):
+                Uia.release(x)
+            scan_ok = True
+        except Exception as ex:
+            logging.info("uia scan failed: %s", type(ex).__name__)
+        logging.info("uia comment editors: %d, with keyboard focus: %s (%.1fs)", editors, kind, time.time() - t0)
+        if self.session_id == sid:
+            self.uia_el = found
+            self.comment_scan = bool(found) if scan_ok else None
+        elif found:
+            Uia.release(found)       # כבר בתהליכון הנגישות
+
+    def _uia_refocus(self):
+        """מחזיר את המיקוד לתיבת ההערה שנזכרה, ומאמת שהמיקוד באמת חזר אליה לפני שמדביקים. רץ בתהליכון הנגישות."""
+        if not self.uia_el or not self.cfg.get("uia_refocus", False):
+            return False
+        box = {}
+        done = uia_worker().submit(lambda: box.__setitem__("ok", self._uia_refocus_impl()))
+        done.wait(2.5)
+        return bool(box.get("ok"))
+
+    def _uia_refocus_impl(self):
+        if not self.uia_el:
+            return False
+        try:
+            Uia.set_focus(self.uia_el)
+            time.sleep(0.25)
+            kb = ctypes.c_int()
+            _vcall(self.uia_el, 26, _HR, (_PTR(ctypes.c_int),), _byref(kb))       # HasKeyboardFocus
+            ok = bool(kb.value)
+            logging.info("uia refocus to comment editor: %s", "ok" if ok else "focus did not return")
+            return ok
+        except Exception as ex:
+            logging.info("uia refocus failed: %s", type(ex).__name__)
+            return False
+
+    def _watch_clicks(self, sid):
+        """דוגם את כפתור העכבר השמאלי כל 8 אלפיות שנייה, רק בזמן האזנה ותמלול. לחיצה בתוך חלון היעד נרשמת.
+        לא נרשם מיקום ולא נשמר דבר: דגל בוליאני בלבד."""
+        # קריאה ראשונה נזרקת: הביט "נלחץ מאז הקריאה הקודמת" זוכר את הלחיצה שהציבה את הסמן לפני ההאזנה
+        down = bool(user32.GetAsyncKeyState(0x01) & 0x8000)
+        while self.session_id == sid:
+            st = user32.GetAsyncKeyState(0x01)
+            now = bool(st & 0x8001)
+            if now and not down:
+                pt = wintypes.POINT()
+                user32.GetCursorPos(_byref(pt))
+                h = user32.WindowFromPoint(pt)
+                if h and user32.GetAncestor(h, 2) == self.target:
+                    self.clicked = True
+            down = bool(st & 0x8000)
+            time.sleep(0.008)
+
+    # --- Word ---
+    def _word_capture(self):
+        """מעגן לטווח הבחירה ב-Word, רק אם ודאי שהסמן נמצא בגוף המסמך: הסמן המערכתי חייב להימצא במקום
+        ש-Word מדווח עליו. בכרטיס הערה (ובכל מקום אחר שאינו גוף המסמך) Selection לא משקף את מקום ההקלדה,
+        ואז לא מעגנים וההדבקה הרגילה חלה."""
+        try:
+            if user32.IsHungAppWindow(self.target) or not self.base_caret:
+                return
+            app = com_active_object("Word.Application")
+            win = app.get("ActiveWindow")
+            if (win.get("Hwnd") & 0xFFFFFFFF) != (self.target & 0xFFFFFFFF):
+                return
+            sel = app.get("Selection")
+            rng = sel.get("Range")
+            story = rng.get("StoryType")
+            collapsed = rng.get("Start") == rng.get("End")
+            if not collapsed:
+                # טקסט מסומן: עיגון היה מחליף אותו. לא מעגנים, וההדבקה הרגילה (עם זיהוי תזוזה) חלה.
+                logging.info("word selection: story=%d not collapsed, no anchor", story)
+                return
+            if story == 4 and not self.cfg.get("word_comment_anchor", True):
+                logging.info("word selection: story=4 comment anchor disabled in settings")
+                return
+            if story == 4 and sel.get("Information", 26):
+                # הערה: Word מדווח במפורש שהבחירה בתוך הערה. מעגנים לטווח שבתוך ההערה.
+                ok = True
+            elif not self.cfg.get("word_body_anchor", False):
+                logging.info("word selection: story=%d body anchor disabled in settings", story)
+                return
+            else:
+                l, t, w, h = _long(), _long(), _long(), _long()
+                win.call("GetPoint", l, t, w, h, rng)
+                _hc, cx, cy = self.base_caret
+                tol = int(40 * max(1.0, user32.GetDpiForWindow(self.target) / 96.0))
+                ok = (l.value - tol <= cx <= l.value + w.value + tol) and (t.value - h.value <= cy <= t.value + 2 * h.value)
+            logging.info("word selection: story=%d anchored=%s", story, ok)
+            if ok:
+                self.word = {"app": app, "rng": rng, "story": story,
+                             "first": rng.get("Start") != rng.get("End")}
+        except Exception as e:
+            logging.info("word anchor not available: %s", type(e).__name__)
+            self.word = None
+
+    def _word_insert(self, text):
+        """מכניס את הטקסט בעוגן. אם הסמן של המשתמש עדיין עומד שם, מזיז אותו לסוף הטקסט שהוכנס, כמו בהקלדה.
+        אם המשתמש עבר למקום אחר, הסמן שלו לא זז."""
+        w = self.word
+        app, rng = w["app"], w["rng"]
+        if user32.IsHungAppWindow(self.target):
+            raise OSError("word not responding")
+        follow = False
+        try:
+            if (app.get("ActiveWindow").get("Hwnd") & 0xFFFFFFFF) == (self.target & 0xFFFFFFFF):
+                sel = app.get("Selection")
+                s0, s1 = sel.get("Start"), sel.get("End")
+                r0, r1 = rng.get("Start"), rng.get("End")
+                same_story = sel.get("StoryType") == w["story"]
+                follow = same_story and ((w["first"] and s0 == r0 and s1 == r1) or (s0 == s1 == r1))
+        except OSError:
+            follow = False
+        if w["first"]:
+            rng.put("Text", text)        # הבחירה המקורית מוחלפת, כמו בהדבקה על טקסט מסומן
+            w["first"] = False
+        else:
+            rng.call("InsertAfter", text)
+        if follow:
+            e = rng.get("End")
+            app.get("Selection").call("SetRange", e, e)
+
+    # --- הדבקה ---
+    def _moved(self):
+        if not self.cfg.get("safe_paste", True):
+            return False
+        focus, caret = focus_and_caret(self.target)
+        if self.base_focus and focus and focus != self.base_focus:
+            return True
+        if self.clicked:
+            if self.base_caret and caret:
+                return (caret[0] != self.base_caret[0] or abs(caret[1] - self.base_caret[1]) > 2
+                        or abs(caret[2] - self.base_caret[2]) > 2)
+            return True          # תוכנה שלא חושפת סמן: לחיצה בחלון היעד נחשבת תזוזה
+        return False
+
+    def _hold(self, text):
+        import pyperclip
+        self.hold = True
+        self.held_text += text
+        clip_copy(self.held_text)
+        logging.info("caret moved: %d chars kept on clipboard, not pasted", len(self.held_text))
+        return "held"
 
     def type_text(self, text):
+        """מחזיר "word" (עוגן), "pasted" (הדבקה רגילה) או "held" (הסמן זז, הטקסט בלוח)."""
         import keyboard
         import pyperclip
         if self.cfg.get("append_space", True):
             text += " "
+        if self.hold:
+            return self._hold(text)
+        if self.word and self.word["story"] != 4 and self.comment_scan is not False:
+            # עוגן לגוף המסמך תקף רק אם הסריקה אישרה שאין תיבת הערה שמחזיקה את המקלדת. כשפותחים הערה חדשה,
+            # Word עדיין מדווח בחירה וסמן בגוף המסמך, והעוגן היה מכניס את הטקסט למסמך במקום להערה.
+            logging.info("word body anchor dropped: %s", "comment editor has the keyboard" if self.comment_scan else "scan result unknown")
+            self.word = None
+        if self.word:
+            for attempt in (1, 2, 3):
+                try:
+                    self._word_insert(text)
+                    return "word"
+                except Exception as e:
+                    logging.info("word insert attempt %d failed: %s", attempt, type(e).__name__)
+                    time.sleep(0.25)
+            self.word = None
+            return self._hold(text)      # Word לא נענה (חלון דו-שיח פתוח וכדומה): לא מדביקים בעיוורון
         fg = user32.GetForegroundWindow()
         want = self.target if (self.cfg.get("lock_target", True) and self.target
                                and user32.IsWindow(self.target)) else None
@@ -555,25 +1233,32 @@ class Typer:
         elif (not fg or fg == self.my_hwnd) and self.last_fg:
             user32.SetForegroundWindow(self.last_fg)
             time.sleep(0.15)
+        if want and self._moved() and not self._uia_refocus():
+            return self._hold(text)
         old = None
         if self.cfg.get("restore_clipboard"):
             try:
                 old = pyperclip.paste()
             except Exception:
                 old = None
-        pyperclip.copy(text)
+        self.clicked = False
+        clip_copy(text)
         time.sleep(0.05)
         keyboard.send("ctrl+v")
+        time.sleep(0.15)
+        if want:                         # ההדבקה שלנו הזיזה את הסמן: זה הבסיס החדש להשוואה
+            self.base_focus, self.base_caret = focus_and_caret(self.target)
         if old is not None:
-            time.sleep(0.6)
+            time.sleep(0.45)
             pyperclip.copy(old)
+        return "pasted"
 
 
 # ----------------------------- הכפתור המרחף -----------------------------
 class Widget:
     TRANSPARENT = "#010203"
 
-    def __init__(self, cfg, on_toggle, on_quit, on_settings, on_dictionary=None, on_file=None, on_update=None):
+    def __init__(self, cfg, on_toggle, on_quit, on_settings, on_dictionary=None, on_file=None, on_update=None, on_recent=None):
         import tkinter as tk
         self.cfg = cfg
         self.on_toggle = on_toggle
@@ -608,6 +1293,9 @@ class Widget:
         self.on_quit, self.on_settings = on_quit, on_settings
         self.on_dictionary, self.on_file = on_dictionary, on_file
         self.on_update = on_update
+        self.on_recent = on_recent
+        self.on_engine = None                    # נקבע על ידי App אם המודל המהיר זמין
+        self.get_engine = lambda: "accurate"
 
         # זהות בשורת המשימות: בלי זה חלונות התוכנה מוצגים כ"Python" עם האייקון של pythonw.exe
         try:
@@ -676,6 +1364,8 @@ class Widget:
             items.append(("file", "תמלול קובץ", self.on_file))
         if self.on_dictionary:
             items.append(("dict", "מילון", self.on_dictionary))
+        if self.on_recent:
+            items.append(("history", "אחרונות", self.on_recent))
         items.append(("settings", "הגדרות", self.on_settings))
         if self.on_update:
             items.append(("update", "עדכונים", self.on_update))
@@ -687,9 +1377,9 @@ class Widget:
             return
         tk = self._tk
         s = self.scale
-        self._item_w, self._item_h = int(84 * s), int(66 * s)
-        n = len(self._panel_items())
-        self._panel_w, self._panel_h = self._item_w * n + int(12 * s), self._item_h + int(12 * s)
+        self._row_h, self._panel_w, self._pad = int(32 * s), int(188 * s), int(6 * s)
+        self._seg_h = int(58 * s) if self.on_engine else 0          # שורת בורר המודל
+        self._panel_h = self._pad * 2 + self._seg_h + len(self._panel_items()) * self._row_h + int(7 * s)
         p = tk.Toplevel(self.root)
         p.overrideredirect(True)
         p.attributes("-topmost", True)
@@ -704,56 +1394,95 @@ class Widget:
         self._pc.bind("<Leave>", lambda e: self._panel_arm_hide(2500))
         p.withdraw()
         self._panel = p
-        self._panel_hover = -1
+        self._panel_hover = None
+
+    @staticmethod
+    def _round_rect(c, x0, y0, x1, y1, r, fill):
+        pts = [x0 + r, y0, x1 - r, y0, x1, y0, x1, y0 + r, x1, y1 - r, x1, y1,
+               x1 - r, y1, x0 + r, y1, x0, y1, x0, y1 - r, x0, y0 + r, x0, y0]
+        c.create_polygon(pts, smooth=True, fill=fill, outline="")
+
+    def _row_y(self, i):
+        """ראש השורה ה-i. לפני "יציאה" יש רווח קטן לקו מפריד."""
+        extra = int(7 * self.scale) if i == len(self._panel_items()) - 1 else 0
+        return self._pad + self._seg_h + i * self._row_h + extra
+
+    def _seg_boxes(self):
+        """מלבני שני הכפתורים של בורר המודל: מדויק מימין, מהיר משמאל."""
+        s, w, pad = self.scale, self._panel_w, self._pad
+        y0, y1 = pad + int(22 * s), pad + int(48 * s)
+        mid = w // 2
+        return {"accurate": (mid + int(2 * s), y0, w - pad - int(4 * s), y1),
+                "fast": (pad + int(4 * s), y0, mid - int(2 * s), y1)}
 
     def _draw_panel(self):
         c, s = self._pc, self.scale
         c.delete("all")
-        w, h = self._panel_w, self._panel_h
-        r = int(14 * s)
-        # כרטיס לבן מעוגל עם מסגרת עדינה
-        for (x0, y0, x1, y1, fill) in ((1, 1, w - 1, h - 1, "#D5DBE5"), (2, 2, w - 2, h - 2, "#FFFFFF")):
-            c.create_arc(x0, y0, x0 + 2 * r, y0 + 2 * r, start=90, extent=90, fill=fill, outline="")
-            c.create_arc(x1 - 2 * r, y0, x1, y0 + 2 * r, start=0, extent=90, fill=fill, outline="")
-            c.create_arc(x0, y1 - 2 * r, x0 + 2 * r, y1, start=180, extent=90, fill=fill, outline="")
-            c.create_arc(x1 - 2 * r, y1 - 2 * r, x1, y1, start=270, extent=90, fill=fill, outline="")
-            c.create_rectangle(x0 + r, y0, x1 - r, y1, fill=fill, outline="")
-            c.create_rectangle(x0, y0 + r, x1, y1 - r, fill=fill, outline="")
+        w, h, pad = self._panel_w, self._panel_h, self._pad
+        ink, soft, accent, line = "#1F2937", "#64748B", "#0F766E", "#E5E9F0"
+        r = int(10 * s)
+        self._round_rect(c, 0, 0, w, h, r, "#CBD2DC")
+        self._round_rect(c, 1, 1, w - 1, h - 1, r, "#FFFFFF")
+        font = ("Segoe UI", max(8, int(9.5 * s)))
+        if self._seg_h:
+            c.create_text(w - pad - int(8 * s), pad + int(10 * s), text="מודל התמלול", fill=soft, anchor="e",
+                          font=("Segoe UI", max(7, int(8 * s)), "bold"))
+            cur = self.get_engine()
+            for key, label in (("accurate", "מדויק"), ("fast", "מהיר")):
+                x0, y0, x1, y1 = self._seg_boxes()[key]
+                on = key == cur
+                hov = self._panel_hover == ("engine", key)
+                self._round_rect(c, x0, y0, x1, y1, int(7 * s), accent if on else ("#E2E8F0" if hov else "#F1F5F9"))
+                c.create_text((x0 + x1) / 2, (y0 + y1) / 2, text=label, fill="#FFFFFF" if on else ink,
+                              font=("Segoe UI", max(8, int(9.5 * s)), "bold" if on else "normal"))
+            c.create_line(pad + int(6 * s), pad + self._seg_h - int(3 * s), w - pad - int(6 * s),
+                          pad + self._seg_h - int(3 * s), fill=line)
         items = self._panel_items()
-        pad = int(6 * s)
-        # סדר מימין לשמאל, כמו בעברית
         for i, (key, label, _cb) in enumerate(items):
-            x = w - pad - (i + 1) * self._item_w
-            y = pad
-            if i == self._panel_hover:
-                c.create_rectangle(x + 2, y + 2, x + self._item_w - 2, y + self._item_h - 2,
-                                   fill="#EEF2FF", outline="")
-            color = "#B42318" if key == "exit" else ("#0F766E" if key == "mic" else "#1F2937")
+            y = self._row_y(i)
+            if key == "exit":
+                c.create_line(pad + int(6 * s), y - int(4 * s), w - pad - int(6 * s), y - int(4 * s), fill=line)
+            if self._panel_hover == ("item", i):
+                self._round_rect(c, pad, y + 1, w - pad, y + self._row_h - 1, int(6 * s), "#F1F5F9")
+            color = "#B42318" if key == "exit" else (accent if key == "mic" else ink)
             if key == "mic" and self.state in ("recording", "speech"):
                 key, label, color = "stop", "עצירה", "#E03131"
-            c.create_text(x + self._item_w / 2, y + int(26 * s), text=MDL2[key], fill=color,
-                          font=("Segoe MDL2 Assets", max(14, int(20 * s))))
-            c.create_text(x + self._item_w / 2, y + int(52 * s), text=label, fill="#1F2937",
-                          font=("Segoe UI", max(8, int(9 * s))))
+            cy = y + self._row_h / 2
+            c.create_text(w - pad - int(18 * s), cy, text=MDL2[key], fill=color,
+                          font=("Segoe MDL2 Assets", max(10, int(12 * s))))
+            c.create_text(w - pad - int(38 * s), cy, text=label, fill=color if key in ("exit", "stop") else ink,
+                          anchor="e", font=font)
 
-    def _panel_index(self, x, y):
-        pad = int(6 * self.scale)
-        if not (pad <= y <= pad + self._item_h):
-            return -1
-        i = int((self._panel_w - pad - x) // self._item_w)
-        return i if 0 <= i < len(self._panel_items()) else -1
+    def _panel_hit(self, x, y):
+        if self._seg_h:
+            for key, (x0, y0, x1, y1) in self._seg_boxes().items():
+                if x0 <= x <= x1 and y0 <= y <= y1:
+                    return ("engine", key)
+        if self._pad <= x <= self._panel_w - self._pad:
+            for i in range(len(self._panel_items())):
+                y0 = self._row_y(i)
+                if y0 <= y < y0 + self._row_h:
+                    return ("item", i)
+        return None
 
     def _panel_motion(self, e):
-        i = self._panel_index(e.x, e.y)
-        if i != self._panel_hover:
-            self._panel_hover = i
+        hit = self._panel_hit(e.x, e.y)
+        if hit != self._panel_hover:
+            self._panel_hover = hit
             self._draw_panel()
 
     def _panel_click(self, e):
-        i = self._panel_index(e.x, e.y)
+        hit = self._panel_hit(e.x, e.y)
+        if not hit:
+            return
+        if hit[0] == "engine":
+            if self.on_engine:
+                self.on_engine(hit[1])           # הלוח נשאר פתוח, כדי שרואים שהבחירה התחלפה
+            self._draw_panel()
+            self._panel_arm_hide(4000)
+            return
         self.panel_hide()
-        if i >= 0:
-            self._panel_items()[i][2]()
+        self._panel_items()[hit[1]][2]()
 
     def _panel_arm_hide(self, ms):
         if self._panel_hide_job:
@@ -767,7 +1496,7 @@ class Widget:
             self.panel_hide()
             return
         self._ensure_panel()
-        self._panel_hover = -1
+        self._panel_hover = None
         self._draw_panel()
         sw = self.root.winfo_screenwidth()
         bx, by = self.root.winfo_x(), self.root.winfo_y()
@@ -775,7 +1504,8 @@ class Widget:
         x = bx - self._panel_w - gap                    # משמאל למיקרופון (הכפתור בדרך כלל בקצה הימני של המסך)
         if x < 4:
             x = min(bx + self.size + gap, sw - self._panel_w - 4)
-        y = min(max(4, by + self.size // 2 - self._panel_h // 2), self.root.winfo_screenheight() - self._panel_h - 4)
+        # תחתית התפריט מיושרת לתחתית הכפתור, כך שהוא נפתח כלפי מעלה ולא מסתיר את מה שמתחת
+        y = min(max(4, by + self.size - self._panel_h), self.root.winfo_screenheight() - self._panel_h - 4)
         self._panel.geometry(f"{self._panel_w}x{self._panel_h}+{x}+{y}")
         self._panel.deiconify()
         self._panel.lift()
@@ -826,6 +1556,8 @@ class Widget:
         self._ovc = tk.Canvas(ov, width=self._ov_w, height=self._ov_h,
                               bg=self.TRANSPARENT, highlightthickness=0)
         self._ovc.pack()
+        # לחיצה על הודעת "הסמן זז" פותחת את ההכתבות האחרונות, שם הטקסט עצמו
+        self._ovc.bind("<Button-1>", lambda e: self.on_recent() if (self._ov_mode == "held" and self.on_recent) else None)
         ov.withdraw()
         self._ov = ov
         self._levels = [0.0] * 11
@@ -834,7 +1566,7 @@ class Widget:
         self._ov_mode = "wait"
 
     def overlay_show(self, target_title, mode):
-        """mode: wait (מחכה לדיבור), speech (מקשיב), transcribing (מסיים)."""
+        """mode: wait (מחכה לדיבור), speech (מקשיב), transcribing (מסיים), held (הסמן זז, הטקסט בלוח)."""
         self._ensure_overlay()
         self._ov_target = target_title or ""
         self._ov_mode = mode
@@ -875,6 +1607,16 @@ class Widget:
         c.create_oval(0, 0, h, h, fill=bg, outline="")
         c.create_oval(w - h, 0, w, h, fill=bg, outline="")
         c.create_rectangle(r, 0, w - r, h, fill=bg, outline="")
+        if self._ov_mode == "held":
+            # הסמן זז בזמן ההכתבה: הטקסט לא הודבק אלא מחכה בלוח
+            c.create_text(w - int(22 * s), int(22 * s), text="הסמן זז, לא הדבקתי. לחיצה לטקסט", fill="#FBBF24", anchor="e",
+                          font=("Segoe UI", max(8, int(9.5 * s)), "bold"))
+            c.create_text(w - int(22 * s), int(47 * s), text="הטקסט בלוח. להדבקה במקום הרצוי", fill=ink, anchor="e",
+                          font=("Segoe UI", max(8, int(9 * s))))
+            bbox = c.bbox(c.find_all()[-1])
+            c.create_text(bbox[0] - int(6 * s), int(47 * s), text="Ctrl+V", fill=bar, anchor="e",
+                          font=("Segoe UI", max(8, int(9 * s)), "bold"))
+            return
         # שורה עליונה: היעד (מימין, בעברית) ושם החלון
         top = int(20 * s)
         label = "מתמלל…" if self._ov_mode == "transcribing" else "מקליד אל"
@@ -972,17 +1714,35 @@ class Widget:
         self.state = state
         self.draw()
 
+    @staticmethod
+    def _shade(hex_color, f):
+        """מבהיר (f חיובי) או מכהה (f שלילי) צבע."""
+        r, g, b = (int(hex_color[i:i + 2], 16) for i in (1, 3, 5))
+        t = 255 if f > 0 else 0
+        f = abs(f)
+        return "#%02X%02X%02X" % tuple(int(v + (t - v) * f) for v in (r, g, b))
+
     def draw(self):
         c, s = self.canvas, self.size
         c.delete("all")
         color, label = COLORS.get(self.state, COLORS["idle"])
-        pad = 4
+        u = s / 64.0
+        pad = int(5 * u)
         if self.state in ("recording", "speech") and self.pulse:
             c.create_oval(1, 1, s - 1, s - 1, outline=color, width=2)
-        c.create_oval(pad, pad, s - pad, s - pad, fill=color, outline="")
+        # עומק: צל כהה מתחת, ומעליו מעבר צבע מהשוליים הכהים אל נקודת אור למעלה משמאל
+        c.create_oval(pad, pad + 2 * u, s - pad, s - pad + 2 * u, fill=self._shade(color, -0.45), outline="")
+        steps = 16
+        R = (s - 2 * pad) / 2.0
+        cx0 = cy0 = s / 2.0
+        for k in range(steps):
+            t = k / (steps - 1.0)
+            rr = R * (1 - 0.62 * t)
+            cx, cy = cx0 - R * 0.16 * t, cy0 - R * 0.22 * t
+            c.create_oval(cx - rr, cy - rr, cx + rr, cy + rr, outline="",
+                          fill=self._shade(color, -0.14 + 0.36 * t))
         # גליף מיקרופון בלבן
         cx = s / 2
-        u = s / 64.0
         w = max(2, int(3 * u))
         c.create_oval(cx - 7 * u, 14 * u, cx + 7 * u, 34 * u, fill="white", outline="")
         c.create_arc(cx - 13 * u, 18 * u, cx + 13 * u, 43 * u, start=180, extent=180,
@@ -991,10 +1751,11 @@ class Widget:
         c.create_line(cx - 6 * u, 50 * u, cx + 6 * u, 50 * u, fill="white", width=w)
         if label:
             c.create_text(cx, s + int(8 * u), text=label, fill=color, font=("Segoe UI", 8, "bold"))
-        # כפתור קטן (שלוש נקודות) בפינה: לחיצה פותחת את לוח הפעולות. לחיצה על העיגול עצמו = הקלטה
+        # כפתור קטן (שלוש נקודות) בפינה: לחיצה פותחת את התפריט. לחיצה על העיגול עצמו = הקלטה
         x0, y0, x1, y1 = self._chip_box()
-        chip_bg = "#1F2937" if self._panel_visible else "#F3F4F6"
+        chip_bg = "#1F2937" if self._panel_visible else "#FFFFFF"
         chip_fg = "#FFFFFF" if self._panel_visible else "#374151"
+        c.create_oval(x0, y0 + 1, x1, y1 + 1, fill="#AEB6C2", outline="")
         c.create_oval(x0, y0, x1, y1, fill=chip_bg, outline="#C9CFD8")
         cxx, cyy, d = (x0 + x1) / 2, (y0 + y1) / 2, max(1.5, 1.6 * u)
         for k in (-1, 0, 1):
@@ -1029,11 +1790,17 @@ class App:
 
         ensure_dictionary()
         self.widget = Widget(self.cfg, self.toggle, self.quit, self.open_settings,
-                             self.open_dictionary, self.transcribe_file_dialog, self.check_updates_manual)
+                             self.open_dictionary, self.transcribe_file_dialog, self.check_updates_manual, self.open_recent)
+        self.recent = []             # חמש ההכתבות האחרונות, בזיכרון בלבד: לא נכתבות לדיסק ולא ליומן
+        if self.cfg.get("fast_model") and fast_available():
+            self.widget.get_engine = lambda: self.cfg.get("engine", "accurate")
+            self.widget.on_engine = self.set_engine
         self._update_busy = False
         if self.cfg.get("check_updates", True):
             threading.Timer(30.0, self._check_updates_auto).start()
         self.typer = Typer(self.cfg)
+        self._notice_until = 0.0     # עד מתי מוצגת הודעת "הסמן זז"
+        self._in_poll = False
         self.model_lock = threading.Lock()   # תמלול מיקרופון ותמלול קובץ לא רצים על המודל בו-זמנית
         self.recorder = Recorder(self.cfg, self._on_segment, self._on_end,
                                  lambda s: self.ui.put(("state", s)),
@@ -1079,6 +1846,20 @@ class App:
         root.mainloop()
 
     def _poll(self):
+        # קריאת COM ל-Word מריצה לולאת הודעות פנימית, ו-Tk עלול להפעיל את _poll שוב מתוכה. לא נכנסים פעמיים.
+        if self._in_poll:
+            return
+        self._in_poll = True
+        try:
+            self._poll_once()
+        finally:
+            self._in_poll = False
+        try:
+            self.widget.root.after(100, self._poll)
+        except Exception:
+            pass                     # החלון נסגר (יציאה)
+
+    def _poll_once(self):
         self.typer.my_hwnd = self.widget.hwnd
         self.typer.track()
         while True:
@@ -1089,11 +1870,15 @@ class App:
             if kind == "state":
                 self.state = payload
                 self.widget.set_state(payload)
+                if payload == "idle":
+                    self.typer.end_session()
                 self._sync_overlay()
             elif kind == "state_if":
                 if self.state == payload[0]:
                     self.state = payload[1]
                     self.widget.set_state(payload[1])
+                    if payload[1] == "idle":
+                        self.typer.end_session()
                     self._sync_overlay()
             elif kind == "level":
                 self.widget.overlay_level(payload)
@@ -1114,7 +1899,13 @@ class App:
                 self.toggle()
             elif kind == "type":
                 try:
-                    self.typer.type_text(payload)
+                    result = self.typer.type_text(payload)
+                    self.recent.insert(0, (time.strftime("%H:%M"), payload, result))
+                    del self.recent[5:]
+                    if result == "held":
+                        self._notice_until = time.time() + 15
+                        self._sync_overlay()
+                        self.widget.root.after(15200, self._sync_overlay)
                 except Exception as e:
                     logging.error("type failed: %s", e)
             elif kind == "update_result":
@@ -1126,11 +1917,12 @@ class App:
                 mb.showerror("הכתבה קולית", payload)
                 self.quit()
                 return
-        self.widget.root.after(100, self._poll)
 
     def _sync_overlay(self):
         """חלונית הסטטוס מוצגת רק בזמן האזנה ותמלול, ומראה לאן הטקסט ייכתב."""
-        if self.state in ("recording", "speech"):
+        if self.typer.hold and time.time() < self._notice_until:
+            self.widget.overlay_show(window_title(self.typer.target), "held")
+        elif self.state in ("recording", "speech"):
             self.widget.overlay_show(window_title(self.typer.target),
                                      "speech" if self.state == "speech" else "wait")
         elif self.state == "transcribing":
@@ -1164,6 +1956,7 @@ class App:
         if self.recorder.running:
             self.recorder.stop()
         else:
+            self._notice_until = 0.0
             self.typer.lock_target()
             self.recorder.start()
             self.ui.put(("state", "recording"))
@@ -1310,6 +2103,56 @@ class App:
         sw, sh = w.winfo_screenwidth(), w.winfo_screenheight()
         w.geometry(f"+{sw // 2 - w.winfo_width() // 2}+{sh // 2 - w.winfo_height() // 2}")
 
+    def set_engine(self, engine):
+        """מדויק = Whisper turbo של ivrit.ai. מהיר = zipformer2 streaming של ivrit.ai. שניהם מקומיים. הבחירה נשמרת."""
+        if engine not in ("accurate", "fast"):
+            return
+        self.cfg["engine"] = engine
+        try:
+            save_config(self.cfg)
+        except Exception as e:
+            logging.error("engine not saved: %s", e)
+        logging.info("engine: %s", engine)
+
+    def open_recent(self):
+        """חמש ההכתבות האחרונות, להעתקה בלחיצה. רשת ביטחון למקרה שטקסט הודבק במקום שגוי או נדרס בלוח."""
+        import tkinter as tk
+        from tkinter import ttk
+        import pyperclip
+        if getattr(self, "_recent_win", None) and self._recent_win.winfo_exists():
+            self._recent_win.destroy()
+        w = tk.Toplevel(self.widget.root)
+        w.title("הכתבות אחרונות - הכתבה קולית HGJ")
+        w.attributes("-topmost", True)
+        w.resizable(False, False)
+        self._recent_win = w
+        f = ttk.Frame(w, padding=14)
+        f.pack(fill="both", expand=True)
+        labels = {"word": "נכנס למסמך", "pasted": "הודבק", "held": "מחכה בלוח"}
+        if not self.recent:
+            ttk.Label(f, text="אין עדיין הכתבות מאז שהכלי הופעל.", anchor="e").pack(fill="x")
+        for when, text, result in self.recent:
+            row = ttk.Frame(f)
+            row.pack(fill="x", pady=5)
+            head = ttk.Frame(row)
+            head.pack(fill="x")
+            ttk.Label(head, text=f"{when} · {labels.get(result, result)}",
+                      foreground="#B45309" if result == "held" else "#64748B", font=("Segoe UI", 8, "bold")).pack(side="right")
+
+            def copy(t=text, b=None):
+                clip_copy(t)
+            btn = ttk.Button(head, text="העתקה", width=8)
+            btn.configure(command=lambda t=text, b=btn: (clip_copy(t), b.configure(text="הועתק")))
+            btn.pack(side="left")
+            ttk.Label(row, text=text, wraplength=460, justify="right", anchor="e").pack(fill="x", pady=(3, 0))
+            ttk.Separator(f).pack(fill="x", pady=(4, 0))
+        ttk.Label(f, text="נשמר בזיכרון בלבד, ונמחק כשיוצאים מהכלי.", foreground="#64748B",
+                  font=("Segoe UI", 8), anchor="e").pack(fill="x", pady=(8, 0))
+        ttk.Button(f, text="סגירה", command=w.destroy).pack(side="right", pady=(8, 0))
+        w.update_idletasks()
+        sw, sh = w.winfo_screenwidth(), w.winfo_screenheight()
+        w.geometry(f"+{sw // 2 - w.winfo_width() // 2}+{sh // 2 - w.winfo_height() // 2}")
+
     def open_dictionary(self):
         ensure_dictionary()
         os.startfile("notepad.exe", arguments=f'"{DICT_PATH}"')
@@ -1365,8 +2208,8 @@ class App:
                     on_line=on_line, cancel=lambda: self._file_cancel)
             status = f"הופסק על ידי המשתמש אחרי {fmt_ts(lines[-1][0]) if lines else '0'}, תמלול חלקי" if stopped else ""
             write_transcript(path, lines, total, status=status)
-            logging.info("file transcribed%s: %.0fs of audio in %.0fs, %d segments -> %s",
-                         " (stopped)" if stopped else "", total, time.time() - t, len(lines), out)
+            logging.info("file transcribed%s: %.0fs of audio in %.0fs, %d segments",
+                         " (stopped)" if stopped else "", total, time.time() - t, len(lines))
             self.ui.put(("progress", None))
             self.ui.put(("open", out))
         except Exception as e:
@@ -1441,7 +2284,7 @@ class App:
         btns.pack(fill="x", pady=(16, 0))
         if kind == "available":
             if full:
-                ttk.Button(btns, text="פתיחת דף ההורדה", command=lambda: (os.startfile(info.get("page", UPDATE_PAGE)), w.destroy())).pack(side="right")
+                ttk.Button(btns, text="פתיחת דף ההורדה", command=lambda: (os.startfile(info["page"] if str(info.get("page", "")).startswith("https://hgj-tools.github.io/") else UPDATE_PAGE), w.destroy())).pack(side="right")
             else:
                 ttk.Button(btns, text="עדכון עכשיו", command=lambda: (w.destroy(), self._apply_update(info))).pack(side="right")
             ttk.Button(btns, text="לא עכשיו", command=w.destroy).pack(side="right", padx=(0, 8))

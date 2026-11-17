@@ -1,8 +1,8 @@
 {
-  "version": "1.3.0",
-  "published": "2026-09-03",
+  "version": "1.6.2",
+  "published": "2026-11-17",
   "runtime_id": "4f9bab37",
-  "notes": "מנגנון עדכונים: מעכשיו הכלי מודיע על גרסאות חדשות ומתעדכן בלחיצה.",
+  "notes": "הדבקה בטוחה: אם הסמן זז בזמן ההכתבה, הטקסט מחכה בלוח ולא מודבק במקום שגוי. בהערה ב-Word הטקסט נכנס להערה. תפריט קומפקטי, הכתבות אחרונות, ודיבור ארוך בלי דילוגים.",
   "page": "https://hgj-tools.github.io/dictation-desktop/",
   "installer": "https://github.com/hgj-tools/hgj-tools.github.io/releases/download/v1.3.0-dictation-desktop/HGJ-Dictation-Setup-1.3.0.exe",
   "installer_sha256": "596333d29356823f4177b3556fe5c791141b804ad8fd93a0c1d8c2cf5d319c52",
@@ -10,7 +10,7 @@
     {
       "name": "dictate.py",
       "url": "https://hgj-tools.github.io/dictation-desktop/dictate.py",
-      "sha256": "51e17529cd9c3ca2bb361c8798d81cc3ee156d8a98ce30725be66dd256ffc123"
+      "sha256": "985121544877187a92f56632b96f3ddff3972de1fa359bb54ca4b1b005cb2cbc"
     },
     {
       "name": "download_model.py",
