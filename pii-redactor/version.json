@@ -1,7 +1,7 @@
 {
- "version": "2.7",
- "sha256": "09df293471e4feff729c5dd10aa9915083a103c49dae664c41adfef8ad9d38e0",
- "signature": "dGwfrXHKTd7c02Uqawmk4ymwZapsryoZv/1O3pR3b/7aTxRYpyD5NxH7GozOCKVkFYP6Jwrt5bQG+OSxKBW5LeYPYksg0MfThkMXdrW7hxJVzeCMGFRqNeepW0RrQkogEQC6gRLE9dZDjWO581s2e805xYVvKK4VUkkfuFvPNOf1vL14+Fha0jWH1rUYD/WUY42LjOyxW0nY7HfxtLhEGm4tttG0M9lSkv4FXmtNY5djuovRCf2/ejekGG0AeHOztVBiIPv9vGpfb+vEEtHh6yslvQj9vW09ISTaSUyhCSocfdCIXzeR9KIEQbfb9zhxUc8GZXiip7wFWhCN7hE44byy/R/GZfNHToR/hMY4qSRqZ0e9uIDP/+YeOi0DJGsi9TPkaP2L/ZMTzwGdC5m6+LmjKMuKcUv2GgMkBwwmVUq/OyhUvx2vPgnVa6KCaQGJ8bw+wc4Jt+qz+cMpQ8aPQs4T28InCwo9drWBivVB92DyifE+ZzYU6RyUYl0I8EPv",
+ "version": "2.8",
+ "sha256": "4b51044d6234aa7420f6abdd04fd17f968b7ed724a8125da71939f351232c82b",
+ "signature": "CdD4jgxsw+3K5FmleVMBQysmSoLt94Fx1f7RQfmqw4Mrab1aWuYe3C99dTzwb4j2nKM8IRzp6q1nhYEPkvblYMTLcnU9IQy42GvlULAgBPvxzwcZod/3a7KbDuwW5Psjh4+LW5EPqB+vAVCKSdcDmTaqUOvUKxhL9aBEXt6aufiCaoux6LcAm6g4Ci5QvDk7hk6xBzFq2zY+Zit4RLN0H6hXnllxiGkjuvz8keBGyLjfoVSstE2RO88lgm5iMEHGndFn3IPFY/HsZJGBaETcRQou7YbdoYDlFe4KeZgN9u1T2M07jYjrWinTjURXktGJsAqyzgcQcACYJYyW+AsLhU9F4wbLULt0QHvCVO//WURgWIb0A8TwHxoekwfKYNRuRfYQqQyk0/Q9m+MhjWXWCYVK04WMiyN1Q3JBqcbBT8M/7lWEor1ZDmDa4tpf7mR8Aq0NOH1JdaGx+efwpwYhn95pAyiqykfGKdesM/Zr/+px6kAgWVbRh3q4b3dKP4LW",
  "url": "https://hgj-tools.github.io/pii-redactor/pii-redactor.zip",
- "notes": "מבנה פשוט: בתיקייה רק קובץ הפעלה וקרא אותי, וכל השאר מוסתר"
+ "notes": "ממשק חדש בשלושה שלבים, אימות לכל קובץ, כיסוי מלא של האותיות, זיהוי רחב יותר וטעינת מפתח קודם"
 }
