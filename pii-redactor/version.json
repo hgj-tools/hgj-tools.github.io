@@ -1,7 +1,8 @@
 {
- "version": "2.8",
- "sha256": "4b51044d6234aa7420f6abdd04fd17f968b7ed724a8125da71939f351232c82b",
- "signature": "CdD4jgxsw+3K5FmleVMBQysmSoLt94Fx1f7RQfmqw4Mrab1aWuYe3C99dTzwb4j2nKM8IRzp6q1nhYEPkvblYMTLcnU9IQy42GvlULAgBPvxzwcZod/3a7KbDuwW5Psjh4+LW5EPqB+vAVCKSdcDmTaqUOvUKxhL9aBEXt6aufiCaoux6LcAm6g4Ci5QvDk7hk6xBzFq2zY+Zit4RLN0H6hXnllxiGkjuvz8keBGyLjfoVSstE2RO88lgm5iMEHGndFn3IPFY/HsZJGBaETcRQou7YbdoYDlFe4KeZgN9u1T2M07jYjrWinTjURXktGJsAqyzgcQcACYJYyW+AsLhU9F4wbLULt0QHvCVO//WURgWIb0A8TwHxoekwfKYNRuRfYQqQyk0/Q9m+MhjWXWCYVK04WMiyN1Q3JBqcbBT8M/7lWEor1ZDmDa4tpf7mR8Aq0NOH1JdaGx+efwpwYhn95pAyiqykfGKdesM/Zr/+px6kAgWVbRh3q4b3dKP4LW",
+ "version": "2.8.1",
+ "sha256": "6f6ec0a54bf1f1ad1f450cad3fe70c8061eadbf994bf8ee1e4771dc663e6f1f3",
+ "signature": "R6A7Vqu+grvnP3c9wWqj+m1BjJEG8FY7Mgs4ay3F44TeGRWmwn4DkAcc4KmLylgkIORSwfFoUrglnlmbxYlePgb8rcdr52DUKaCrt9jnpBkGkJymyCif13+0GDyVKFgoNPg9shV6nP5c86uGd2v1UudBXiq5DIqQTIiQj8i0lD/qI1D+w1XU2SgMLBT+g+Jv6MFi8a834Dq577uxgfaU4WrSsrpCvPRNCrGL6YZ/JeNIoPpCp1FxR+UyQBC9eJzaQU68hPVI3I2yVa3nyeZexXzAAaP3ToK1NTLTFBwvaPM8FX5WEXcPgsOA6xqFB2FwFmOkTICJxYkqGy4hdX1n7YG5iwyvqreTB+nb8DE+/2KkQS/TXrgbJ9r6G9nvgqjcie6WgxKrKh9xjwE0RSz3PAsgUa6pQSfl6FR5VNPJM/8kD/nZ+Xj9j0EEBW06IAzggwvolbRpEFUDC5CpxhFfpLGUEhTe0Q9Tl9oPcuXKfM5Vt73rLIS7L8HA7J+vJvcn",
  "url": "https://hgj-tools.github.io/pii-redactor/pii-redactor.zip",
- "notes": "ממשק חדש בשלושה שלבים, אימות לכל קובץ, כיסוי מלא של האותיות, זיהוי רחב יותר וטעינת מפתח קודם"
+ "notes": "\r  .Enter זאו 1 םידילקמ ןכדעל ידכ .םיישיא םינותנ הקנמ ילכל ןוכדע שי\n                                               .Enter קר ,גלדל ידכ\n      (.התוא ןקתמ הזה ןוכדעהו ,הגוצת תלקת ןה ןולחב תוכופהה תורושה)\n       Update available: type 1 and press Enter to update, or just\n                                                    Enter to skip.",
+ "notes_he": "עברית קריאה בחלון ההפעלה, כולל שאלת העדכון."
 }
