@@ -160,9 +160,39 @@ dialog .note{color:var(--muted);font-size:12.5px}
 #dlgPreview[open]{display:flex;flex-direction:column}
 #dlgPreview .pv{flex:1;position:relative;background:#e2e8f0;overflow:hidden}
 :root[data-theme="dark"] #dlgPreview .pv{background:#03111D}
-#dlgPreview .pv canvas,#dlgPreview .pv img{position:absolute;top:50%;left:50%;background:#fff;box-shadow:0 4px 20px rgba(0,0,0,.25)}
-#dlgPreview .hd{justify-content:space-between}
+#dlgPreview .pv .pgw{position:absolute;top:50%;left:50%;background:#fff;box-shadow:0 4px 20px rgba(0,0,0,.25)}
+#dlgPreview .pv .pgw>canvas{display:block;width:100%;height:100%}
+#dlgPreview .hd{justify-content:space-between;flex-wrap:wrap}
 #dlgPreview .hd .grp{font-weight:normal}
+#dlgPreview .pvbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:8px 20px;border-bottom:1px solid var(--border);background:var(--selbg)}
+#dlgPreview .pvbar .hint{color:var(--accent);font-size:13px;margin-inline-end:auto}
+.mklayer{position:absolute;inset:0}
+.mk{position:absolute;cursor:move;touch-action:none;outline:1.5px dashed transparent;outline-offset:2px}
+.mk:hover{outline-color:rgba(0,114,187,.55)}
+.mk.sel{outline:2px solid var(--sel)}
+.mk img{position:absolute;top:50%;left:50%;pointer-events:none;user-select:none}
+.mk .rh{position:absolute;left:-8px;bottom:-8px;width:16px;height:16px;border-radius:50%;background:var(--sel);border:2px solid #fff;cursor:nesw-resize;box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.mk .mdel{position:absolute;right:-11px;top:-11px;width:22px;height:22px;border-radius:50%;border:2px solid #fff;background:var(--no);color:#fff;display:grid;place-items:center;padding:0;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.mk .mdel svg{width:12px;height:12px}
+.card .mkbadge{position:absolute;bottom:30px;left:10px;z-index:2;background:#0e7a43;color:#fff;font-size:10.5px;border-radius:6px;padding:1px 5px}
+dialog.wide{max-width:min(94vw,680px);width:680px}
+dialog .tabs{display:flex;gap:6px;margin-bottom:12px;border-bottom:1px solid var(--border)}
+dialog .tabs button{border:0;background:none;padding:8px 12px;border-bottom:3px solid transparent;cursor:pointer;color:var(--muted);font-weight:bold}
+dialog .tabs button.on{color:var(--accent);border-bottom-color:var(--sel)}
+#sigPad{display:block;width:100%;aspect-ratio:3/1;background:#fff linear-gradient(to top,transparent 26%,#cbd5e1 26%,#cbd5e1 calc(26% + 1.5px),transparent calc(26% + 1.5px));border:1px solid var(--border);border-radius:12px;touch-action:none;cursor:crosshair}
+dialog .mkprev{margin-top:10px;min-height:20px;display:flex;justify-content:center}
+dialog .mkprev canvas{max-width:100%;max-height:160px;background:#fff repeating-conic-gradient(#f1f5f9 0 25%,#fff 0 50%) 0 0/16px 16px;border:1px solid var(--border);border-radius:10px;padding:6px}
+dialog input.short{width:140px;direction:ltr;text-align:center}
+dialog [data-pane] input[type=text]{margin-top:10px}
+dialog .saved{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;align-items:center}
+dialog .saved .note{flex-basis:100%}
+dialog .saved .sv{position:relative}
+dialog .saved .use{border:1px solid var(--border);background:#fff;border-radius:10px;padding:6px;cursor:pointer;height:64px;display:grid;place-items:center}
+dialog .saved .use:hover{border-color:var(--sel)}
+dialog .saved .use img{max-height:50px;max-width:150px}
+dialog .saved .rm{position:absolute;top:-8px;left:-8px;width:20px;height:20px;border-radius:50%;border:0;background:var(--muted);color:#fff;display:grid;place-items:center;padding:0;cursor:pointer}
+dialog .saved .rm:hover{background:var(--no)}
+dialog .saved .rm svg{width:11px;height:11px}
 
 footer{max-width:1400px;margin:0 auto;padding:0 24px 24px;color:var(--muted);font-size:12px}
 footer a{color:var(--muted)}
@@ -204,6 +234,7 @@ footer .lic p[dir=ltr]{text-align:left}
     <button class="btn icon" id="bMoveE" data-need="sel" title="הזזת העמודים שנבחרו מקום אחד לכיוון הסוף (Alt וחץ שמאלה)" aria-label="הזזה לכיוון הסוף"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></button>
     <button class="btn" id="bReverse" data-need="pages2" title="היפוך הסדר של העמודים שנבחרו. בלי בחירה, היפוך הסדר של כל העמודים"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4v16M7 20l-3-3M7 20l3-3M17 20V4M17 4l-3 3M17 4l3 3"/></svg>היפוך סדר</button>
     <button class="btn danger" id="bDel" data-need="sel" title="מחיקת העמודים שנבחרו (Delete)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>מחיקה</button>
+    <button class="btn" id="bSign" data-need="pages" title="הוספת חתימה או חותמת על עמוד. נפתח העמוד המסומן, ובו כפתורי החתימה והחותמת"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21c3-1 4-4 7-4s2 3 5 3 4-2 6-3"/><path d="M14 4l4 4-8 8H6v-4z"/></svg>חתימה וחותמת</button>
     <button class="btn" id="bBlank" data-need="pages" title="הוספת עמוד ריק אחרי הבחירה, או בסוף"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/></svg>עמוד ריק</button>
     <button class="btn" id="bUndo" title="ביטול הפעולה האחרונה (Ctrl+Z)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14l-5-5 5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg>ביטול</button>
   </div>
@@ -242,7 +273,7 @@ footer .lic p[dir=ltr]{text-align:left}
 </div>
 <footer id="foot">כלי איחוד ופיצול PDF · גרסה <span id="ver"></span> · <a href="../policy/">הצהרת נגישות, פרטיות ותנאי שימוש</a> · <a href="../">כל הכלים</a>
   <details class="lic"><summary>רישיונות קוד פתוח</summary>
-  <p>הכלי מסופק כמות שהוא, לשימוש עזר, ואינו שומר, אוסף או שולח מידע. הוא מטמיע שלוש ספריות קוד פתוח:</p>
+  <p>הכלי מסופק כמות שהוא, לשימוש עזר, ואינו אוסף או שולח מידע. חתימה או חותמת נשמרות בדפדפן רק אם ביקשתם זאת, ואפשר למחוק אותן בכל רגע. הכלי מטמיע שלוש ספריות קוד פתוח:</p>
   <p dir="ltr">PDF.js 4.10.38, Copyright Mozilla Foundation. Licensed under the Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0). Includes core-js, MIT License.<br>
   @cantoo/pdf-lib 2.11.0 (used only for password-protected files), Copyright (c) 2019 Andrew Dillon and contributors, MIT License. It bundles fflate (MIT, Copyright (c) Arjun Barrett), culori (MIT, Copyright (c) Dan Burzo), node-html-better-parser (MIT), html-entities (MIT, Copyright (c) Marat Dulin), UPNG.js (MIT, Copyright (c) Photopea) and tslib (Copyright Microsoft Corporation, 0BSD). The MIT permission notice below applies to these as well.<br>
   pdf-lib 1.17.1, Copyright (c) 2019 Andrew Dillon. MIT License: Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions: The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. pdf-lib bundles pako (MIT) and tslib (Copyright Microsoft Corporation, 0BSD).</p>
@@ -360,11 +391,74 @@ footer .lic p[dir=ltr]{text-align:left}
       <button class="btn icon" id="pvNext" title="העמוד הבא">←</button>
       <button class="btn icon" id="pvRotL" title="סיבוב נגד כיוון השעון"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4v5h5"/><path d="M3.5 9A9 9 0 1 1 6 18.5"/></svg></button>
       <button class="btn icon" id="pvRotR" title="סיבוב עם כיוון השעון"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 4v5h-5"/><path d="M20.5 9A9 9 0 1 0 18 18.5"/></svg></button>
-      <button class="btn danger" id="pvDel">מחיקה</button>
+      <button class="btn primary" id="pvSig" title="ציור חתימה, או תמונה של חתימה"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21c3-1 4-4 7-4s2 3 5 3 4-2 6-3"/><path d="M14 4l4 4-8 8H6v-4z"/></svg>חתימה</button>
+      <button class="btn primary" id="pvStamp" title="חותמת טקסט, כמו העתק נאמן למקור, או תמונה של חותמת"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4h6v5l3 3v3H6v-3l3-3z"/><path d="M4 20h16"/></svg>חותמת</button>
+      <button class="btn danger" id="pvDel">מחיקת העמוד</button>
       <button class="btn" id="pvClose">סגירה</button>
     </div></div>
+  <div class="pvbar" id="pvMarkBar" hidden>
+    <span class="hint">גוררים את הסימן כדי להזיז אותו, ומושכים את הפינה כדי לשנות את הגודל</span>
+    <button class="btn" id="pvApplySel" title="אותו סימן, באותו מקום, בכל העמודים שנבחרו ברשת">גם בעמודים שנבחרו</button>
+    <button class="btn" id="pvApplyAll" title="אותו סימן, באותו מקום, בכל העמודים">בכל העמודים</button>
+    <button class="btn danger" id="pvMarkDel">הסרת הסימן</button>
+  </div>
   <div class="pv" id="pv"></div>
 </dialog>
+
+<dialog id="dlgSig" class="wide"><form method="dialog">
+  <div class="hd">✍️ חתימה</div>
+  <div class="bd">
+    <div class="tabs" role="tablist"><button type="button" data-tab="draw" class="on">ציור החתימה</button><button type="button" data-tab="img">תמונה של חתימה</button></div>
+    <div data-pane="draw">
+      <canvas id="sigPad" width="1200" height="400" aria-label="משטח לציור החתימה"></canvas>
+      <div class="row2">
+        <label>צבע <select id="sigColor" class="sel"><option value="#1d3fbf">כחול</option><option value="#1a1a1a">שחור</option></select></label>
+        <label>עובי <select id="sigWidth" class="sel"><option value="6">דק</option><option value="9" selected>רגיל</option><option value="13">עבה</option></select></label>
+        <button type="button" class="btn" id="sigClear">ניקוי</button>
+      </div>
+      <div class="note">מציירים בעכבר, באצבע או בעט.</div>
+    </div>
+    <div data-pane="img" hidden>
+      <input type="file" id="sigFile" accept="image/*">
+      <label class="r"><input type="checkbox" id="sigWhite" checked> הסרת הרקע הלבן, כדי שהחתימה לא תסתיר את הטקסט</label>
+      <div class="mkprev" id="sigImgPrev"></div>
+    </div>
+    <div class="saved" id="sigSaved" hidden></div>
+    <label class="r"><input type="checkbox" id="sigRemember"> לזכור את החתימה בדפדפן הזה, לפעם הבאה</label>
+    <div class="note">זו חתימה כתמונה, ולא חתימה דיגיטלית מאושרת. בלי הסימון למעלה, החתימה נמחקת כשסוגרים את הדף.</div>
+    <div class="err" id="sigErr"></div>
+  </div>
+  <div class="ft"><button class="btn primary" value="ok">הוספה לעמוד</button><button class="btn" value="cancel">ביטול</button></div>
+</form></dialog>
+
+<dialog id="dlgStamp" class="wide"><form method="dialog">
+  <div class="hd">🔖 חותמת</div>
+  <div class="bd">
+    <div class="tabs" role="tablist"><button type="button" data-tab="text" class="on">חותמת טקסט</button><button type="button" data-tab="img">תמונה של חותמת</button></div>
+    <div data-pane="text">
+      <div class="row2">
+        <label>נוסח <select id="stText" class="sel">
+          <option>העתק נאמן למקור</option><option>נתקבל</option><option>שולם</option><option>אושר</option><option>לתשלום</option><option>מקור</option><option>העתק</option><option>סודי</option><option>טיוטה</option><option value="">נוסח אחר</option>
+        </select></label>
+        <label>צבע <select id="stColor" class="sel"><option value="blue">כחול</option><option value="red">אדום</option><option value="green">ירוק</option><option value="black">שחור</option></select></label>
+        <label><input type="checkbox" id="stFrame" checked> מסגרת</label>
+      </div>
+      <input type="text" id="stCustom" maxlength="40" placeholder="הנוסח של החותמת" hidden>
+      <input type="text" id="stLine2" maxlength="50" placeholder="שורה נוספת, למשל שם או תפקיד (לא חובה)">
+      <div class="row2"><label><input type="checkbox" id="stDate" checked> תאריך</label><input type="text" id="stDateVal" class="short" maxlength="20"></div>
+      <div class="mkprev" id="stPrev"></div>
+    </div>
+    <div data-pane="img" hidden>
+      <input type="file" id="stFile" accept="image/*">
+      <label class="r"><input type="checkbox" id="stWhite" checked> הסרת הרקע הלבן, כדי שהחותמת לא תסתיר את הטקסט</label>
+      <div class="mkprev" id="stImgPrev"></div>
+    </div>
+    <div class="saved" id="stSaved" hidden></div>
+    <label class="r"><input type="checkbox" id="stRemember"> לזכור את החותמת בדפדפן הזה, לפעם הבאה</label>
+    <div class="err" id="stErr"></div>
+  </div>
+  <div class="ft"><button class="btn primary" value="ok">הוספה לעמוד</button><button class="btn" value="cancel">ביטול</button></div>
+</form></dialog>
 
 <script>!function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"function"==typeof define&&define.amd?define(["exports"],e):e((t=t||self).PDFLib={})}(this,(function(t){"use strict";
 /*! *****************************************************************************
@@ -429,7 +523,7 @@ footer .lic p[dir=ltr]{text-align:left}
 //# sourceMappingURL=pdf-lib.min.js.map
 </script>
 <script type="module">// כלי איחוד ופיצול PDF. הכל רץ בדפדפן; הדף נעול ב CSP בלי גישה לרשת.
-const VERSION = '1.3.0 (11.11.2026)';
+const VERSION = '1.4.0 (22.11.2026)';
 const TOOL_NAME = 'כלי איחוד ופיצול PDF';
 const { PDFDocument, degrees, StandardFonts, rgb } = PDFLib;
 const pdfjs = globalThis.pdfjsLib;
@@ -447,6 +541,7 @@ const ICON = {
   trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>',
   x: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
   check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg>',
+  pen: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21c3-1 4-4 7-4s2 3 5 3 4-2 6-3"/><path d="M14 4l4 4-8 8H6v-4z"/></svg>',
 };
 
 const state = { sources: [], pages: [], selected: new Set(), anchor: null, undo: [], imgMode: 'a4', dirty: false, focus: null, numbering: null };
@@ -770,8 +865,134 @@ function imageLayout(w, h) {
   return { pw, ph, x: (pw - dw) / 2, y: (ph - dh) / 2, dw, dh, aspect: pw / ph };
 }
 
+// ---------- חתימה וחותמת: מודל וגיאומטריה ----------
+// כל חתימה או חותמת היא תמונת PNG שקופה (סימן). גם חותמת טקסט מצוירת על קנבס, כי הגופן המובנה של PDF אינו תומך בעברית.
+// הנחה של סימן על עמוד נשמרת ב p.ov במסגרת שבה renderPageCanvas מצייר את העמוד, כלומר לפני הסיבוב שהמשתמש הוסיף
+// (p.rot), ביחסים 0 עד 1 של רוחב וגובה העמוד. x,y,w,h הם המלבן שהסימן תופס במסגרת הזו, ו rq הוא סיבוב הסימן עצמו בה
+// (עם כיוון השעון). rq נקבע ברגע ההנחה כך שהסימן נראה ישר, ולכן סיבוב מאוחר של העמוד מסובב גם אותו, כמו נייר
+const marks = new Map();
+const MARKS_KEY = 'pdfmerge.marks';
+async function makeMark(cv, kind, name, persisted = false) {
+  const blob = await canvasBlob(cv, 'image/png');
+  const m = { id: uid('m'), kind, name, w: cv.width, h: cv.height, persisted };
+  m.bytes = new Uint8Array(await blob.arrayBuffer());
+  m.url = URL.createObjectURL(blob);
+  m.bmp = await createImageBitmap(blob);
+  marks.set(m.id, m);
+  return m;
+}
+// נקודה במסגרת יחסית (0 עד 1) אחרי שהמסגרת מסתובבת r מעלות עם כיוון השעון
+function rotFrac(u, v, r) {
+  r = norm(r);
+  return r === 0 ? [u, v] : r === 90 ? [1 - v, u] : r === 180 ? [1 - u, 1 - v] : [v, 1 - u];
+}
+function rotRect(x, y, w, h, r) {
+  const [a, b] = rotFrac(x, y, r), [c, d] = rotFrac(x + w, y + h, r);
+  return { x: Math.min(a, c), y: Math.min(b, d), w: Math.abs(c - a), h: Math.abs(d - b) };
+}
+// היחס רוחב לגובה של העמוד כפי שהוא מוצג, אחרי p.rot
+function shownAspect(p) { return p.rot % 180 ? 1 / p.aspect : p.aspect; }
+async function pageAspect(p) {
+  if (p.kind === 'pdf' && !p.aspectKnown) {
+    const pg = await p.src.doc.getPage(p.index + 1);
+    const v = pg.getViewport({ scale: 1 });
+    p.aspect = v.width / v.height; p.aspectKnown = true;
+  }
+  return p.aspect;
+}
+// הנחת סימן על עמוד. disp: הפינה השמאלית העליונה (x,y) והרוחב w, כחלק מהעמוד כפי שהוא מוצג עכשיו.
+// rqShown הוא סיבוב הסימן כפי שהוא נראה (0 = ישר)
+function markPlacement(p, m, disp, rqShown = 0) {
+  const ma = rqShown % 180 ? m.h / m.w : m.w / m.h;
+  const w = Math.min(disp.w, 1), h = Math.min(w * shownAspect(p) / ma, 1);
+  const x = Math.max(0, Math.min(disp.x, 1 - w)), y = Math.max(0, Math.min(disp.y, 1 - h));
+  const b = rotRect(x, y, w, h, -p.rot);
+  return { id: uid('o'), mark: m.id, x: b.x, y: b.y, w: b.w, h: b.h, rq: norm(rqShown - p.rot) };
+}
+function marksChanged(p) {
+  p.ovGen = (p.ovGen || 0) + 1;
+  p.thumbStale = true;
+  state.dirty = true;
+  if (p.thumb) queueThumb(p);              // עמוד שעוד לא צויר יצויר עם הסימנים כשיגיע למסך
+}
+// אחרי שינוי מצב התמונות, מסגרת עמוד התמונה משתנה. שומרים על המרכז והרוחב של כל סימן ומחשבים את הגובה מחדש, כדי שלא יימתח
+function refitMarks(p) {
+  if (!p.ov || !p.ov.length) return;
+  p.ov = p.ov.map(o => {
+    const m = marks.get(o.mark); if (!m) return o;
+    const fa = o.rq % 180 ? m.h / m.w : m.w / m.h;
+    const h = Math.min(1, o.w * p.aspect / fa), cy = o.y + o.h / 2;
+    return { ...o, h, y: Math.max(0, Math.min(1 - h, cy - h / 2)) };
+  });
+  marksChanged(p);
+}
+async function placeMark(p, m, disp) {
+  await pageAspect(p);
+  pushUndo();
+  const o = markPlacement(p, m, disp);
+  p.ov = [...(p.ov || []), o];
+  marksChanged(p);
+  return o;
+}
+// העתקת סימן שהונח בעמוד אחד לעמודים אחרים, באותו מקום ובאותו רוחב יחסית לעמוד כפי שהוא מוצג
+async function copyMarkTo(src, o, targets) {
+  const d = rotRect(o.x, o.y, o.w, o.h, src.rot), rqShown = norm(o.rq + src.rot);
+  const m = marks.get(o.mark);
+  const list = targets.filter(t => t !== src);
+  if (!m || !list.length) return 0;
+  for (const t of list) await pageAspect(t);
+  pushUndo();
+  for (const t of list) { t.ov = [...(t.ov || []), markPlacement(t, m, d, rqShown)]; marksChanged(t); }
+  return list.length;
+}
+function removeMark(p, oid) {
+  if (!(p.ov || []).some(o => o.id === oid)) return;
+  pushUndo();
+  p.ov = p.ov.filter(o => o.id !== oid);
+  marksChanged(p);
+}
+// ציור הסימנים על קנבס שמכיל את העמוד במסגרת הבסיס (לפני p.rot)
+function drawMarks(ctx, p, W, H) {
+  for (const o of p.ov || []) {
+    const m = marks.get(o.mark); if (!m) continue;
+    const bw = o.w * W, bh = o.h * H, odd = o.rq % 180 !== 0;
+    ctx.save();
+    ctx.translate((o.x + o.w / 2) * W, (o.y + o.h / 2) * H);
+    ctx.rotate(o.rq * Math.PI / 180);
+    const iw = odd ? bh : bw, ih = odd ? bw : bh;
+    ctx.drawImage(m.bmp, -iw / 2, -ih / 2, iw, ih);
+    ctx.restore();
+  }
+}
+// נקודה במסגרת התצוגה של העמוד (ביחידות PDF, ראשית בפינה השמאלית העליונה) אל מערכת הצירים של ה PDF, לפי הסיבוב
+// הפנימי של העמוד R ומלבן החיתוך b. זה ההפך המדויק של ה viewport של pdf.js
+function toUser(dx, dy, R, b) {
+  if (R === 0) return [b.x + dx, b.y + b.height - dy];
+  if (R === 90) return [b.x + dy, b.y + dx];
+  if (R === 180) return [b.x + b.width - dx, b.y + dy];
+  return [b.x + b.width - dy, b.y + b.height - dx];
+}
+// הטבעת הסימנים בעמוד שנבנה. R הוא הסיבוב הפנימי של העמוד לפני שמוסיפים לו את p.rot (0 בעמוד שנוצר מתמונה, ריק או
+// מצויר מחדש), ו b מלבן החיתוך שלו. כל סימן מוטמע פעם אחת לקובץ
+async function stampMarks(out, pg, p, R, b, cache) {
+  if (!p.ov || !p.ov.length) return;
+  R = norm(R);
+  const W = R % 180 ? b.height : b.width, H = R % 180 ? b.width : b.height;
+  for (const o of p.ov) {
+    const m = marks.get(o.mark); if (!m) continue;
+    let emb = cache.get(m.id);
+    if (!emb) { emb = await out.embedPng(m.bytes); cache.set(m.id, emb); }
+    const [ax, ay] = toUser(o.x * W, o.y * H, R, b), [cx, cy] = toUser((o.x + o.w) * W, (o.y + o.h) * H, R, b);
+    const rx = Math.min(ax, cx), ry = Math.min(ay, cy), rw = Math.abs(cx - ax), rh = Math.abs(cy - ay);
+    const t = norm(R - o.rq);                 // סיבוב נגד כיוון השעון במערכת הצירים של ה PDF, סביב הפינה השמאלית התחתונה
+    const iw = t % 180 ? rh : rw, ih = t % 180 ? rw : rh;
+    const x = t === 90 || t === 180 ? rx + rw : rx, y = t === 180 || t === 270 ? ry + rh : ry;
+    pg.drawImage(emb, { x, y, width: iw, height: ih, rotate: degrees(t) });
+  }
+}
+
 // ---------- תמונות ממוזערות ----------
-async function renderPageCanvas(p, maxPx, dpi) {
+async function renderPageCanvas(p, maxPx, dpi, opts = {}) {
   const cv = document.createElement('canvas');
   const ctx = cv.getContext('2d');
   if (p.kind === 'pdf') {
@@ -782,7 +1003,7 @@ async function renderPageCanvas(p, maxPx, dpi) {
     ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, cv.width, cv.height);
     await pg.render({ canvasContext: ctx, viewport: vp }).promise;
     pg.cleanup();
-    p.aspect = vp.width / vp.height;
+    p.aspect = v1.width / v1.height; p.aspectKnown = true;
   } else if (p.kind === 'image') {
     const L = imageLayout(p.src.img.w, p.src.img.h);
     const k = dpi ? dpi / 72 : maxPx / Math.max(L.pw, L.ph);
@@ -797,13 +1018,15 @@ async function renderPageCanvas(p, maxPx, dpi) {
     ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, cv.width, cv.height);
     p.aspect = A4[0] / A4[1];
   }
+  if (opts.marks !== false) drawMarks(ctx, p, cv.width, cv.height);
   return cv;
 }
 
 const thumbQueue = [];
 let thumbActive = 0;
 function queueThumb(p) {
-  if (p.thumb || p.thumbQueued) return;
+  // thumbStale: הסימנים בעמוד השתנו. התמונה הישנה נשארת מוצגת עד שהחדשה מוכנה
+  if ((p.thumb && !p.thumbStale) || p.thumbQueued) return;
   p.thumbQueued = true; thumbQueue.push(p); pumpThumbs();
 }
 function pumpThumbs() {
@@ -811,19 +1034,20 @@ function pumpThumbs() {
     const p = thumbQueue.shift();
     thumbActive++;
     (async () => {
-      const mode = state.imgMode;
+      const mode = state.imgMode, gen = p.ovGen || 0;
       let again = false;
       try {
+        p.thumbStale = false;
         const cv = await renderPageCanvas(p, THUMB_PX);
         const blob = await canvasBlob(cv, 'image/jpeg', 0.85);
-        // אם מצב התמונות השתנה בזמן הציור, התוצאה כבר לא נכונה
-        if (p.kind === 'image' && mode !== state.imgMode) again = true;
-        else p.thumb = URL.createObjectURL(blob);
+        // אם מצב התמונות או הסימנים השתנו בזמן הציור, התוצאה כבר לא נכונה
+        if ((p.kind === 'image' && mode !== state.imgMode) || (p.ovGen || 0) !== gen) again = true;
+        else { if (p.thumb) URL.revokeObjectURL(p.thumb); p.thumb = URL.createObjectURL(blob); }
       } catch (e) { console.error(e); p.thumbErr = true; }
       finally {
         p.thumbQueued = false; thumbActive--;
         const el = cardById.get(p.id); if (el) paintCard(el, p);
-        if (again) queueThumb(p);
+        if (again) { p.thumbStale = true; queueThumb(p); }
         pumpThumbs();
       }
     })();
@@ -851,6 +1075,7 @@ function makeCard(p) {
       <button data-act="ccw" tabindex="-1" title="סיבוב נגד כיוון השעון">${ICON.ccw}</button>
       <button data-act="cw" tabindex="-1" title="סיבוב עם כיוון השעון">${ICON.cw}</button>
       <button data-act="zoom" tabindex="-1" title="הגדלה">${ICON.zoom}</button>
+      <button data-act="sign" tabindex="-1" title="חתימה או חותמת על העמוד">${ICON.pen}</button>
       <button data-act="del" tabindex="-1" class="del" title="מחיקה">${ICON.trash}</button>
     </div>
     <div class="cap"><span class="fn"></span><span class="pn"></span></div>`;
@@ -881,6 +1106,9 @@ function paintCard(el, p) {
   let rb = el.querySelector('.rotbadge');
   if (p.rot) { if (!rb) { rb = document.createElement('span'); rb.className = 'rotbadge'; el.appendChild(rb); } rb.textContent = `סובב ${p.rot}°`; }
   else if (rb) rb.remove();
+  let mb = el.querySelector('.mkbadge'); const nm = (p.ov || []).length;
+  if (nm) { if (!mb) { mb = document.createElement('span'); mb.className = 'mkbadge'; el.appendChild(mb); } mb.textContent = nm === 1 ? 'סימן 1' : `${nm} סימנים`; mb.title = 'חתימות וחותמות על העמוד'; }
+  else if (mb) mb.remove();
 }
 
 let thumbW = 150;
@@ -962,14 +1190,19 @@ function updateBar() {
 // ---------- ביטול ----------
 function pushUndo() {
   state.dirty = true;
-  state.undo.push({ order: state.pages.map(p => p.id), rots: state.pages.map(p => p.rot), sources: state.sources.slice() });
+  // הסימנים נשמרים כמערך חדש בכל שינוי, ולכן מספיק לשמור את ההפניה למערך
+  state.undo.push({ order: state.pages.map(p => p.id), rots: state.pages.map(p => p.rot), ovs: state.pages.map(p => p.ov || null), sources: state.sources.slice() });
   if (state.undo.length > 80) state.undo.shift();
 }
 function undo() {
   const s = state.undo.pop();
   if (!s) return;
   state.pages = s.order.map(id => pageById.get(id));
-  state.pages.forEach((p, i) => p.rot = s.rots[i]);
+  state.pages.forEach((p, i) => {
+    p.rot = s.rots[i];
+    const ov = s.ovs ? s.ovs[i] : p.ov;
+    if ((ov || null) !== (p.ov || null)) { p.ov = ov; marksChanged(p); }
+  });
   state.sources = s.sources;
   state.dirty = state.pages.length > 0;
   render();
@@ -1162,7 +1395,7 @@ $('#grid').addEventListener('click', e => {
   if (act === 'cw') return rotate([id], 90);
   if (act === 'ccw') return rotate([id], -90);
   if (act === 'del') return deletePages([id]);
-  if (act === 'zoom') return openPreview(id);
+  if (act === 'zoom' || act === 'sign') return openPreview(id);
   const idx = state.pages.findIndex(p => p.id === id);
   if (e.shiftKey && state.anchor) {
     const a = state.pages.findIndex(p => p.id === state.anchor);
@@ -1394,7 +1627,7 @@ async function buildPdf(list, title, onProgress, opts = {}) {
     ps.forEach((p, i) => copied.set(p.id, cps[i]));
     await tick();
   }
-  const imgCache = new Map();
+  const imgCache = new Map(), markCache = new Map();
   const total = list.length + (num ? (num.start || 1) - 1 : 0);
   for (let i = 0; i < list.length; i++) {
     const p = list[i];
@@ -1402,22 +1635,26 @@ async function buildPdf(list, title, onProgress, opts = {}) {
     let pg;
     if (copied.has(p.id)) {
       pg = copied.get(p.id);
-      pg.setRotation(degrees(norm(pg.getRotation().angle + p.rot)));
+      const R0 = pg.getRotation().angle, box = pg.getCropBox();      // לפני שמוסיפים את p.rot
+      pg.setRotation(degrees(norm(R0 + p.rot)));
       out.addPage(pg);
+      await stampMarks(out, pg, p, R0, box, markCache);
     } else if (p.kind === 'pdf') {
       const r = shrink ? await rasterPage(p.src, p.index, shrink.dpi, shrink.q) : await rasterPage(p.src, p.index);
       const emb = await out.embedJpg(r.bytes);
       pg = out.addPage([r.w, r.h]);
       pg.drawImage(emb, { x: 0, y: 0, width: r.w, height: r.h });
+      await stampMarks(out, pg, p, 0, { x: 0, y: 0, width: r.w, height: r.h }, markCache);
       if (p.rot) pg.setRotation(degrees(p.rot));
     } else if (p.kind === 'image' && shrink) {
       const L = imageLayout(p.src.img.w, p.src.img.h);
-      const cv = await renderPageCanvas(p, 0, shrink.dpi);
+      const cv = await renderPageCanvas(p, 0, shrink.dpi, { marks: false });
       const blob = await canvasBlob(cv, 'image/jpeg', shrink.q);
       cv.width = cv.height = 0;
       const emb = await out.embedJpg(new Uint8Array(await blob.arrayBuffer()));
       pg = out.addPage([L.pw, L.ph]);
       pg.drawImage(emb, { x: 0, y: 0, width: L.pw, height: L.ph });
+      await stampMarks(out, pg, p, 0, { x: 0, y: 0, width: L.pw, height: L.ph }, markCache);
       if (p.rot) pg.setRotation(degrees(p.rot));
     } else if (p.kind === 'image') {
       const im = p.src.img;
@@ -1426,9 +1663,11 @@ async function buildPdf(list, title, onProgress, opts = {}) {
       const L = imageLayout(im.w, im.h);
       pg = out.addPage([L.pw, L.ph]);
       pg.drawImage(emb, { x: L.x, y: L.y, width: L.dw, height: L.dh });
+      await stampMarks(out, pg, p, 0, { x: 0, y: 0, width: L.pw, height: L.ph }, markCache);
       if (p.rot) pg.setRotation(degrees(p.rot));
     } else {
       pg = out.addPage(A4);
+      await stampMarks(out, pg, p, 0, { x: 0, y: 0, width: A4[0], height: A4[1] }, markCache);
       if (p.rot) pg.setRotation(degrees(p.rot));
     }
     if (num) stampNumber(pg, (num.start || 1) + i, total, font, num);
@@ -1696,9 +1935,12 @@ async function numberDialog() {
   toast(state.numbering ? 'מספור העמודים פעיל. המספרים ייכתבו בקובץ שנשמר, מודפס או מפוצל.' : 'מספור העמודים כבוי.', 'info', { ms: 5000 });
 }
 
-// ---------- תצוגה מוגדלת ----------
-let pvId = null, pvToken = 0;
+// ---------- תצוגה מוגדלת, וגם המקום שבו מניחים חתימה וחותמת ----------
+// העמוד מצויר במסגרת הבסיס בתוך עטיפה אחת שמסתובבת לפי p.rot. הסימנים יושבים באותה עטיפה, באחוזים, ולכן רק תזוזת
+// העכבר צריכה המרה (היפוך הסיבוב)
+let pvId = null, pvToken = 0, pvSel = null, pvGeom = null;
 async function openPreview(id) {
+  if (pvId !== id) pvSel = null;
   pvId = id;
   const d = $('#dlgPreview');
   if (!d.open) d.showModal();
@@ -1713,17 +1955,355 @@ async function paintPreview() {
   const pv = $('#pv');
   const tok = ++pvToken;
   const W = pv.clientWidth - 40, H = pv.clientHeight - 40;
-  const cv = await renderPageCanvas(p, Math.min(2600, Math.max(W, H) * (devicePixelRatio || 1)));
+  const cv = await renderPageCanvas(p, Math.min(2600, Math.max(W, H) * (devicePixelRatio || 1)), 0, { marks: false });
   if (tok !== pvToken) return;
   const f = fitBox(p.aspect, p.rot, W, H);
-  cv.style.width = f.w + 'px'; cv.style.height = f.h + 'px';
-  cv.style.transform = `translate(-50%,-50%) rotate(${p.rot}deg)`;
-  pv.replaceChildren(cv);
+  const wrap = document.createElement('div');
+  wrap.className = 'pgw';
+  wrap.style.width = f.w + 'px'; wrap.style.height = f.h + 'px';
+  wrap.style.transform = `translate(-50%,-50%) rotate(${p.rot}deg)`;
+  const layer = document.createElement('div');
+  layer.className = 'mklayer';
+  wrap.append(cv, layer);
+  pv.replaceChildren(wrap);
+  pvGeom = { p, f, wrap, layer };
+  paintMarkLayer();
 }
+function paintMarkLayer() {
+  if (!pvGeom) return;
+  const { p, f, layer } = pvGeom;
+  if (!(p.ov || []).some(o => o.id === pvSel)) pvSel = null;
+  layer.replaceChildren();
+  for (const o of p.ov || []) {
+    const m = marks.get(o.mark); if (!m) continue;
+    const el = document.createElement('div');
+    el.className = 'mk' + (o.id === pvSel ? ' sel' : '');
+    el.dataset.oid = o.id;
+    el.style.left = o.x * 100 + '%'; el.style.top = o.y * 100 + '%';
+    el.style.width = o.w * 100 + '%'; el.style.height = o.h * 100 + '%';
+    const odd = o.rq % 180 !== 0;
+    const img = document.createElement('img');
+    img.src = m.url; img.alt = m.name; img.draggable = false;
+    img.style.width = (odd ? o.h * f.h : o.w * f.w) + 'px';
+    img.style.height = (odd ? o.w * f.w : o.h * f.h) + 'px';
+    img.style.transform = `translate(-50%,-50%) rotate(${o.rq}deg)`;
+    el.appendChild(img);
+    if (o.id === pvSel) el.insertAdjacentHTML('beforeend', `<span class="rh" title="גרירה משנה את הגודל"></span><button type="button" class="mdel" title="הסרת הסימן (Delete)">${ICON.x}</button>`);
+    layer.appendChild(el);
+  }
+  const has = !!pvSel;
+  $('#pvMarkBar').hidden = !has;
+  if (has) {
+    const others = state.pages.filter(t => state.selected.has(t.id) && t !== p).length;
+    $('#pvApplySel').disabled = !others;
+    $('#pvApplySel').textContent = others ? `גם בעמודים שנבחרו (${others})` : 'גם בעמודים שנבחרו';
+  }
+}
+// היפוך הסיבוב של העטיפה: תזוזה על המסך אל תזוזה בתוך העמוד
+function unrot(dx, dy, r) { r = norm(r); return r === 0 ? [dx, dy] : r === 90 ? [dy, -dx] : r === 180 ? [-dx, -dy] : [-dy, dx]; }
+let mkDrag = null;
+$('#pv').addEventListener('pointerdown', e => {
+  if (!pvGeom) return;
+  const el = e.target.closest('.mk');
+  if (!el) { if (pvSel) { pvSel = null; paintMarkLayer(); } return; }
+  const p = pvGeom.p, oid = el.dataset.oid;
+  if (e.target.closest('.mdel')) { e.preventDefault(); removeMark(p, oid); pvSel = null; paintMarkLayer(); return; }
+  e.preventDefault();
+  pvSel = oid;
+  // עותק של הסימן לפני השינוי, כדי שביטול יחזיר את המקום הקודם
+  pushUndo();
+  p.ov = p.ov.map(o => o.id === oid ? { ...o } : o);
+  const o = p.ov.find(x => x.id === oid);
+  const r = el.getBoundingClientRect();
+  mkDrag = { o, mode: e.target.closest('.rh') ? 'size' : 'move', sx: e.clientX, sy: e.clientY, start: { ...o }, cx: r.left + r.width / 2, cy: r.top + r.height / 2, moved: false };
+  paintMarkLayer();
+  try { $('#pv').setPointerCapture(e.pointerId); } catch { }
+});
+$('#pv').addEventListener('pointermove', e => {
+  if (!mkDrag || !pvGeom) return;
+  const { o, start } = mkDrag, { p, f } = pvGeom;
+  if (mkDrag.mode === 'move') {
+    const [vx, vy] = unrot(e.clientX - mkDrag.sx, e.clientY - mkDrag.sy, p.rot);
+    o.x = Math.max(0, Math.min(1 - o.w, start.x + vx / f.w));
+    o.y = Math.max(0, Math.min(1 - o.h, start.y + vy / f.h));
+  } else {
+    const d0 = Math.hypot(mkDrag.sx - mkDrag.cx, mkDrag.sy - mkDrag.cy) || 1;
+    let k = Math.hypot(e.clientX - mkDrag.cx, e.clientY - mkDrag.cy) / d0;
+    k = Math.max(0.04 / Math.min(start.w, start.h), Math.min(k, 1 / Math.max(start.w, start.h)));
+    o.w = start.w * k; o.h = start.h * k;
+    o.x = Math.max(0, Math.min(1 - o.w, start.x + (start.w - o.w) / 2));
+    o.y = Math.max(0, Math.min(1 - o.h, start.y + (start.h - o.h) / 2));
+  }
+  mkDrag.moved = true;
+  paintMarkLayer();
+});
+function endMarkDrag() {
+  if (!mkDrag) return;
+  const p = pvGeom && pvGeom.p;
+  if (!mkDrag.moved) state.undo.pop();       // רק בחירה, בלי שינוי: אין מה לבטל
+  else if (p) marksChanged(p);
+  mkDrag = null;
+  updateBar();
+}
+$('#pv').addEventListener('pointerup', endMarkDrag);
+$('#pv').addEventListener('pointercancel', endMarkDrag);
 function pvStep(d) {
   const i = state.pages.findIndex(p => p.id === pvId) + d;
-  if (i >= 0 && i < state.pages.length) { pvId = state.pages[i].id; paintPreview(); }
+  if (i >= 0 && i < state.pages.length) { pvId = state.pages[i].id; pvSel = null; paintPreview(); }
 }
+// הנחת סימן חדש על העמוד שבתצוגה: חתימה בצד שמאל למטה, חותמת בצד ימין למעלה, כמו במסמך עברי
+async function addMarkToPreview(m) {
+  const p = pageById.get(pvId); if (!p) return;
+  await pageAspect(p);
+  const w = m.kind === 'sig' ? 0.28 : 0.32;
+  const o = await placeMark(p, m, m.kind === 'sig' ? { x: 0.08, y: 0.78, w } : { x: 0.92 - w, y: 0.06, w });
+  pvSel = o.id;
+  paintMarkLayer();
+  updateBar();
+  toast('הסימן נוסף. גררו אותו למקום, ומשכו את הפינה כדי לשנות את הגודל.', 'info', { ms: 5000 });
+}
+// ---------- יצירת חתימה וחותמת ----------
+function trimCanvas(cv, pad = 12) {
+  const { data, width: W, height: H } = cv.getContext('2d', { willReadFrequently: true }).getImageData(0, 0, cv.width, cv.height);
+  let x0 = W, y0 = H, x1 = -1, y1 = -1;
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (data[(y * W + x) * 4 + 3] > 12) {
+    if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y;
+  }
+  if (x1 < 0) return null;
+  x0 = Math.max(0, x0 - pad); y0 = Math.max(0, y0 - pad); x1 = Math.min(W - 1, x1 + pad); y1 = Math.min(H - 1, y1 + pad);
+  const out = document.createElement('canvas');
+  out.width = x1 - x0 + 1; out.height = y1 - y0 + 1;
+  out.getContext('2d').drawImage(cv, x0, y0, out.width, out.height, 0, 0, out.width, out.height);
+  return out;
+}
+// תמונה של חתימה או חותמת (סריקה, צילום). הרקע הלבן הופך לשקוף, אחרת הסימן מכסה את הטקסט שמתחתיו
+async function imageToMarkCanvas(file, removeWhite) {
+  const bmp = await createImageBitmap(file);
+  const k = Math.min(1, 1400 / Math.max(bmp.width, bmp.height));
+  const cv = document.createElement('canvas');
+  cv.width = Math.max(1, Math.round(bmp.width * k)); cv.height = Math.max(1, Math.round(bmp.height * k));
+  const ctx = cv.getContext('2d', { willReadFrequently: true });
+  ctx.drawImage(bmp, 0, 0, cv.width, cv.height);
+  bmp.close?.();
+  if (removeWhite) {
+    // בצילום טלפון הנייר אפור ולא אחיד (צד אחד מואר יותר). לכן צבע הנייר מוערך בנפרד בכל אזור: האחוזון ה 90 של הבהירות
+    // בכל משבצת, הרחבה למשבצות השכנות (כדי שמשבצת מלאה בדיו תקבל את צבע הנייר שסביבה), ואינטרפולציה לכל נקודה.
+    // נקודה שקרובה לצבע הנייר המקומי נעשית שקופה, נקודה כהה ממנו בהרבה נשארת, וביניהן מעבר רך
+    const W = cv.width, H = cv.height;
+    const id = ctx.getImageData(0, 0, W, H), d = id.data;
+    const L = new Float32Array(W * H);
+    for (let i = 0, j = 0; j < L.length; i += 4, j++) L[j] = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
+    const B = Math.max(16, Math.round(Math.max(W, H) / 40)), gw = Math.ceil(W / B), gh = Math.ceil(H / B);
+    const grid = new Float32Array(gw * gh), hist = new Uint32Array(256);
+    for (let by = 0; by < gh; by++) for (let bx = 0; bx < gw; bx++) {
+      hist.fill(0); let n = 0;
+      for (let y = by * B; y < Math.min(H, by * B + B); y++) for (let x = bx * B; x < Math.min(W, bx * B + B); x++) { hist[L[y * W + x] | 0]++; n++; }
+      let acc = 0, v = 255;
+      for (let k = 0; k < 256; k++) { acc += hist[k]; if (acc >= n * 0.9) { v = k; break; } }
+      grid[by * gw + bx] = v;
+    }
+    const paper = new Float32Array(gw * gh);
+    for (let by = 0; by < gh; by++) for (let bx = 0; bx < gw; bx++) {
+      let m = 0;
+      for (let yy = Math.max(0, by - 1); yy <= Math.min(gh - 1, by + 1); yy++) for (let xx = Math.max(0, bx - 1); xx <= Math.min(gw - 1, bx + 1); xx++) m = Math.max(m, grid[yy * gw + xx]);
+      paper[by * gw + bx] = Math.max(m, 110);
+    }
+    for (let y = 0; y < H; y++) {
+      const fy = Math.min(gh - 1, Math.max(0, (y + 0.5) / B - 0.5)), y0 = fy | 0, y1 = Math.min(gh - 1, y0 + 1), ty = fy - y0;
+      for (let x = 0; x < W; x++) {
+        const fx = Math.min(gw - 1, Math.max(0, (x + 0.5) / B - 0.5)), x0 = fx | 0, x1 = Math.min(gw - 1, x0 + 1), tx = fx - x0;
+        const top = paper[y0 * gw + x0] * (1 - tx) + paper[y0 * gw + x1] * tx, bot = paper[y1 * gw + x0] * (1 - tx) + paper[y1 * gw + x1] * tx;
+        const diff = top * (1 - ty) + bot * ty - L[y * W + x];
+        const a = diff <= 14 ? 0 : diff >= 70 ? 255 : Math.round((diff - 14) / 56 * 255);
+        const i = (y * W + x) * 4;
+        d[i + 3] = Math.min(d[i + 3], a);
+      }
+    }
+    ctx.putImageData(id, 0, 0);
+  }
+  return trimCanvas(cv, 6) || cv;
+}
+const STAMP_COLORS = { blue: '#1d3fbf', red: '#c0262d', green: '#16753a', black: '#1a1a1a' };
+function renderStamp(o) {
+  const lines = [{ t: o.text, f: 'bold 110px Arial', h: 130 }];
+  if (o.line2) lines.push({ t: o.line2, f: 'bold 60px Arial', h: 76 });
+  if (o.date) lines.push({ t: o.date, f: 'bold 60px Arial', h: 76 });
+  const m = document.createElement('canvas').getContext('2d');
+  let tw = 0;
+  for (const l of lines) { m.font = l.f; tw = Math.max(tw, m.measureText(l.t).width); }
+  const padX = o.frame ? 70 : 20, padY = o.frame ? 50 : 14;
+  const cv = document.createElement('canvas');
+  cv.width = Math.ceil(tw + 2 * padX); cv.height = Math.ceil(lines.reduce((s, l) => s + l.h, 0) + 2 * padY);
+  const c = cv.getContext('2d');
+  const col = STAMP_COLORS[o.color] || STAMP_COLORS.blue;
+  c.strokeStyle = col; c.fillStyle = col;
+  if (o.frame) {
+    c.lineWidth = 12; c.beginPath(); c.roundRect(8, 8, cv.width - 16, cv.height - 16, 26); c.stroke();
+    c.lineWidth = 4; c.beginPath(); c.roundRect(26, 26, cv.width - 52, cv.height - 52, 16); c.stroke();
+  }
+  c.direction = 'rtl'; c.textAlign = 'center'; c.textBaseline = 'middle';
+  let y = padY;
+  for (const l of lines) { c.font = l.f; c.fillText(l.t, cv.width / 2, y + l.h / 2); y += l.h; }
+  return cv;
+}
+
+// חתימות וחותמות שהמשתמש ביקש לזכור נשמרות בדפדפן בלבד, ונמחקות בלחיצה
+function storedMarks() { try { const v = JSON.parse(localStorage.getItem(MARKS_KEY) || '[]'); return Array.isArray(v) ? v : []; } catch { return []; } }
+function saveStored(list) { try { localStorage.setItem(MARKS_KEY, JSON.stringify(list)); return true; } catch { return false; } }
+async function rememberMark(m) {
+  const data = await new Promise(r => { const fr = new FileReader(); fr.onload = () => r(fr.result); fr.readAsDataURL(new Blob([m.bytes], { type: 'image/png' })); });
+  m.storeId = m.storeId || 's' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  const list = storedMarks().filter(x => x.id !== m.storeId);
+  list.unshift({ id: m.storeId, kind: m.kind, name: m.name, data });
+  if (!saveStored(list.slice(0, 12))) { toast('לא ניתן היה לשמור בדפדפן. הסימן זמין עד שסוגרים את הדף.', 'warn'); return; }
+  m.persisted = true;
+}
+function forgetMark(m) {
+  if (m.storeId) saveStored(storedMarks().filter(x => x.id !== m.storeId));
+  m.persisted = false; m.hidden = true;
+}
+async function loadStoredMarks() {
+  for (const x of storedMarks()) {
+    try {
+      if (typeof x.data !== 'string' || !x.data.startsWith('data:image/png;base64,')) continue;
+      const im = new Image(); im.src = x.data; await im.decode();
+      const cv = document.createElement('canvas'); cv.width = im.naturalWidth; cv.height = im.naturalHeight;
+      cv.getContext('2d').drawImage(im, 0, 0);
+      const m = await makeMark(cv, x.kind === 'stamp' ? 'stamp' : 'sig', String(x.name || ''), true);
+      m.storeId = x.id;
+    } catch (e) { console.warn('סימן שמור לא נטען', e); }
+  }
+}
+function setTab(d, name) {
+  d.querySelectorAll('.tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === name));
+  d.querySelectorAll('[data-pane]').forEach(p => p.hidden = p.dataset.pane !== name);
+  d.dataset.tab = name;
+}
+function paintSaved(kind, box, d) {
+  const list = [...marks.values()].filter(m => m.kind === kind && !m.hidden);
+  box.replaceChildren();
+  box.hidden = !list.length;
+  if (!list.length) return;
+  const t = document.createElement('div'); t.className = 'note'; t.textContent = kind === 'sig' ? 'חתימות קודמות, לחיצה מוסיפה לעמוד:' : 'חותמות קודמות, לחיצה מוסיפה לעמוד:';
+  box.appendChild(t);
+  for (const m of list) {
+    const it = document.createElement('div'); it.className = 'sv';
+    it.innerHTML = `<button type="button" class="use" title="הוספה לעמוד"><img alt=""></button><button type="button" class="rm"></button>`;
+    it.querySelector('img').src = m.url;
+    const rm = it.querySelector('.rm');
+    rm.innerHTML = ICON.x;
+    rm.title = m.persisted ? 'מחיקה מהדפדפן' : 'הסרה מהרשימה';
+    it.querySelector('.use').onclick = () => { d.dataset.use = m.id; d.close('use'); };
+    rm.onclick = () => { forgetMark(m); paintSaved(kind, box, d); };
+    box.appendChild(it);
+  }
+}
+// משטח הציור של החתימה
+const sigPad = { cv: null, ink: false, drawing: false, last: null, mid: null };
+function padPoint(e) { const r = sigPad.cv.getBoundingClientRect(); return [(e.clientX - r.left) * sigPad.cv.width / r.width, (e.clientY - r.top) * sigPad.cv.height / r.height]; }
+function padCtx() { const c = sigPad.cv.getContext('2d'); c.lineCap = 'round'; c.lineJoin = 'round'; c.strokeStyle = c.fillStyle = $('#sigColor').value; c.lineWidth = +$('#sigWidth').value; return c; }
+function clearPad() { sigPad.cv.getContext('2d').clearRect(0, 0, sigPad.cv.width, sigPad.cv.height); sigPad.ink = false; }
+sigPad.cv = $('#sigPad');
+sigPad.cv.addEventListener('pointerdown', e => {
+  e.preventDefault(); sigPad.cv.setPointerCapture(e.pointerId);
+  sigPad.drawing = true; sigPad.last = sigPad.mid = padPoint(e);
+  const c = padCtx(); c.beginPath(); c.arc(sigPad.last[0], sigPad.last[1], c.lineWidth / 2, 0, 2 * Math.PI); c.fill();
+  sigPad.ink = true; $('#sigErr').textContent = '';
+});
+sigPad.cv.addEventListener('pointermove', e => {
+  if (!sigPad.drawing) return;
+  const pt = padPoint(e), last = sigPad.last, mid = [(last[0] + pt[0]) / 2, (last[1] + pt[1]) / 2];
+  const c = padCtx(); c.beginPath(); c.moveTo(sigPad.mid[0], sigPad.mid[1]); c.quadraticCurveTo(last[0], last[1], mid[0], mid[1]); c.stroke();
+  sigPad.last = pt; sigPad.mid = mid;
+});
+['pointerup', 'pointercancel'].forEach(t => sigPad.cv.addEventListener(t, () => { sigPad.drawing = false; }));
+let sigUpload = null, stampUpload = null;
+function showCanvasIn(box, cv) { box.replaceChildren(); if (cv) { const c = document.createElement('canvas'); c.width = cv.width; c.height = cv.height; c.getContext('2d').drawImage(cv, 0, 0); box.appendChild(c); } }
+async function readMarkUpload(input, white, box, err) {
+  const f = input.files[0]; if (!f) return null;
+  try { const cv = await imageToMarkCanvas(f, white); showCanvasIn(box, cv); err.textContent = ''; return cv; }
+  catch { showCanvasIn(box, null); err.textContent = 'הדפדפן לא מצליח לקרוא את התמונה. נסו קובץ JPG או PNG.'; return null; }
+}
+async function sigDialog() {
+  const d = $('#dlgSig');
+  clearPad(); sigUpload = null; $('#sigFile').value = ''; showCanvasIn($('#sigImgPrev'), null);
+  $('#sigErr').textContent = ''; $('#sigRemember').checked = false; delete d.dataset.use;
+  setTab(d, 'draw');
+  paintSaved('sig', $('#sigSaved'), d);
+  d.querySelector('button[value=ok]').onclick = e => {
+    const err = d.dataset.tab === 'draw' ? (sigPad.ink ? '' : 'עוד לא צוירה חתימה.') : (sigUpload ? '' : 'עוד לא נבחרה תמונה.');
+    if (err) { e.preventDefault(); $('#sigErr').textContent = err; }
+  };
+  d.returnValue = '';
+  d.showModal();
+  await new Promise(r => d.onclose = r);
+  let m = null;
+  if (d.returnValue === 'use') m = marks.get(d.dataset.use);
+  else if (d.returnValue === 'ok') {
+    const cv = d.dataset.tab === 'draw' ? trimCanvas(sigPad.cv, 10) : sigUpload;
+    if (cv) { m = await makeMark(cv, 'sig', 'חתימה'); if ($('#sigRemember').checked) await rememberMark(m); }
+  }
+  if (m) await addMarkToPreview(m);
+}
+function stampOptions() {
+  const sel = $('#stText').value;
+  return { text: (sel || $('#stCustom').value).trim(), line2: $('#stLine2').value.trim(), date: $('#stDate').checked ? $('#stDateVal').value.trim() : '', color: $('#stColor').value, frame: $('#stFrame').checked };
+}
+function paintStampPreview() {
+  $('#stCustom').hidden = $('#stText').value !== '';
+  $('#stDateVal').disabled = !$('#stDate').checked;
+  const o = stampOptions();
+  showCanvasIn($('#stPrev'), o.text ? renderStamp(o) : null);
+}
+async function stampDialog() {
+  const d = $('#dlgStamp');
+  stampUpload = null; $('#stFile').value = ''; showCanvasIn($('#stImgPrev'), null);
+  $('#stErr').textContent = ''; $('#stRemember').checked = false; delete d.dataset.use;
+  if (!$('#stDateVal').value) $('#stDateVal').value = today();
+  setTab(d, 'text');
+  paintStampPreview();
+  paintSaved('stamp', $('#stSaved'), d);
+  d.querySelector('button[value=ok]').onclick = e => {
+    const err = d.dataset.tab === 'text' ? (stampOptions().text ? '' : 'לא נכתב נוסח לחותמת.') : (stampUpload ? '' : 'עוד לא נבחרה תמונה.');
+    if (err) { e.preventDefault(); $('#stErr').textContent = err; }
+  };
+  d.returnValue = '';
+  d.showModal();
+  await new Promise(r => d.onclose = r);
+  let m = null;
+  if (d.returnValue === 'use') m = marks.get(d.dataset.use);
+  else if (d.returnValue === 'ok') {
+    const o = stampOptions();
+    const cv = d.dataset.tab === 'text' ? renderStamp(o) : stampUpload;
+    if (cv) { m = await makeMark(cv, 'stamp', d.dataset.tab === 'text' ? o.text : 'חותמת'); if ($('#stRemember').checked) await rememberMark(m); }
+  }
+  if (m) await addMarkToPreview(m);
+}
+for (const d of [$('#dlgSig'), $('#dlgStamp')]) d.querySelectorAll('.tabs button').forEach(b => b.onclick = () => setTab(d, b.dataset.tab));
+$('#sigClear').onclick = clearPad;
+$('#sigFile').onchange = async () => { sigUpload = await readMarkUpload($('#sigFile'), $('#sigWhite').checked, $('#sigImgPrev'), $('#sigErr')); };
+$('#sigWhite').onchange = () => $('#sigFile').onchange();
+$('#stFile').onchange = async () => { stampUpload = await readMarkUpload($('#stFile'), $('#stWhite').checked, $('#stImgPrev'), $('#stErr')); };
+$('#stWhite').onchange = () => $('#stFile').onchange();
+$('#dlgStamp').addEventListener('input', e => { if (e.target.closest('[data-pane="text"]')) paintStampPreview(); });
+$('#pvSig').onclick = sigDialog;
+$('#pvStamp').onclick = stampDialog;
+$('#pvMarkDel').onclick = () => { if (pvSel) { removeMark(pageById.get(pvId), pvSel); pvSel = null; paintMarkLayer(); updateBar(); } };
+async function applyMark(all) {
+  const p = pageById.get(pvId), o = (p?.ov || []).find(x => x.id === pvSel);
+  if (!o) return;
+  const n = await copyMarkTo(p, o, all ? state.pages : selectedPages());
+  updateBar();
+  if (n) toast(n === 1 ? 'הסימן הועתק לעמוד נוסף.' : `הסימן הועתק ל ${n} עמודים נוספים.`, 'ok');
+}
+$('#pvApplySel').onclick = () => applyMark(false);
+$('#pvApplyAll').onclick = () => applyMark(true);
+$('#bSign').onclick = () => {
+  const id = state.focus && state.pages.some(p => p.id === state.focus) ? state.focus : (selectedPages()[0] || state.pages[0])?.id;
+  if (id) openPreview(id);
+};
+loadStoredMarks();
+
 $('#pvPrev').onclick = () => pvStep(-1);
 $('#pvNext').onclick = () => pvStep(1);
 $('#pvRotL').onclick = () => { rotate([pvId], -90); paintPreview(); };
@@ -1770,7 +2350,7 @@ $('#zoom').oninput = e => {
 $('#imgMode').onchange = e => {
   state.imgMode = e.target.value;
   const imgs = [...pageById.values()].filter(p => p.kind === 'image');
-  for (const p of imgs) { p.thumb = null; p.aspect = imageLayout(p.src.img.w, p.src.img.h).aspect; }
+  for (const p of imgs) { p.thumb = null; p.aspect = imageLayout(p.src.img.w, p.src.img.h).aspect; refitMarks(p); }
   render();
   for (const p of imgs) queueThumb(p);
   try { localStorage.setItem('pdfmerge.imgMode', state.imgMode); } catch { }
@@ -1781,6 +2361,7 @@ document.addEventListener('keydown', e => {
   if (e.target.matches('input,select,textarea')) return;
   const ctrl = e.ctrlKey || e.metaKey;
   const pv = $('#dlgPreview').open;
+  if (pv && pvSel && (e.key === 'Delete' || e.key === 'Backspace')) { e.preventDefault(); $('#pvMarkDel').click(); return; }
   if (pv && (e.key === 'ArrowRight' || e.key === 'ArrowLeft')) { e.preventDefault(); pvStep(e.key === 'ArrowLeft' ? 1 : -1); return; }
   if (ctrl && e.key.toLowerCase() === 'z') { e.preventDefault(); undo(); if (pv) paintPreview(); }
   else if (ctrl && e.key.toLowerCase() === 'a' && !pv) { e.preventDefault(); $('#bSelAll').click(); }
@@ -1799,7 +2380,7 @@ $('#ver').textContent = VERSION;
 updateBar();
 
 // ממשק לבדיקות אוטומטיות
-window.__tool = { state, addFiles, buildPdf, movePages, rotate, deletePages, insertBlank, undo, moveSource, render, renderSel, engine, pageById, cardById, imageLayout, parseRanges, splitPlan, partName, selPositions, setSelection, moveStep, reverseOrder, splitDialog, selectDialog, pageImage, exportImages, exportDialog, loadXLib, xtest, decryptToPlain, protectPdf, protectDialog, shrinkDialog, numberDialog, saveList, SHRINK, setImgMode: m => { $('#imgMode').value = m; $('#imgMode').onchange({ target: $('#imgMode') }); } };
+window.__tool = { marks, makeMark, placeMark, copyMarkTo, removeMark, markPlacement, rotFrac, rotRect, renderStamp, imageToMarkCanvas, trimCanvas, sigDialog, stampDialog, openPreview, paintMarkLayer, rememberMark, forgetMark, storedMarks, loadStoredMarks, renderPageCanvas, pageAspect, state, addFiles, buildPdf, movePages, rotate, deletePages, insertBlank, undo, moveSource, render, renderSel, engine, pageById, cardById, imageLayout, parseRanges, splitPlan, partName, selPositions, setSelection, moveStep, reverseOrder, splitDialog, selectDialog, pageImage, exportImages, exportDialog, loadXLib, xtest, decryptToPlain, protectPdf, protectDialog, shrinkDialog, numberDialog, saveList, SHRINK, setImgMode: m => { $('#imgMode').value = m; $('#imgMode').onchange({ target: $('#imgMode') }); } };
 </script>
 </body>
 </html>
